@@ -3,5 +3,6 @@
 
 # include <iomanip>
 # include <iostream>
+# include <cstring>
 
 #endif
