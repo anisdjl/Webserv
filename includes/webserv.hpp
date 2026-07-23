@@ -19,4 +19,9 @@
 # include <sys/wait.h> // waitpid
 # include <sys/stat.h> // pour stat
 # include <map>
+# include <iomanip>
+# include <fstream>
+
+# include "parsing.hpp"
+
 #endif

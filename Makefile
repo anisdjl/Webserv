@@ -1,7 +1,9 @@
 CXX = c++
 CXXFLAGS = -Wall -Werror -Wextra -std=c++98
 NAME = webserv
-SRC = main.cpp
+SRC = main.cpp \
+	  srcs/parsing/config_parsing.cpp \
+	  srcs/parsing/Config.cpp
 	  
 OBJ = $(SRC:.cpp=.o)
 

@@ -3,6 +3,12 @@
 
 # include "webserv.hpp"
 
+enum STATE {
+	SERVER_SECTION,
+	LOCATION_SECTION,
+	MAIN_SECTION
+};
+
 class Request
 {
 	private:
@@ -10,7 +16,7 @@ class Request
 		std::map<std::string, std::string>	_header;
 		std::string							_body;
 		long								_content_length;
-	
+
 	public:
 		Request(void);
 		Request(const Request &src);
@@ -22,7 +28,7 @@ class Request
 class Config
 {
 	private:
-
+		STATE								_state;
 
 	public:
 		Config(void);
@@ -30,5 +36,7 @@ class Config
 		Config	&operator=(const Config &src);
 		~Config(void);
 };
+
+void	parse_config(std::string filename);
 
 #endif
