@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 		if (argc == 2)
 			parse_config(argv[1]);
 		else
-			parse_config("./default_config.conf");
+			parse_config("default_config.conf");
 	}
 	catch (std::exception &e)
 	{
