@@ -21,6 +21,8 @@
 # include <map>
 # include <iomanip>
 # include <fstream>
+# include <sstream>
+#include <vector>
 
 # include "parsing.hpp"
 

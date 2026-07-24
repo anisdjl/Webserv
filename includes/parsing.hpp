@@ -35,8 +35,8 @@ class Config
 		Config(const Config &src);
 		Config	&operator=(const Config &src);
 		~Config(void);
-};
-
+	};
+	
 void	parse_config(std::string filename);
 
 #endif
