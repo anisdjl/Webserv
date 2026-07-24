@@ -7,6 +7,11 @@ void	parse_config(std::string filename)
 	std::ifstream	file(filename.c_str());
 	std::string		line;
 
-	while (getline(file, line))
-		std::cout << line << std::endl;
+	if (!file.is_open())
+		throw std::runtime_error("Error: could not open the configuration file");
+
+	Config *config = new Config();
+
+	config->_state = MAIN_SECTION;
+	file.close();
 }
