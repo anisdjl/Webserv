@@ -30,16 +30,18 @@ class Request
 class Config
 {
 	private:
-		//STATE								_state;
+		STATE								_state;
 
 	public:
 		Config(void);
 		Config(const Config &src);
 		Config	&operator=(const Config &src);
 		~Config(void);
-	};
+		void	setState(STATE state);
+};
 	
-std::vector<std::string>	*parse_config(std::string filename);
+std::vector<std::string>	*lexe_config(std::string filename);
 void						lexer(std::string filename);
+void						fsm(Config *config);
 
 #endif

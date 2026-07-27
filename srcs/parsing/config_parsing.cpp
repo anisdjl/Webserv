@@ -1,12 +1,30 @@
 #include "../../includes/parsing.hpp"
 
-// on va faire le parsing pour permettre par la suite l'acces facile a certaine info du serveur comme la ou on doit chercher les fichiers etc 
+static void	space(std::string &line)
+{
+	std::string	copy;
+	for (size_t i = 0; i < line.length(); i++)
+	{
+		if (line[i] == ';' || line[i] == '{' || line[i] == '}')
+		{
+			copy += ' ';
+			copy += line[i];
+			copy += ' ';
+		}
+		else
+		{
+			copy += line[i];
+		}
+	}
+	line.clear();
+	line = copy;
+}
 
 static void	check_tokens(std::string &line)
 {
 	unsigned long	pos = line.find('#');
 	if (pos != std::string::npos)
-		line.erase(pos, line.length() - pos);
+		line.erase(pos, line.length());
 	return ;
 }
 
@@ -15,7 +33,7 @@ static bool	empty_line(std::string &line)
 	return (line.find_first_not_of(" \t") == std::string::npos);
 }
 
-std::vector<std::string>	*parse_config(std::string filename)
+std::vector<std::string>	*lexe_config(std::string filename)
 {
 	std::ifstream				file(filename.c_str());
 	std::string					line;
@@ -26,8 +44,9 @@ std::vector<std::string>	*parse_config(std::string filename)
 	std::string token;
 	while (getline(file, line))
 	{
+		space(line);
+		check_tokens(line);
 		std::stringstream ss(line);
-		check_tokens(line);		
 		if (empty_line(line) == false)
 		{
 			while (ss >> token)
@@ -41,11 +60,15 @@ std::vector<std::string>	*parse_config(std::string filename)
 void	lexer(std::string filename)
 {
 	std::vector<std::string>	*tokens;
+	Config						*config = new Config();
 
-	tokens = parse_config(filename);
+	tokens = lexe_config(filename);
 	for (std::vector<std::string>::iterator it = (*tokens).begin(); it < (*tokens).end(); ++it)
 		std::cout << *it << std::endl;
+	fsm(config);
 }
 
-// je recupere tout le flux, je garde tout les mots dans un vecteur, comme ca je n'aurais plus les espaces
-// une fois le vecteur recuperer je peux faire ma machine a etat
+void	fsm(Config *config)
+{
+	config->setState(MAIN_SECTION);
+}

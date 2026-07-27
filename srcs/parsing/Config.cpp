@@ -24,3 +24,8 @@ Config::~Config(void)
 {
 	// vide pour le moment mais on va free apres
 }
+
+void	Config::setState(STATE state)
+{
+	_state = state;
+}
