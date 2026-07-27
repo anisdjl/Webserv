@@ -11,9 +11,9 @@ int main(int argc, char **argv)
 	try
 	{
 		if (argc == 2)
-			parse_config(argv[1]);
+			lexer(argv[1]);
 		else
-			parse_config("default_config.conf");
+			lexer("default_config.conf");
 	}
 	catch (std::exception &e)
 	{

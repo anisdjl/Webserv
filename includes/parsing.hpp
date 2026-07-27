@@ -11,6 +11,8 @@ enum STATE {
 
 class Request
 {
+	// un etat is_complete pour savoir si la requete est complete ou pas
+
 	private:
 		std::string							_start_line;
 		std::map<std::string, std::string>	_header;
@@ -28,7 +30,7 @@ class Request
 class Config
 {
 	private:
-		STATE								_state;
+		//STATE								_state;
 
 	public:
 		Config(void);
@@ -37,6 +39,7 @@ class Config
 		~Config(void);
 	};
 	
-void	parse_config(std::string filename);
+std::vector<std::string>	*parse_config(std::string filename);
+void						lexer(std::string filename);
 
 #endif
