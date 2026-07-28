@@ -65,10 +65,10 @@ void	lexer(std::string filename)
 	tokens = lexe_config(filename);
 	for (std::vector<std::string>::iterator it = (*tokens).begin(); it < (*tokens).end(); ++it)
 		std::cout << *it << std::endl;
-	fsm(config);
+	fsm(config, tokens);
 }
 
-void	fsm(Config *config)
+void	fsm(Config *config, std::vector<std::string> *tokens)
 {
 	config->setState(MAIN_SECTION);
 }

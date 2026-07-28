@@ -39,9 +39,21 @@ class Config
 		~Config(void);
 		void	setState(STATE state);
 };
+
+class LocationConfig
+{
+	private:
+		
+
+	public:
+		LocationConfig(void);
+		LocationConfig(const LocationConfig &src);
+		~LocationConfig(void);
+		LocationConfig	&operator=(const LocationConfig &src);
+};
 	
 std::vector<std::string>	*lexe_config(std::string filename);
 void						lexer(std::string filename);
-void						fsm(Config *config);
+void						fsm(Config *config, std::vector<std::string> *tokens);
 
 #endif
