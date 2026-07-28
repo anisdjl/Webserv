@@ -1,7 +1,9 @@
 CXX = c++
 CXXFLAGS = -std=c++98
 NAME = webserv
-SRC = main.cpp
+SRC = main.cpp \
+	  srcs/http/HttpRequest.cpp \
+	  srcs/http/HttpResponse.cpp
 	  
 OBJ = $(SRC:.cpp=.o)
 

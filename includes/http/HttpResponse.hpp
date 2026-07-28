@@ -2,20 +2,25 @@
 #define HTTPRESPONSE
 
 #include <iostream>
-#include "HttpRequest.hpp"
 #include <map>
+#include "HttpRequest.hpp"
+#include "../config/Config.hpp"
 
 class HttpResponse
 {
     public:
 		HttpResponse();
         ~HttpResponse();
-        void								buildResponse(HttpRequest& request /*, ServerConf conf*/);
+        void								buildResponse(HttpRequest& request, Config &conf);
 	private:
         int									_status_code;
         std::string							_status_message;
         std::map<std::string, std::string>	_headers;
         std::string							_body;
+        void                                _buildGetResponse();
+        void                                _buildPostResponse();
+        void                                _buildDeleteResponse();
+        void                                _buildErrorResponse();
 };
 
 /*
