@@ -12,9 +12,7 @@ static void	space(std::string &line)
 			copy += ' ';
 		}
 		else
-		{
 			copy += line[i];
-		}
 	}
 	line.clear();
 	line = copy;
@@ -63,12 +61,19 @@ void	lexer(std::string filename)
 	Config						*config = new Config();
 
 	tokens = lexe_config(filename);
-	for (std::vector<std::string>::iterator it = (*tokens).begin(); it < (*tokens).end(); ++it)
-		std::cout << *it << std::endl;
 	fsm(config, tokens);
 }
 
 void	fsm(Config *config, std::vector<std::string> *tokens)
 {
 	config->setState(MAIN_SECTION);
+
+	for (std::vector<std::string>::iterator it = (*tokens).begin(); it < (*tokens).end(); ++it)
+	{
+		if (*it != "server")
+			throw std::runtime_error ("Error: wrong configuration file format");
+		config->setState(SERVER_SECTION);
+	}
+	// delete tokens;
+	// delete config; just for the test
 }
