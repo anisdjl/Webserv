@@ -17,10 +17,11 @@ class HttpResponse
         std::string							_status_message;
         std::map<std::string, std::string>	_headers;
         std::string							_body;
-        void                                _buildGetResponse();
-        void                                _buildPostResponse();
-        void                                _buildDeleteResponse();
-        void                                _buildErrorResponse();
+        t_location                          _matchLocation(std::string path);
+        void                                _buildGetResponse(HttpRequest& req, Config &conf, t_location *location);
+        void                                _buildPostResponse(HttpRequest& req, Config &conf, t_location *location);
+        void                                _buildDeleteResponse(HttpRequest& req, Config &conf, t_location *location);
+        void                                _buildErrorResponse(int error_code, Config &conf, t_location *location);
 };
 
 /*
