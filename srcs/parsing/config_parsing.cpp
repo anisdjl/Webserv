@@ -64,16 +64,35 @@ void	lexer(std::string filename)
 	fsm(config, tokens);
 }
 
+void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *srevconf)
+{
+	while ((*tokens)[*index] != "}") { // on check le } pcq celui de la location sera mange dans location
+
+	}
+}
+
+void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *srevconf)
+{
+
+}
+
 void	fsm(Config *config, std::vector<std::string> *tokens)
 {
 	config->setState(MAIN_SECTION);
 
-	for (std::vector<std::string>::iterator it = (*tokens).begin(); it < (*tokens).end(); ++it)
+	ServerConfig					*serverconf = new ServerConfig;
+	LocationConfig					*locationconf = new LocationConfig;
+
+	size_t	index = 0;
+	while (index < tokens->size())
 	{
-		if (*it != "server")
+		if ((*tokens)[index] != "server")
 			throw std::runtime_error ("Error: wrong configuration file format");
-		config->setState(SERVER_SECTION);
+		parse_server(config, tokens, &index, locationconf, serverconf);
 	}
 	// delete tokens;
 	// delete config; just for the test
 }
+
+// je dois trouver un moyen de checker si les {} sont bien ferme ou pas si le premier server a ete ferme ou pas
+// donc je pense qu'il faut calculer combien on ete ouvert et fermer depuis avec un compteur genre ouver ++ et fermee -- et si c'est a 0 c'est que c'est bon 
