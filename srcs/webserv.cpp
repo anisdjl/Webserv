@@ -5,7 +5,7 @@ bool ft_webserv(Config *config)
 	std::vector<int> listeners(config->listen.size());
 	std::vector<struct pollfd> fds;
 	struct pollfd temp;
-	int i = 0;
+	int i = 0; 
 
 	while(i < config->listen.size())
 	{

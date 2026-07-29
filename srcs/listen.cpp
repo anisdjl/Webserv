@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   listener.cpp                                       :+:      :+:    :+:   */
+/*   listen.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/28 10:50:42 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/07/28 17:59:08 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/07/29 10:26:48 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,14 @@ bool ft_open_socket(struct addrinfo *info, int &socketfd)
 	struct addrinfo *temp;
 	
 	temp = info;
-	while(temp != NULL)
+	while(temp)
 	{
 		socketfd = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
 		if (socketfd == -1)
+		{
+			temp = temp->ai_next;
 			continue ;
+		}
 		if (bind(socketfd, info->ai_addr, info->ai_addrlen))
 			break ;
 		close(socketfd);
