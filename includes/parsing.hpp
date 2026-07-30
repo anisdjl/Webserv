@@ -35,8 +35,11 @@ class Config
 	private:
 		STATE								_state;
 		std::vector<ServerConfig>			_servers; // le nombre de socket c'est le nombre de server config
+		int									_nb_brackets;
 
 	public:
+		void	increment(void);
+		void	decrement(void);
 		Config(void);
 		Config(const Config &src);
 		Config	&operator=(const Config &src);

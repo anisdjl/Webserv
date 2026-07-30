@@ -64,16 +64,39 @@ void	lexer(std::string filename)
 	fsm(config, tokens);
 }
 
-void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *srevconf)
+void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
 {
-	while ((*tokens)[*index] != "}") { // on check le } pcq celui de la location sera mange dans location
+	if ((*tokens)[*index] != "{")
+		throw std::runtime_error("Error: wrong configuration file format");
+	*index++;
+	config->increment();
 
+	while ((*tokens)[*index] != "}" && *index <= tokens->size()) { // on check le } pcq celui de la location sera mange dans location
+		if ((*tokens)[*index] == "location")
+			parse_location(config, tokens, index, locconfig, servconf);
+		if ((*tokens)[*index] == "listen")
+			parse_listen(config, tokens, index, locconfig, servconf);
+		if ((*tokens)[*index] == "host")
+			parse_host(config, tokens, index, locconfig, servconf);
+		if ((*tokens)[*index] == "server_name")
+			parse_server_name(config, tokens, index, locconfig, servconf);
+		if ((*tokens)[*index] == "client_max_body_size")
+			parse_max_body_size(config, tokens, index, locconfig, servconf);
+		if ((*tokens)[*index] == "error_page")
+			parse_error_page(config, tokens, index, locconfig, servconf);
+		if ((*tokens)[*index] == "}")
+		{
+			config->decrement();
+			*index++;
+			return ;	
+		}
+		throw std::runtime_error("Error: wrong configuration file format");
 	}
 }
 
 void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *srevconf)
 {
-
+	
 }
 
 void	fsm(Config *config, std::vector<std::string> *tokens)
