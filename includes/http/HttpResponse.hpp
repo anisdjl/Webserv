@@ -11,17 +11,16 @@ class HttpResponse
     public:
 		HttpResponse();
         ~HttpResponse();
-        void								buildResponse(HttpRequest& request, Config &conf);
+        void                                buildResponse(HttpRequest& request, ServerConfig &servConf);
 	private:
         int									_status_code;
         std::string							_status_message;
         std::map<std::string, std::string>	_headers;
         std::string							_body;
-        t_location                          _matchLocation(std::string path);
-        void                                _buildGetResponse(HttpRequest& req, Config &conf, t_location *location);
-        void                                _buildPostResponse(HttpRequest& req, Config &conf, t_location *location);
-        void                                _buildDeleteResponse(HttpRequest& req, Config &conf, t_location *location);
-        void                                _buildErrorResponse(int error_code, Config &conf, t_location *location);
+        void                                _buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        void                                _buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        void                                _buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        void                                _buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
 };
 
 /*

@@ -1,57 +1,77 @@
-#ifndef CONFIG
-# define CONFIG
+#ifndef CONFIG_HPP
+# define CONFIG_HPP
 
-#include <string>
-#include <vector>
+# include <string>
+# include <vector>
+# include <map>
 
-typedef struct s_serveur_config
+enum STATE
 {
-	int			 				_listen; // port
-	std::string					_host; 
-	std::string 				_server_name;
-	std::string 				_root;
-	std::string		 			_index;
-	int		 					_client_body_size; // max
-	std::string 				_error_page;
-}								t_server;
+    SERVER_SECTION,
+    LOCATION_SECTION,
+    MAIN_SECTION
+};
 
-typedef struct s_location
+class LocationConfig
 {
-	std::string					_location_url; // /upload par exemple
-	std::string 				_allow_methods;
-	bool 						_auto_index;
-	std::string 				_upload_to;
-	std::string 				_cgi_path;
-	std::string 				_cgi_extension;
-	std::string 				_return;
-}								t_location;
-// location definit les regles par zone
+    private:
+        std::string                     _path;
+        std::string                     _root;
+        std::vector<std::string>        _index;
+        std::vector<std::string>        _methods;
+        bool                            _autoindex;
+        std::vector<std::string>        _cgis;
+        std::string                     _upload_store;
+        std::string                     _return;
+    public:
+        LocationConfig();
+        ~LocationConfig();
+        std::string                     getPath() const;
+        std::string                     getRoot() const;
+        const std::vector<std::string>& getIndex() const;
+        const std::vector<std::string>& getMethods() const;
+        bool                            getAutoIndex() const;
+        const std::vector<std::string>& getCgis() const;
+        std::string                     getUploadStore() const;
+        std::string                     getReturn() const;
+};
+
+class ServerConfig
+{
+    private:
+        std::string                     _listen;
+        std::string                     _host;
+        std::vector<std::string>        _server_name;
+        long                            _client_max_body_size;
+        std::map<int, std::string>      _error_page;
+        std::vector<LocationConfig>     _locations;
+
+    public:
+        ServerConfig();
+        ~ServerConfig();
+        // get
+        std::string							getListen() const;
+        std::string							getHost() const;
+        const std::vector<std::string>&		getServerName() const;
+        long                            	getClientMaxBodySize() const;
+        const std::map<int, std::string>& 	getErrorPage() const;
+        const std::vector<LocationConfig>& 	getLocations() const;
+        // func
+        LocationConfig*						matchLocation(const std::string& path);
+};
 
 class Config
 {
-	public:
-		Config(void);
-		~Config();
-		// serveur
-		int			 	getListen() const;
-		std::string 	getHost() const;
-		std::string		getServerName() const;
-		std::string		getRoot() const;
-		std::string		getIndex() const;
-		int				getClientBodySize() const;
-		std::string		getErrorPage() const;
-		// location
-		std::string		getLocationUrl(int index) const;
-		std::string		getAllowMethods(int index) const;
-		bool			getAutoIndex(int index) const;
-		std::string		getUploadTo(int index) const;
-		std::string		getCgiPath(int index) const;
-		std::string		getCgiExtention(int index) const;
-		std::string		getReturn(int index) const;
-		t_location    	*matchLocation(std::string path);
-	private :
-		t_server 					server;
-		std::vector<t_location> 	location;
-};	
+    private:
+        STATE                           _state;
+        std::vector<ServerConfig>       _servers;
+
+    public:
+        Config();
+        ~Config();
+        void                            setState(STATE state);
+        STATE                           getState() const;
+        const std::vector<ServerConfig>& getServers() const;
+};
 
 #endif

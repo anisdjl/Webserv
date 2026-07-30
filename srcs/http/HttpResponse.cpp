@@ -4,7 +4,7 @@ HttpResponse::HttpResponse(){};
 
 HttpResponse::~HttpResponse(){};
 
-void HttpResponse::buildResponse(HttpRequest& request, Config &conf)
+void HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
 {
     /* 
         trouver la location == au path de la config, comp a la request
@@ -13,51 +13,50 @@ void HttpResponse::buildResponse(HttpRequest& request, Config &conf)
    	if (request.getMethod() == "ERROR")
     {
         std::cout << "ERROR "<< std::endl; // debug
-        this->_buildErrorResponse(400, conf, NULL);
+        this->_buildErrorResponse(400, servConf, NULL);
     }
-	t_location   *location = conf.matchLocation(request.getPath());
-
+    LocationConfig *location = servConf.matchLocation(request.getPath());
 	// poser le 405 not allowed
 
     if (request.getMethod() == "GET")
     {
         std::cout << "GET "<< std::endl; //debug
-        this->_buildGetResponse(request, conf, location);
+        this->_buildGetResponse(request, servConf, location);
     }
     else if (request.getMethod() == "POST")
     {
         std::cout << "POST "<< std::endl; //debug
-        this->_buildPostResponse(request, conf, location);
+        this->_buildPostResponse(request, servConf, location);
     }
     else if (request.getMethod() == "DELETE")
     {
         std::cout << "DELETE "<< std::endl; //debug
-        this->_buildDeleteResponse(request, conf, location);
+        this->_buildDeleteResponse(request, servConf, location);
     }
     else // method not allowed /
     {
         std::cout << "erreur ici" << std::endl;
-        this->_buildErrorResponse(405, conf, location); // not found
+        this->_buildErrorResponse(405, servConf, location); // not found
         return ;
     }
 }
 
-void    HttpResponse::_buildGetResponse(HttpRequest& req, Config &conf, t_location *location)
+void    HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
 
 }
 
-void    HttpResponse::_buildPostResponse(HttpRequest& req, Config &conf, t_location *location)
+void    HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
 
 }
 
-void    HttpResponse::_buildDeleteResponse(HttpRequest& req, Config &conf, t_location *location)
+void    HttpResponse::_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
 
 }
 
-void    HttpResponse::_buildErrorResponse(int error_code, Config &conf, t_location *location)
+void    HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location)
 {
 
 }
