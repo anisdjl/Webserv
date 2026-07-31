@@ -57,6 +57,7 @@ void	parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, 
 	}
 	if (nb_section != 4 || (*tokens)[*index][(*tokens)[*index].size() - 1] == '.')
 		throw std::runtime_error("Value error the ip adrress is invalid");
+	(*index) += 2;
 	return ;
 }
 
@@ -87,3 +88,5 @@ void	parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, 
 // 	}
 // 	return ;
 // }
+
+// il me reste les 3 parties a parser, mettre les elements par defaut dans le constructeur si besoin
