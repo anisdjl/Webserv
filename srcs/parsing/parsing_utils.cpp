@@ -10,10 +10,8 @@ void	parse_listen(Config *config,std::vector<std::string> *tokens, size_t *index
 		throw std::runtime_error("Syntax error in listen directive");
 
 	for (size_t i = 0; i < (*tokens)[*index].size(); ++i)
-	{
 		if (!isdigit((*tokens)[*index][i]))
 			throw std::runtime_error("Value error port must contain only digits");
-	}
 
 	int port = std::atoi((*tokens)[*index].c_str());
 	if (port <= 0 || port > 65535)
@@ -39,10 +37,8 @@ void	parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, 
 	}
 
 	for (size_t i = 0; i < (*tokens)[*index].size(); ++i)
-	{
 		if (!isdigit((*tokens)[*index][i]) && (*tokens)[*index][i] != '.')
 			throw std::runtime_error("Value error wrong format of ip adress");
-	}
 
 	std::stringstream ss((*tokens)[*index]);
 	std::string	ip;
@@ -58,7 +54,6 @@ void	parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, 
 	if (nb_section != 4 || (*tokens)[*index][(*tokens)[*index].size() - 1] == '.')
 		throw std::runtime_error("Value error the ip adrress is invalid");
 	(*index) += 2;
-	return ;
 }
 
 // void	parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
@@ -66,10 +61,23 @@ void	parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, 
 
 // }
 
-// void	parse_max_body_size(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
-// {
-
-// }
+void	parse_max_body_size(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+{
+	std::cout << "je suis ici" << std::endl;
+	(void)config;
+	(void)locconfig;
+	(*index)++;
+	std::cout << "je suis ici" << std::endl;
+	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
+		throw std::runtime_error("Syntax error in client max body size directive");
+	
+	for (size_t y = 0; y < (*tokens)[*index].size(); ++y)
+		if (!isdigit((*tokens)[*index][y]))
+			throw std::runtime_error("Value error the client max body size must contain only digits");
+	std::cout << (*tokens)[*index] << std::endl;
+	(*servconf).setClientMaxBody(std::atoi((*tokens)[*index].c_str()));
+	(*index) += 2;
+}
 
 // void	parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
 // {

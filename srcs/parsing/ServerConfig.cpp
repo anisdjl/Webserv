@@ -4,6 +4,7 @@ ServerConfig::ServerConfig(void)
 {
 	_listen = "NULL";
 	_host = "NULL";
+	_client_max_body_size = 1000000;
 	// et rajouter tout le reste en fonction de ce qui est obligatoire ou pas
 }
 
@@ -33,3 +34,7 @@ void	ServerConfig::setHost(std::string &host)
 	_host = host;
 }
 
+void	ServerConfig::setClientMaxBody(long value)
+{
+	_client_max_body_size = value;
+}

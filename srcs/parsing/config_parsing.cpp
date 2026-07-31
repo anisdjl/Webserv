@@ -76,15 +76,15 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 		// 	parse_location(config, tokens, index, locconfig, servconf);
 		if ((*tokens)[*index] == "listen")
 			parse_listen(config, tokens, index, locconfig, servconf);
-		if ((*tokens)[*index] == "host")
+		else if ((*tokens)[*index] == "host")
 			parse_host(config, tokens, index, locconfig, servconf);
 		// if ((*tokens)[*index] == "server_name")
 		// 	parse_server_name(config, tokens, index, locconfig, servconf);
-		// if ((*tokens)[*index] == "client_max_body_size")
-		// 	parse_max_body_size(config, tokens, index, locconfig, servconf);
+		else if ((*tokens)[*index] == "client_max_body_size")
+			parse_max_body_size(config, tokens, index, locconfig, servconf);
 		// if ((*tokens)[*index] == "error_page")
 		// 	parse_error_page(config, tokens, index, locconfig, servconf);
-		if ((*tokens)[*index] == "}")
+		else if ((*tokens)[*index] == "}")
 		{
 			config->decrement();
 			(*index)++;
