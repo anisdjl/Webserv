@@ -1,6 +1,5 @@
 # include "headers/webserv.hpp"
 
-
 int main(int argc, char **argv)
 {
 	Config *config;
@@ -23,6 +22,6 @@ int main(int argc, char **argv)
 		return (1);
 	}
 	if (ft_webserv(config))
-		return (1);
-	return (0);
+		return (ft_free_config (config), 1);
+	return (ft_free_config (config), 0);
 }

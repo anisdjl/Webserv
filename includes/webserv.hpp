@@ -19,4 +19,22 @@
 # include <sys/wait.h> // waitpid
 # include <sys/stat.h> // pour stat
 
+
+enum Socket_type
+{
+    LISTENER,
+    CONNECTION,
+    CGI
+};
+
+
+typedef struct s_socket
+{
+    int fd;
+    Socket_type type;
+	request http_request;
+} t_socket;
+
+bool ft_treat_socket(std::map<int, t_socket> &map_socket, struct epoll_event &event);
+
 #endif
