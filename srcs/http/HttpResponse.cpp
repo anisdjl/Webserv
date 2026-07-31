@@ -1,10 +1,13 @@
 #include "../../includes/http/HttpResponse.hpp"
+#include <cstdlib>
+#include <fstream>
+#include <fcntl.h>
 
 HttpResponse::HttpResponse(){};
 
 HttpResponse::~HttpResponse(){};
 
-void HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
+std::string HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
 {
     /* 
         trouver la location == au path de la config, comp a la request
@@ -41,25 +44,78 @@ void HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
     }
 }
 
-void    HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
 
 }
 
-void    HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
 
 }
 
-void    HttpResponse::_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+void	HttpResponse::_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
 
 }
 
-void    HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location)
+void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location)
 {
-
+		std::string   line;
+		std::ifstream infile("www/html/Error.html"); // a modifier
+		if (!infile.is_open())
+		{
+			this->_body = "<html>\n"
+							"<head><title>404 Not Found</title></head>\n"
+							"<body>\n<h1>404 Not Found</h1>\n</body>\n"
+							"<html>";
+		}
+		else
+		{
+			while (std::getline(infile, line))
+			{
+				line += "\n";
+				this->_body += line;
+			}
+			infile.close();
+		}
+		this->_status_code = error_code;
+		switch (error_code)
+		{
+			case 400: // location inutile
+				this->_status_message = "400 Bad Request";
+				break;
+			case 403:
+				this->_status_message = "403 Forbidden";
+				break;
+			case 404:
+				this->_status_message = "404 Not Found";	
+				break;
+			case 405: // location est utile ici
+				this->_status_message = "405 Method Not Allowed";
+				break;
+			case 413:
+				this->_status_message = "413 Payload Too Large";
+				break;
+			default:
+				break;
+		}
+		/* header */
+		this->_headers.insert(std::make_pair("Server: ", "WeebServ"));
+		this->_headers.insert(std::make_pair("Content-Type: ", "text/html"));
+		this->_headers.insert(std::make_pair("Content-Length: ", "taille"));
+		this->_headers.insert(std::make_pair("Connnexion: ", "close"));
 }
+
+/*
+	for(std::map<std::string, std::string >::const_iterator it = _header.begin();
+		it != _header.end(); ++it)
+	{
+		if (it->first == key)
+			return it->second; 
+	}
+	return "";
+*/
 
 // Exemple possible de request http :
 /*
@@ -71,4 +127,20 @@ void    HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf
 	Cookie: session_id=abc123xyz\r\n
 	\r\n
 	name=JohnDoe&age=25&status=ok
+*/
+
+/* exemple possible de reponse :
+
+    HTTP/1.1 404 Not Found
+    Content-Type: text/html
+    Content-Length: 149
+    Connection: close
+
+    <html>
+    <head><title>404 Not Found</title></head>
+    <body>
+    <h1>404 Not Found</h1>
+    <hr><center>Webserv/1.0</center>
+    </body>
+    </html>
 */

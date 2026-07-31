@@ -2,6 +2,7 @@
 #define HTTPRESPONSE
 
 #include <iostream>
+#include <string>
 #include <map>
 #include "HttpRequest.hpp"
 #include "../config/Config.hpp"
@@ -11,16 +12,16 @@ class HttpResponse
     public:
 		HttpResponse();
         ~HttpResponse();
-        void                                buildResponse(HttpRequest& request, ServerConfig &servConf);
+        std::string                         buildResponse(HttpRequest& request, ServerConfig &servConf);
 	private:
         int									_status_code;
         std::string							_status_message;
         std::map<std::string, std::string>	_headers;
         std::string							_body;
-        void                                _buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
-        void                                _buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
-        void                                _buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
-        void                                _buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
+        void								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        void								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        void								_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
 };
 
 /*
