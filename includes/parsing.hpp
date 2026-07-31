@@ -63,6 +63,14 @@ class LocationConfig
 		LocationConfig(const LocationConfig &src);
 		~LocationConfig(void);
 		LocationConfig	&operator=(const LocationConfig &src);
+
+		void	setRoot(std::string &root);
+		void	setIndex(std::string &index);
+		void	setMethods(std::string &method);
+		void	setAutoIndex(bool autoindex);
+		void	setCgis(std::string &cgi);
+		void	setUpload(std::string &upload);
+		void	setReturn(void); // je mets void pour le moment mais c'est pas bon
 };
 
 class	ServerConfig
@@ -80,10 +88,22 @@ class	ServerConfig
 		~ServerConfig(void);
 		ServerConfig	&operator=(const ServerConfig &src);
 		ServerConfig(const ServerConfig &src);
+
+		void	setListen(std::string &listen);
+		void	setHost(std::string &host);
+		void	setServerName(std::string &server_name);
+		void	setClientMaxBody(long value);
+		void	setErrorpage(void); // je mets void pour le moment mais c'est pas bon
 };
 
 std::vector<std::string>	*lexe_config(std::string filename);
 void						lexer(std::string filename);
 void						fsm(Config *config, std::vector<std::string> *tokens);
+void						parse_listen(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
+void						parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
+void						parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
+void						parse_max_body_size(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
+void						parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
+void						parse_location(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *srevconf);
 
 #endif
