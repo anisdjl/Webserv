@@ -21,3 +21,8 @@ LocationConfig::LocationConfig(const LocationConfig &src)
 {
 	(void)src;
 }
+
+void	LocationConfig::setPath(std::string &path)
+{
+	_path = path;
+}

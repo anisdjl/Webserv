@@ -50,6 +50,7 @@ class Config
 class LocationConfig
 {
 	private:
+		std::string					_path;
 		std::string					_root; // inherites from the server if not mentionned in the conf or error 404
 		std::vector<std::string>	_index; // i don't remember
 		std::vector<std::string>	_methods; // only GET if absent in the conf file
@@ -64,6 +65,7 @@ class LocationConfig
 		~LocationConfig(void);
 		LocationConfig	&operator=(const LocationConfig &src);
 
+		void	setPath(std::string &path);
 		void	setRoot(std::string &root);
 		void	setIndex(std::string &index);
 		void	setMethods(std::string &method);
@@ -105,5 +107,6 @@ void						parse_server_name(Config *config,std::vector<std::string> *tokens, siz
 void						parse_max_body_size(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
 void						parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
 void						parse_location(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *srevconf);
+void						parse_root(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
 
 #endif

@@ -6,7 +6,8 @@ SRC = main.cpp \
 	  srcs/parsing/Config.cpp \
 	  srcs/parsing/LocationConfig.cpp \
 	  srcs/parsing/ServerConfig.cpp \
-	  srcs/parsing/parsing_utils.cpp
+	  srcs/parsing/parsing_utils.cpp \
+	  srcs/parsing/parsing_utils_location.cpp
 	  
 OBJ = $(SRC:.cpp=.o)
 
