@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/home/Yanis/Documents/42/Common Core/milestones 5/Webserv",
-      "program": "/home/Yanis/Documents/42/Common Core/milestones 5/Webserv/build/Debug/outDebug",
+      "cwd": "/home/Yanis/Documents/42/Common Core/milestones 5/Webserv/includes",
+      "program": "/home/Yanis/Documents/42/Common Core/milestones 5/Webserv/includes/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

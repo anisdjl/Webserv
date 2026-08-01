@@ -1,0 +1,65 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   listener.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/08/01 17:36:31 by ymoumene          #+#    #+#             */
+/*   Updated: 2026/08/01 18:28:10 by ymoumene         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../includes/webserv.hpp"
+#include "../includes/parsing.hpp"
+#include "../includes/socket.hpp"
+
+bool ft_listener(std::string &listener, int &socketfd)
+{
+	struct addrinfo *info;
+	struct addrinfo hints{};
+
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+	hints.ai_protocol = 0;
+	if (getaddrinfo(NULL,  listener.c_str(), &hints, &info))
+	{
+		std::cerr << "Error while opening socket listener." <<  std::endl;
+		return (true);
+	}
+	if (ft_open_socket(info, socketfd))
+	{
+		std::cerr << "Error while opening sockets listener." <<  std::endl;
+		return (true);
+	}
+	if (listen(socketfd, SOMAXCONN) == -1)
+	{
+		close(socketfd);
+		std::cerr << "Error while listening sockets listener." <<  std::endl;
+		return (true);
+	}
+	return(false);
+}
+
+bool ft_construct_listener(std::map <int, t_socket> &map_socket, Config *config, int const &epollfd)
+{
+	t_socket temp_socket;
+	struct epoll_event temp{};
+	int i = 0; 
+
+	temp_socket.type = LISTENER;
+	while(i < config->getServers().size())
+	{
+		if(ft_listener(config->getServers()[i].getListen(), temp_socket.fd))
+			return (true);
+		temp_socket.server_index = i;
+		map_socket.insert(std::make_pair(temp_socket.fd, temp_socket));
+		temp.data.fd = temp_socket.fd;
+		temp.events = EPOLLIN;
+		if (epoll_ctl(epollfd, EPOLL_CTL_ADD, temp_socket.fd, &temp) == -1)
+			return (true);
+		i++;
+	}
+	return (false);
+}
