@@ -71,19 +71,34 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 	(*index)++;
 	config->increment();
 
-	while ((*tokens)[*index] != "}" || *index != tokens->size() - 1) { // on check le } pcq celui de la location sera mange dans location
+	while ((*tokens)[*index] != "}" && *index != tokens->size() - 1) { // on check le } pcq celui de la location sera mange dans location
 		// if ((*tokens)[*index] == "location")
 		// 	parse_location(config, tokens, index, locconfig, servconf);
 		if ((*tokens)[*index] == "listen")
+		{
 			parse_listen(config, tokens, index, locconfig, servconf);
-		else if ((*tokens)[*index] == "host")
+			continue;
+		}
+		if ((*tokens)[*index] == "host")
+		{
 			parse_host(config, tokens, index, locconfig, servconf);
-		// if ((*tokens)[*index] == "server_name")
-		// 	parse_server_name(config, tokens, index, locconfig, servconf);
-		else if ((*tokens)[*index] == "client_max_body_size")
+			continue;
+		}
+		if ((*tokens)[*index] == "server_name")
+		{
+			parse_server_name(config, tokens, index, locconfig, servconf);
+			continue;
+		}
+		if ((*tokens)[*index] == "client_max_body_size")
+		{
 			parse_max_body_size(config, tokens, index, locconfig, servconf);
-		// if ((*tokens)[*index] == "error_page")
-		// 	parse_error_page(config, tokens, index, locconfig, servconf);
+			continue;
+		}
+		if ((*tokens)[*index] == "error_page")
+		{
+			parse_error_page(config, tokens, index, locconfig, servconf);
+			continue;
+		}
 		else if ((*tokens)[*index] == "}")
 		{
 			config->decrement();

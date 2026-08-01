@@ -93,7 +93,7 @@ class	ServerConfig
 		void	setHost(std::string &host);
 		void	setServerName(std::string &server_name);
 		void	setClientMaxBody(long value);
-		void	setErrorpage(void); // je mets void pour le moment mais c'est pas bon
+		void	setErrorpage(int code, std::string &path); // je mets void pour le moment mais c'est pas bon
 };
 
 std::vector<std::string>	*lexe_config(std::string filename);

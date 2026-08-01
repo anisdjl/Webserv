@@ -38,3 +38,13 @@ void	ServerConfig::setClientMaxBody(long value)
 {
 	_client_max_body_size = value;
 }
+
+void	ServerConfig::setServerName(std::string &server_name)
+{
+	_server_name.push_back(server_name);
+}
+
+void	ServerConfig::setErrorpage(int code, std::string &path)
+{
+	_error_page.insert(std::make_pair(code, path));
+}

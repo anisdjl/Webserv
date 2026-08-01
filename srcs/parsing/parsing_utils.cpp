@@ -56,33 +56,74 @@ void	parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, 
 	(*index) += 2;
 }
 
-// void	parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
-// {
-
-// }
-
-void	parse_max_body_size(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+void	parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
 {
-	std::cout << "je suis ici" << std::endl;
 	(void)config;
 	(void)locconfig;
 	(*index)++;
 	std::cout << "je suis ici" << std::endl;
+	if ((*tokens)[*index] == ";")
+		throw std::runtime_error("Syntax error the server name can't be empty");
+	
+	while ((*tokens)[*index] != ";")
+	{
+		if ((*index) == (*tokens).size() - 1) // si on a atteint la fin des tokens mais qu'on a toujours pas croise de ;
+			throw std::runtime_error("Syntax error ';' missing");
+		
+		(*servconf).setServerName((*tokens)[*index]);
+		(*index)++;
+	}
+	(*index)++;
+}
+
+void	parse_max_body_size(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+{
+	(void)config;
+	(void)locconfig;
+	(*index)++;
+
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
 		throw std::runtime_error("Syntax error in client max body size directive");
 	
 	for (size_t y = 0; y < (*tokens)[*index].size(); ++y)
 		if (!isdigit((*tokens)[*index][y]))
 			throw std::runtime_error("Value error the client max body size must contain only digits");
-	std::cout << (*tokens)[*index] << std::endl;
-	(*servconf).setClientMaxBody(std::atoi((*tokens)[*index].c_str()));
+
+	long value = std::atoi((*tokens)[*index].c_str());
+	if (value < 0)
+		throw std::runtime_error("Value error the client_max_body_size must be positive");
+	(*servconf).setClientMaxBody(value);
 	(*index) += 2;
 }
 
-// void	parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
-// {
-	
-// }
+void	parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+{
+	(void)config;
+	(void)locconfig;
+
+	(*index)++;
+	std::vector<int>	codes;
+	while ((*tokens)[*index + 1] != ";" && (*index) + 1 != (*tokens).size() - 1)
+	{
+		for (size_t y = 0; y < (*tokens)[*index].size(); ++y)
+			if (!isdigit((*tokens)[*index][y]))
+				throw std::runtime_error("Value error invalid error code");
+		int code = std::atoi((*tokens)[*index].c_str());
+		if (code < 300 || code > 599)
+			throw std::runtime_error("Value error error code value must be between 300 - 599");
+		codes.push_back(code);
+		(*index)++;
+	}
+	std::string path = (*tokens)[*index];
+	std::cout << path << std::endl;
+	for (size_t y = 0; y < codes.size(); ++y)
+	{
+		(*servconf).setErrorpage(codes[y], path);
+		std::cout << codes[y] << std::endl;
+	}
+	std::cout << "remplissage reussi" << std::endl;
+	(*index) += 2;
+}
 
 
 
