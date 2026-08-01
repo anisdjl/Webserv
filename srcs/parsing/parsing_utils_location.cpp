@@ -21,16 +21,16 @@ void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *in
 			parse_root(config, tokens, index, locconfig, servconf);
 			continue;
 		}
-		// if ((*tokens)[*index] == "index")
-		// {
-		// 	parse_index(config, tokens, index, locconfig, servconf);
-		// 	continue;
-		// }
-		// if ((*tokens)[*index] == "allow_methods")
-		// {
-		// 	parse_methods(config, tokens, index, locconfig, servconf);
-		// 	continue;
-		// }
+		if ((*tokens)[*index] == "index")
+		{
+			parse_index(config, tokens, index, locconfig, servconf);
+			continue;
+		}
+		if ((*tokens)[*index] == "allow_methods")
+		{
+			parse_methods(config, tokens, index, locconfig, servconf);
+			continue;
+		}
 		// if ((*tokens)[*index] == "autoindex")
 		// {
 		// 	parse_autoindex(config, tokens, index, locconfig, servconf);
@@ -63,8 +63,43 @@ void	parse_root(Config *config, std::vector<std::string> *tokens, size_t *index,
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
 		throw std::runtime_error("Syntax error in client max body size directive");
 
-	std::cout << (*tokens)[*index] << std::endl;
 	(*locconfig).setRoot((*tokens)[*index]);
 
 	(*index) += 2;
+}
+
+void	parse_index(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+{
+	(*index)++;
+	(void)config; (void)servconf;
+
+	while ((*tokens)[*index] != ";")
+	{
+		if ((*index) == (*tokens).size() - 1)
+			throw std::runtime_error("Syntax error ';' missing");
+		
+		(*locconfig).setIndex((*tokens)[*index]);
+		std::cout << (*tokens)[*index] << std::endl;
+		(*index)++;
+	}
+	(*index)++;
+}
+
+void	parse_methods(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+{
+	(*index)++;
+	(void)config; (void)servconf;
+
+	while ((*tokens)[*index] != ";")
+	{
+		if ((*index) == (*tokens).size() - 1)
+			throw std::runtime_error("Syntax error ';' missing");
+		
+		if ((*tokens)[*index] != "GET" && (*tokens)[*index] != "POST" && (*tokens)[*index] != "DELETE")
+			throw std::runtime_error("Syntax error wrong method directive must be GET, POST or DELETE");
+		std::cout << (*tokens)[*index] << std::endl;
+		(*locconfig).setMethods((*tokens)[*index]);
+		(*index)++;
+	}
+	(*index)++;
 }

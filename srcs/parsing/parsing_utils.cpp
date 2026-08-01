@@ -61,7 +61,7 @@ void	parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *
 	(void)config;
 	(void)locconfig;
 	(*index)++;
-	std::cout << "je suis ici" << std::endl;
+
 	if ((*tokens)[*index] == ";")
 		throw std::runtime_error("Syntax error the server name can't be empty");
 	
@@ -115,27 +115,9 @@ void	parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *i
 		(*index)++;
 	}
 	std::string path = (*tokens)[*index];
-	std::cout << path << std::endl;
 	for (size_t y = 0; y < codes.size(); ++y)
-	{
 		(*servconf).setErrorpage(codes[y], path);
-		std::cout << codes[y] << std::endl;
-	}
-	std::cout << "remplissage reussi" << std::endl;
 	(*index) += 2;
 }
-
-
-
-// void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *srevconf)
-// {
-// 	while ((*tokens)[*index] != "}" && *index <= tokens->size())
-// 	{
-// 		if ()
-
-// 		*index++;
-// 	}
-// 	return ;
-// }
 
 // il me reste les 3 parties a parser, mettre les elements par defaut dans le constructeur si besoin
