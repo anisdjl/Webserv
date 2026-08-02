@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/31 12:03:14 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/01 19:04:36 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/02 15:15:48 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,24 @@ bool ft_parse_request(std::map<int, t_socket> &map_socket, t_socket &target, Con
 		temp.events = EPOLLOUT;
 		if (epoll_ctl(epollfd, EPOLL_CTL_MOD, target.fd, &temp) == -1)
 			return (true);
+	}
+	return (false);
+}
+
+bool ft_send_request(std::map<int, t_socket> &map_socket, t_socket &target, Config *config)
+{
+	std::string response = ft_send(target.fd, target.http_request, config->getServers()[target.server_index], target.fd);
+	unsigned int bytes_sent = 0;
+	int temp_sent = 0;
+
+	if (response.empty())
+		return (true);
+	while (bytes_sent < response.length())
+	{
+		temp_sent = send(target.fd, response.c_str() + bytes_sent, response.length() - bytes_sent, 0);
+		if (temp_sent == -1)
+			return (true);
+		bytes_sent += temp_sent;
 	}
 	return (false);
 }
