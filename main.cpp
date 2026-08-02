@@ -1,23 +1,49 @@
 #include "includes/webserv.hpp"
 #include "includes/http/HttpRequest.hpp"
+#include "includes/http/HttpResponse.hpp"
+#include "includes/config/Config.hpp"
+
+void printSeparator(const std::string& title)
+{
+    std::cout << " " << title << " ===\n";
+}
 
 int main()
 {
-    HttpRequest req;
+    ServerConfig servConf;
 
-    req.setMethod("POST");
-    req.setPath("/cgi-bin/upload.py");
-    req.setQueryString("user=42&action=save");
-    req.setVersion("HTTP/1.1");
-    
-    req.setHeader("host", "localhost:8080");
-    req.setHeader("user-agent", "curl/7.81.0");
-    req.setHeader("accept", "*/*");
-    req.setHeader("content-type", "application/x-www-form-urlencoded");
-    req.setHeader("content-length", "27");
-    req.setHeader("connection", "close");
-    
-    req.setBody("name=JohnDoe&age=25&status=ok");
-    req.setError(0);
+    std::cout << "=== Test 1 : 400 Bad Request ===" << std::endl;
+    HttpRequest req1;
+    req1.setMethod("GET");
+    req1.setPath("/");
+    req1.setVersion("HTTP/1.1");
+    req1.setError(400);
+
+    HttpResponse resp1;
+    std::string raw1 = resp1.buildResponse(req1, servConf);
+    std::cout << raw1 << std::endl;
+
+	std::cout << "=== Test 2 : 501 Not Implemented) ===" << std::endl;
+    HttpRequest req2;
+    req2.setMethod("PUT");
+    req2.setPath("/index.html");
+    req2.setVersion("HTTP/1.1");
+    req2.setError(0);
+
+    HttpResponse resp2;
+    std::string raw2 = resp2.buildResponse(req2, servConf);
+    std::cout << raw2 << std::endl;
+
+	std::cout << "=== Test 3 : 404 not found) ===" << std::endl;
+    HttpRequest req3;
+    req3.setMethod("GET");
+    req3.setPath("/inexistant.html");
+    req3.setVersion("HTTP/1.1");
+    req3.setError(404);
+
+    HttpResponse resp3;
+    std::string raw3 = resp3.buildResponse(req3, servConf);
+    std::cout << raw3 << std::endl;
+
     return 0;
 }

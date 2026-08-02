@@ -62,7 +62,7 @@ Location: http://example.com/users/123
   }
 }
 */
-
+// chaque chemin a ses regles def dans location
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages
 

@@ -2,25 +2,27 @@
 #include <cstdlib>
 #include <fstream>
 #include <fcntl.h>
+#include <sstream>
 
-HttpResponse::HttpResponse(){};
+HttpResponse::HttpResponse() : _status_code(200), _status_message("OK"), _headers(), _body("") {} // tmp
 
 HttpResponse::~HttpResponse(){};
 
 std::string HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
 {
-    /* 
-        trouver la location == au path de la config, comp a la request
-        Si aucun location trouver alors settings par defaut qui s'applique
-    */
-   	if (request.getMethod() == "ERROR")
+   	if (request.getErrorCode() != 0)
     {
-        std::cout << "ERROR "<< std::endl; // debug
-        this->_buildErrorResponse(400, servConf, NULL);
+        std::cout << "[Debug] : ERROR "<< std::endl; // debug
+        this->_buildErrorResponse(request.getErrorCode(), servConf, NULL);
+		return (_buildStringResponse());
     }
     LocationConfig *location = servConf.matchLocation(request.getPath());
-	// poser le 405 not allowed
-
+	if (location && !this->_isMethodAllowed(request.getMethod(), location)) // check droit
+	{
+		std::cout << "[Debug] : ERROR 405"<< std::endl; // debug
+		this->_buildErrorResponse(405, servConf, location);
+		return (_buildStringResponse());
+	}
     if (request.getMethod() == "GET")
     {
         std::cout << "GET "<< std::endl; //debug
@@ -38,10 +40,39 @@ std::string HttpResponse::buildResponse(HttpRequest& request, ServerConfig &serv
     }
     else // method not allowed /
     {
-        std::cout << "erreur ici" << std::endl;
-        this->_buildErrorResponse(405, servConf, location); // not found
-        return ;
+        std::cout << "[Debug] : ERROR 501" << std::endl;
+        this->_buildErrorResponse(501, servConf, location); // not found
     }
+	return (_buildStringResponse());
+}
+
+bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *location)
+{
+	for (std::vector<std::string>::const_iterator it = location->getMethods().begin();
+		it != location->getMethods().end(); ++it)
+	{
+		if (*it == methode)
+			return (true);
+	}
+	return (false);
+}
+// for (size_t i = 0; i < location->getMethods().size(); i++)
+
+std::string HttpResponse::_buildStringResponse()
+{
+    std::stringstream ss;
+
+    ss << "HTTP/1.1 " << this->_status_code 
+		<< " " << this->_status_message << "\r\n";
+    for (std::map<std::string, std::string>::const_iterator it = this->_headers.begin();
+         it != this->_headers.end(); ++it)
+    {
+        ss << it->first << ": " << it->second << "\r\n";
+    }
+    ss << "\r\n";
+    ss << this->_body;
+	// /r pour la norme http
+    return (ss.str());
 }
 
 void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
@@ -61,17 +92,57 @@ void	HttpResponse::_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf
 
 void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location)
 {
-		std::string   line;
-		std::ifstream infile("www/html/Error.html"); // a modifier
+		this->_status_code = error_code;
+		switch (error_code)
+		{
+			case 400: // location inutile
+				this->_status_message = "Bad Request";
+				break;
+			case 403:
+				this->_status_message = "Forbidden";
+				break;
+			case 404:
+				this->_status_message = "Not Found";	
+				break;
+			case 405: // location est utile ici
+				this->_status_message = "Method Not Allowed";
+				break;
+			case 413:
+				this->_status_message = "Payload Too Large";
+				break;
+			case 501:
+            	this->_status_message = "Not Implemented";
+            	break;
+        	default:
+            	this->_status_message = "Internal Server Error";
+            	break;
+		}
+		std::string		root;
+		std::string		html_path("");
+		std::map<int, std::string >::const_iterator	it = servConf.findErrorPage(error_code);
+
+		if (it != servConf.getErrorPage().end())
+		{
+			if (location && !location->getRoot().empty())
+				root = location->getRoot();
+			else
+				root = servConf.getRoot();
+			html_path = root + it->second;
+		}
+
+		std::ifstream	infile(html_path.c_str());
 		if (!infile.is_open())
 		{
-			this->_body = "<html>\n"
-							"<head><title>404 Not Found</title></head>\n"
-							"<body>\n<h1>404 Not Found</h1>\n</body>\n"
-							"<html>";
+				this->_body = "<html>\n"
+									"<head><title>" + this->_status_message + "</title></head>\n"
+									"<body>\n"
+										"<h1>" + this->_status_message + "</h1>\n"
+									"</body>\n"
+								"</html>";
 		}
 		else
 		{
+			std::string		line;
 			while (std::getline(infile, line))
 			{
 				line += "\n";
@@ -79,42 +150,32 @@ void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, L
 			}
 			infile.close();
 		}
-		this->_status_code = error_code;
-		switch (error_code)
-		{
-			case 400: // location inutile
-				this->_status_message = "400 Bad Request";
-				break;
-			case 403:
-				this->_status_message = "403 Forbidden";
-				break;
-			case 404:
-				this->_status_message = "404 Not Found";	
-				break;
-			case 405: // location est utile ici
-				this->_status_message = "405 Method Not Allowed";
-				break;
-			case 413:
-				this->_status_message = "413 Payload Too Large";
-				break;
-			default:
-				break;
-		}
 		/* header */
-		this->_headers.insert(std::make_pair("Server: ", "WeebServ"));
-		this->_headers.insert(std::make_pair("Content-Type: ", "text/html"));
-		this->_headers.insert(std::make_pair("Content-Length: ", "taille"));
-		this->_headers.insert(std::make_pair("Connnexion: ", "close"));
+		std::ostringstream oss;
+		oss << this->_body.size();
+		this->_headers.clear(); 
+		this->_headers.insert(std::make_pair("Server", "WeebServ"));
+		this->_headers.insert(std::make_pair("Content-Type", "text/html"));
+		this->_headers.insert(std::make_pair("Content-Length", oss.str()));
+		this->_headers.insert(std::make_pair("Connection", "close"));
 }
+/*
+	Location
+	location->root // possible
+
+	ServConf
+	getErrorCodePage
+	findErrorPage
+	matchLocation
+
+	il faut add la verife avant le build
+*/
 
 /*
-	for(std::map<std::string, std::string >::const_iterator it = _header.begin();
-		it != _header.end(); ++it)
-	{
-		if (it->first == key)
-			return it->second; 
-	}
-	return "";
+std::map<int, std::string >::const_iterator ServerConfig::findErrorPage(int key) const
+{
+    return (_error_page.find(key));
+}
 */
 
 // Exemple possible de request http :

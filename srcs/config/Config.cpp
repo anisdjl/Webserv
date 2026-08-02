@@ -30,14 +30,24 @@ const std::vector<std::string>& ServerConfig::getServerName() const
     return this->_server_name;
 }
 
+std::string ServerConfig::getRoot() const
+{
+    return this->_root;
+}
+
 long ServerConfig::getClientMaxBodySize() const
 {
     return this->_client_max_body_size;
 }
 
-const std::map<int, std::string>& ServerConfig::getErrorPage() const
+std::map<int, std::string >::const_iterator ServerConfig::findErrorPage(int key) const
 {
-    return this->_error_page;
+    return (_error_page.find(key));
+}
+
+std::map<int, std::string > ServerConfig::getErrorPage() const
+{
+    return (_error_page);
 }
 
 const std::vector<LocationConfig>& ServerConfig::getLocations() const
@@ -56,9 +66,9 @@ std::string LocationConfig::getPath() const
     return this->_path;
 }
 
-std::string LocationConfig::getRoot() const
+std::string	LocationConfig::getRoot() const
 {
-    return this->_root;
+	return this->_root;
 }
 
 const std::vector<std::string>& LocationConfig::getIndex() const
@@ -91,7 +101,7 @@ std::string LocationConfig::getUploadStore() const
 LocationConfig*   ServerConfig::matchLocation(const std::string& path)
 {
 	LocationConfig	*match = NULL;
-	int				match_len = 0;
+	size_t			match_len = 0;
 	for (size_t i = 0; i < _locations.size(); i++)
 	{
 		std::string location_url = _locations[i].getPath();
@@ -108,8 +118,14 @@ LocationConfig*   ServerConfig::matchLocation(const std::string& path)
 }
 
 /*
-    if ((str1.compare(3, 5, str2)) == 0)
-        cout << "Substring Matched";
-    else
-        cout << "Strings Not Matched";
+std::string ServerConfig::getErrorPage(int key) const
+{
+    for(std::map<int, std::string >::const_iterator it = _error_page.begin();
+		it != _error_page.end(); ++it)
+	{
+		if (it->first == key)
+			return it->second; 
+	}
+	return "";
+}
 */

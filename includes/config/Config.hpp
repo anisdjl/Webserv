@@ -27,12 +27,12 @@ class LocationConfig
         LocationConfig();
         ~LocationConfig();
         std::string                     getPath() const;
-        std::string                     getRoot() const;
         const std::vector<std::string>& getIndex() const;
         const std::vector<std::string>& getMethods() const;
         bool                            getAutoIndex() const;
         const std::vector<std::string>& getCgis() const;
         std::string                     getUploadStore() const;
+        std::string                     getRoot() const;
         std::string                     getReturn() const;
 };
 
@@ -41,6 +41,7 @@ class ServerConfig
     private:
         std::string                     _listen;
         std::string                     _host;
+		std::string                     _root;
         std::vector<std::string>        _server_name;
         long                            _client_max_body_size;
         std::map<int, std::string>      _error_page;
@@ -50,14 +51,16 @@ class ServerConfig
         ServerConfig();
         ~ServerConfig();
         // get
-        std::string							getListen() const;
-        std::string							getHost() const;
-        const std::vector<std::string>&		getServerName() const;
-        long                            	getClientMaxBodySize() const;
-        const std::map<int, std::string>& 	getErrorPage() const;
-        const std::vector<LocationConfig>& 	getLocations() const;
+        std::string									getListen() const;
+        std::string									getHost() const;
+        const std::vector<std::string>&				getServerName() const;
+		std::string                     			getRoot() const;
+        long                            			getClientMaxBodySize() const;
+        std::map<int, std::string >::const_iterator	findErrorPage(int key) const;
+		std::map<int, std::string >					getErrorPage() const;
+        const std::vector<LocationConfig>&			getLocations() const;
         // func
-        LocationConfig*						matchLocation(const std::string& path);
+        LocationConfig*								matchLocation(const std::string& path);
 };
 
 class Config
