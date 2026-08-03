@@ -37,3 +37,20 @@ void	LocationConfig::setIndex(std::string &index) {
 void	LocationConfig::setMethods(std::string &method) {
 	_methods.push_back(method);
 }
+
+void	LocationConfig::setAutoIndex(std::string &autoindex) {
+	if (autoindex == "on")
+		_autoindex = true;
+	else if (autoindex == "off")
+		_autoindex = false;
+}
+
+void	LocationConfig::setUpload(std::string &upload)
+{
+	_upload_store = upload;
+}
+
+void	LocationConfig::setReturn(int &code, std::string &path)
+{
+	_return.insert(std::make_pair(code, path));
+}

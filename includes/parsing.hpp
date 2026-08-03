@@ -69,10 +69,10 @@ class LocationConfig
 		void	setRoot(std::string &root);
 		void	setIndex(std::string &index);
 		void	setMethods(std::string &method);
-		void	setAutoIndex(bool autoindex);
+		void	setAutoIndex(std::string &autoindex);
 		void	setCgis(std::string &cgi);
 		void	setUpload(std::string &upload);
-		void	setReturn(void); // je mets void pour le moment mais c'est pas bon
+		void	setReturn(int &code, std::string &path); // je mets void pour le moment mais c'est pas bon
 };
 
 class	ServerConfig
@@ -110,5 +110,8 @@ void						parse_location(Config *config, std::vector<std::string> *tokens, size_
 void						parse_root(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
 void						parse_index(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
 void						parse_methods(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
+void						parse_autoindex(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);;
+void						parse_upload(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
+void						parse_return(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconf, ServerConfig *servconf);
 
 #endif

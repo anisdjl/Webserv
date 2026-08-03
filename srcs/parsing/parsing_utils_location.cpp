@@ -31,16 +31,16 @@ void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *in
 			parse_methods(config, tokens, index, locconfig, servconf);
 			continue;
 		}
-		// if ((*tokens)[*index] == "autoindex")
-		// {
-		// 	parse_autoindex(config, tokens, index, locconfig, servconf);
-		// 	continue;
-		// }
-		// if ((*tokens)[*index] == "upload_store")
-		// {
-		// 	parse_upload(config, tokens, index, locconfig, servconf);
-		// 	continue;
-		// }
+		if ((*tokens)[*index] == "autoindex")
+		{
+			parse_autoindex(config, tokens, index, locconfig, servconf);
+			continue;
+		}
+		if ((*tokens)[*index] == "upload_store")
+		{
+			parse_upload(config, tokens, index, locconfig, servconf);
+			continue;
+		}
 		// if ((*tokens)[*index] == "return")
 		// {
 		// 	parse_return(config, tokens, index, locconfig, servconf);
@@ -79,7 +79,6 @@ void	parse_index(Config *config, std::vector<std::string> *tokens, size_t *index
 			throw std::runtime_error("Syntax error ';' missing");
 		
 		(*locconfig).setIndex((*tokens)[*index]);
-		std::cout << (*tokens)[*index] << std::endl;
 		(*index)++;
 	}
 	(*index)++;
@@ -97,9 +96,59 @@ void	parse_methods(Config *config, std::vector<std::string> *tokens, size_t *ind
 		
 		if ((*tokens)[*index] != "GET" && (*tokens)[*index] != "POST" && (*tokens)[*index] != "DELETE")
 			throw std::runtime_error("Syntax error wrong method directive must be GET, POST or DELETE");
-		std::cout << (*tokens)[*index] << std::endl;
+
 		(*locconfig).setMethods((*tokens)[*index]);
 		(*index)++;
 	}
 	(*index)++;
+}
+
+void	parse_autoindex(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+{
+	(*index)++;
+	(void)config; (void)servconf;
+
+	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
+		throw std::runtime_error("Syntax error in autindex directive");
+	
+	if ((*tokens)[*index] != "on" && (*tokens)[*index] != "off")
+		throw std::runtime_error("Value error autoindex value must be 'on' or 'off'");
+	
+	(*locconfig).setAutoIndex((*tokens)[*index]);
+	(*index) += 2;
+}
+
+void	parse_upload(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+{
+	(*index)++;
+	(void)config;
+	(void)servconf;
+
+	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
+		throw std::runtime_error("Syntax error in upload_store directive");
+	
+	(*locconfig).setUpload((*tokens)[*index]);
+	std::cout << (*tokens)[*index] << std::endl;
+
+	(*index) += 2;
+}
+
+void	parse_return(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconf, ServerConfig *servconf)
+{
+	(*index)++;
+
+	(void)config; (void)servconf; // je dois rajouter le check de la conf qui prends deux arguments et un argument
+
+	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] == ";" || (*tokens)[*index + 2] != ";")
+		throw std::runtime_error("Syntax error in return directive");
+	
+	for (size_t y = 0; y < (*tokens)[*index].size(); ++y)
+	{
+		if (!isdigit((*tokens)[*index][y]))
+			throw std::runtime_error("Value error the first argument in the return directive must be a number");
+	}
+	int code = std::atoi((*tokens)[*index].c_str());
+	if (code > 599 || code < 100)
+		throw std::runtime_error("Value error the code of return must be between 100 and 599");
+	(*locconf).setReturn(code, (*tokens)[*index + 1]);
 }
