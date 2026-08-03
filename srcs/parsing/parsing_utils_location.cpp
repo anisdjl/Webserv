@@ -152,3 +152,8 @@ void	parse_return(Config *config, std::vector<std::string> *tokens, size_t *inde
 		throw std::runtime_error("Value error the code of return must be between 100 and 599");
 	(*locconf).setReturn(code, (*tokens)[*index + 1]);
 }
+
+void	parse_cgi(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconf, ServerConfig *servconf)
+{
+	
+}
