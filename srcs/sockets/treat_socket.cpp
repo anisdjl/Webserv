@@ -31,7 +31,8 @@ bool ft_parse_request(std::map<int, t_socket> &map_socket, t_socket &target, Con
 
 bool ft_send_request(std::map<int, t_socket> &map_socket, t_socket &target, Config *config)
 {
-	std::string response = ft_send(target.fd, target.http_request, config->getServers()[target.server_index], target.fd);
+	
+	std::string response = buildresponse(target.http_request, config->getServers()[target.server_index]);
 	unsigned int bytes_sent = 0;
 	int temp_sent = 0;
 
