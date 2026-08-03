@@ -16,7 +16,14 @@
 
 bool ft_parse_request(std::map<int, t_socket> &map_socket, t_socket &target, Config *config, int &epollfd)
 {
-	if (ft_parse_request(target.http_request, config->getServers()[target.server_index], target.fd))
+	int bytes_read = 0;
+	char buffer[BUFFER_SIZE + 1];
+	
+	memset(buffer, 0, BUFFER_SIZE + 1);
+	bytes_read = recv(target.fd, buffer, BUFFER_SIZE, 0);
+	if (bytes_read == -1)
+		return (true);
+	if (ft_parse_request(target.http_request, config->getServers()[target.server_index], buffer, bytes_read))
 		return (true);
 	if (target.http_request.state == COMPLETE)
 	{
@@ -31,8 +38,9 @@ bool ft_parse_request(std::map<int, t_socket> &map_socket, t_socket &target, Con
 
 bool ft_send_request(std::map<int, t_socket> &map_socket, t_socket &target, Config *config)
 {
-	
-	std::string response = buildresponse(target.http_request, config->getServers()[target.server_index]);
+	HttpResponse response_builder;
+
+	std::string response = response_builder.buildResponse(target.http_request, config->getServers()[target.server_index]);
 	unsigned int bytes_sent = 0;
 	int temp_sent = 0;
 
