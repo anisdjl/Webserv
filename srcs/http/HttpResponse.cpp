@@ -12,37 +12,29 @@ std::string HttpResponse::buildResponse(HttpRequest& request, ServerConfig &serv
 {
    	if (request.getErrorCode() != 0)
     {
-        std::cout << "[Debug] : ERROR "<< std::endl; // debug
         this->_buildErrorResponse(request.getErrorCode(), servConf, NULL);
 		return (_buildStringResponse());
     }
+	if (request.getVersion() != "HTTP/1.1")
+	{
+		this->_buildErrorResponse(505, servConf, NULL);
+		return (_buildStringResponse());
+	}
     LocationConfig *location = servConf.matchLocation(request.getPath());
 	if (location && !this->_isMethodAllowed(request.getMethod(), location)) // check droit
 	{
-		std::cout << "[Debug] : ERROR 405"<< std::endl; // debug
 		this->_buildErrorResponse(405, servConf, location);
 		return (_buildStringResponse());
 	}
+
     if (request.getMethod() == "GET")
-    {
-        std::cout << "GET "<< std::endl; //debug
         this->_buildGetResponse(request, servConf, location);
-    }
     else if (request.getMethod() == "POST")
-    {
-        std::cout << "POST "<< std::endl; //debug
         this->_buildPostResponse(request, servConf, location);
-    }
     else if (request.getMethod() == "DELETE")
-    {
-        std::cout << "DELETE "<< std::endl; //debug
         this->_buildDeleteResponse(request, servConf, location);
-    }
     else // method not allowed /
-    {
-        std::cout << "[Debug] : ERROR 501" << std::endl;
         this->_buildErrorResponse(501, servConf, location); // not found
-    }
 	return (_buildStringResponse());
 }
 
@@ -77,9 +69,33 @@ std::string HttpResponse::_buildStringResponse()
 
 void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
+	std::string	root;
 
 }
 
+/*
+	std::string		root;
+	std::string		html_path("");
+	std::map<int, std::string >::const_iterator	it = servConf.findErrorPage(error_code);
+
+	if (it != servConf.getErrorPage().end())
+	{
+		if (location && !location->getRoot().empty())
+			root = location->getRoot();
+		else
+			root = servConf.getRoot();
+		html_path = root + it->second;
+	}
+*/
+/*
+	GET /api/utilisateurs?id=42&format=json HTTP/1.1
+	Host: api.exemple.com
+	User-Agent: Mozilla/5.0
+	Accept: application/json
+	Accept-Language: fr-FR
+	Connection: keep-alive
+	Cookie: session_id=abc123
+*/
 void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
 
@@ -92,72 +108,75 @@ void	HttpResponse::_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf
 
 void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location)
 {
-		this->_status_code = error_code;
-		switch (error_code)
-		{
-			case 400: // location inutile
-				this->_status_message = "Bad Request";
-				break;
-			case 403:
-				this->_status_message = "Forbidden";
-				break;
-			case 404:
-				this->_status_message = "Not Found";	
-				break;
-			case 405: // location est utile ici
-				this->_status_message = "Method Not Allowed";
-				break;
-			case 413:
-				this->_status_message = "Payload Too Large";
-				break;
-			case 501:
-            	this->_status_message = "Not Implemented";
-            	break;
-        	default:
-            	this->_status_message = "Internal Server Error";
-            	break;
-		}
-		std::string		root;
-		std::string		html_path("");
-		std::map<int, std::string >::const_iterator	it = servConf.findErrorPage(error_code);
+	this->_status_code = error_code;
+	switch (error_code)
+	{
+		case 400: // erreur dans le parsing
+			this->_status_message = "Bad Request";
+			break;
+		case 403:
+			this->_status_message = "Forbidden";
+			break;
+		case 404:
+			this->_status_message = "Not Found";	
+			break;
+		case 405: // location est utile ici
+			this->_status_message = "Method Not Allowed";
+			break;
+		case 413:
+			this->_status_message = "Payload Too Large";
+			break;
+		case 501:
+			this->_status_message = "Not Implemented";
+			break;
+		case 505:
+			this->_status_message = "Version Not Supported";
+			break;
+		default:
+			this->_status_message = "Internal Server Error";
+			break;
+	}
+	std::string		root;
+	std::string		html_path("");
+	std::map<int, std::string >::const_iterator	it = servConf.findErrorPage(error_code);
 
-		if (it != servConf.getErrorPage().end())
-		{
-			if (location && !location->getRoot().empty())
-				root = location->getRoot();
-			else
-				root = servConf.getRoot();
-			html_path = root + it->second;
-		}
-
-		std::ifstream	infile(html_path.c_str());
-		if (!infile.is_open())
-		{
-				this->_body = "<html>\n"
-									"<head><title>" + this->_status_message + "</title></head>\n"
-									"<body>\n"
-										"<h1>" + this->_status_message + "</h1>\n"
-									"</body>\n"
-								"</html>";
-		}
+	if (it != servConf.getErrorPage().end())
+	{
+		if (location && !location->getRoot().empty())
+			root = location->getRoot();
 		else
+			root = servConf.getRoot();
+		html_path = root + it->second;
+	}
+
+	std::ifstream	infile(html_path.c_str());
+	if (!infile.is_open())
+	{
+			this->_body = "<html>\n"
+								"<head><title>" + this->_status_message + "</title></head>\n"
+								"<body>\n"
+									"<h1>" + this->_status_message + "</h1>\n"
+								"</body>\n"
+							"</html>";
+	}
+	else
+	{
+		std::string		line;
+		while (std::getline(infile, line))
 		{
-			std::string		line;
-			while (std::getline(infile, line))
-			{
-				line += "\n";
-				this->_body += line;
-			}
-			infile.close();
+			line += "\n";
+			this->_body += line;
 		}
-		/* header */
-		std::ostringstream oss;
-		oss << this->_body.size();
-		this->_headers.clear(); 
-		this->_headers.insert(std::make_pair("Server", "WeebServ"));
-		this->_headers.insert(std::make_pair("Content-Type", "text/html"));
-		this->_headers.insert(std::make_pair("Content-Length", oss.str()));
-		this->_headers.insert(std::make_pair("Connection", "close"));
+		infile.close();
+	}
+	/* header */
+	std::ostringstream oss;
+	oss << this->_body.size();
+	this->_headers.clear(); 
+	this->_headers.insert(std::make_pair("Server", "WeebServ"));
+	this->_headers.insert(std::make_pair("Content-Type", "text/html"));
+	this->_headers.insert(std::make_pair("Content-Length", oss.str()));
+	this->_headers.insert(std::make_pair("Connection", "close"));
 }
 /*
 	Location
@@ -169,6 +188,10 @@ void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, L
 	matchLocation
 
 	il faut add la verife avant le build
+
+	parser :
+	400
+	413
 */
 
 /*

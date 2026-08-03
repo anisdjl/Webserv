@@ -22,7 +22,7 @@ class LocationConfig
         bool                            _autoindex;
         std::vector<std::string>        _cgis;
         std::string                     _upload_store;
-        std::string                     _return;
+		std::string                     _return;
     public:
         LocationConfig();
         ~LocationConfig();

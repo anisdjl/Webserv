@@ -4,18 +4,6 @@
 #include <iostream>
 #include <map>
 
-// Exemple possible de request http :
-/*
-	POST /cgi-bin/upload.py?user=42&action=save HTTP/1.1\r\n
-	Host: localhost:8080\r\n
-	User-Agent: Mozilla/5.0 (X11; Linux x86_64)\r\n
-	Content-Type: application/x-www-form-urlencoded\r\n
-	Content-Length: 27\r\n
-	Cookie: session_id=abc123xyz\r\n
-	\r\n
-	name=JohnDoe&age=25&status=ok
-*/
-
 class HttpRequest
 {
     public:
@@ -46,6 +34,18 @@ class HttpRequest
 		std::string 							_body; 
 		int										_error;
 };
+
+// Exemple possible de request http :
+/*
+	POST /cgi-bin/upload.py?user=42&action=save HTTP/1.1\r\n
+	Host: localhost:8080\r\n
+	User-Agent: Mozilla/5.0 (X11; Linux x86_64)\r\n
+	Content-Type: application/x-www-form-urlencoded\r\n
+	Content-Length: 27\r\n
+	Cookie: session_id=abc123xyz\r\n
+	\r\n
+	name=JohnDoe&age=25&status=ok
+*/
 
 /*
 HTTP/1.1 201 Created
