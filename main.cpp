@@ -1,4 +1,7 @@
-# include "headers/webserv.hpp"
+#include "includes/webserv.hpp"
+#include "includes/http/HttpRequest.hpp"
+#include "includes/http/HttpResponse.hpp"
+#include "includes/config/Config.hpp"
 
 int main(int argc, char **argv)
 {

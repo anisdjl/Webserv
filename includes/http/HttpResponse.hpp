@@ -1,0 +1,47 @@
+#ifndef HTTPRESPONSE
+#define HTTPRESPONSE
+
+#include <iostream>
+#include <string>
+#include <map>
+#include "HttpRequest.hpp"
+#include "../config/Config.hpp"
+
+class HttpResponse
+{
+    public:
+		HttpResponse();
+        ~HttpResponse();
+        std::string                         buildResponse(HttpRequest& request, ServerConfig &servConf);
+	private:
+        int									_status_code;
+        std::string							_status_message;
+        std::map<std::string, std::string>	_headers;
+        std::string							_body;
+		std::string                         _buildStringResponse();
+        void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
+        bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
+        void								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        void								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        void								_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+};
+
+/*
+    const char *response =
+     "HTTP/1.1 200 OK\r\n"
+     "Content-Type: text/plain\r\n"
+     "Content-Length: 12\r\n"
+     "\r\n"
+     "Hello World";
+    https://medium.com/@ryanradder0/building-an-http-server-from-scratch-a-journey-beyond-frameworks-28dc49e94a2a
+*/
+
+/*
+    les fonctions necessaire devant traité:
+        - get
+        - post
+        - delete
+        - error : https://http.cat/
+*/
+
+#endif
