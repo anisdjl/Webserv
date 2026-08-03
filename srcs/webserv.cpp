@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/30 23:23:13 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/01 19:07:30 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/03 12:05:20 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ void ft_handler(int signal)
 bool ft_open_socket(struct addrinfo *info, int &socketfd)
 {
 	struct addrinfo *temp;
+	int flags_fcntl;
 	
 	temp = info;
 	while(temp)
@@ -43,6 +44,9 @@ bool ft_open_socket(struct addrinfo *info, int &socketfd)
 	freeaddrinfo(info);
 	if (!temp)
 		return(true);
+	flags_fcntl = fcntl(socketfd, F_GETFL);
+	if (flags_fcntl == -1 || fcntl(socketfd, F_SETFL, flags_fcntl | O_NONBLOCK) == -1)
+		return (close(socketfd), true);
 	return(false);
 }
 

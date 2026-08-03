@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+ /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   treat_socket.cpp                                   :+:      :+:    :+:   */
@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/31 12:03:14 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/02 15:15:48 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/03 10:03:12 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,36 @@ bool ft_send_request(std::map<int, t_socket> &map_socket, t_socket &target, Conf
 			return (true);
 		bytes_sent += temp_sent;
 	}
+	struct epoll_event temp{};
+	temp.data.fd = target.fd;
+	temp.events = EPOLLIN;
+	// maybe reset la request
+	if (epoll_ctl(epollfd, EPOLL_CTL_MOD, target.fd, &temp) == -1)
+		return (true);
+	return (false);
+}
+
+bool ft_create_connection(std::map<int, t_socket> &map_socket, t_socket &target)
+{
+	t_socket temp;
+	struct epoll_event temp_event{};
+	struct sockaddr_storage their_addr;
+	socklen_t addr_size;
+	int flags_fcntl;
+	
+	addr_size = sizeof (their_addr);
+	temp.fd = accept(target.fd, (struct sockaddr *)&their_addr, &addr_size);
+	if (temp.fd == -1)
+		return (true);
+	flags_fcntl = fcntl(temp.fd, F_GETFL);
+	if (flags_fcntl == -1 || fcntl(temp.fd, F_SETFL, flags_fcntl | O_NONBLOCK) == -1)
+		return (close(temp.fd), true);
+	temp.server_index = target.server_index;
+	temp.type = CONNECTION;
+	temp_event.data.fd = temp_socket.fd;
+	temp_event.events = EPOLLIN;
+	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, temp.fd, &temp_event) == -1)
+			return (close(temp.fd), true);
 	return (false);
 }
 
@@ -62,7 +92,7 @@ bool ft_treat_socket(std::map<int, t_socket> &map_socket, struct epoll_event &ev
 	if (event.events & (EPOLLIN))
 	{
 		if(target.type == LISTENER)
-			return (ft_create_connection(map_socket, target, config));
+			return (ft_create_connection(map_socket, target));
 		if(target.type == CONNECTION)
 			return (ft_parse_request(map_socket, target, config, epollfd));
 		if(target.type == CGI)
