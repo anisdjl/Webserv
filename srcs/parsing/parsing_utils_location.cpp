@@ -55,7 +55,7 @@ void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *in
 		{
 			// si on est ici c'est qu'on a fini la location actuel
 			(*index)++;
-			//(*servconf).setLocations(locconfig);
+			(*servconf).setLocations(locconfig);
 			return ;
 		}
 		throw std::runtime_error("Error: wrong configuration file format 4");

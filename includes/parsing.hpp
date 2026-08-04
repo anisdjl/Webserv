@@ -32,6 +32,9 @@ class Config
 		Config(const Config &src);
 		Config	&operator=(const Config &src);
 		~Config(void);
+		
+		void	setServer(ServerConfig *servconf);
+		void	displayConfig(void);
 };
 
 class LocationConfig
@@ -61,6 +64,8 @@ class LocationConfig
 		void	setUpload(std::string &upload);
 		void	setReturn(int &code, std::string &path); // je mets void pour le moment mais c'est pas bon
 		void	setReturn(int code);
+
+		void	displayLocation(void);
 };
 
 class	ServerConfig
@@ -85,16 +90,21 @@ class	ServerConfig
 		void	setServerName(std::string &server_name);
 		void	setClientMaxBody(long value);
 		void	setErrorpage(int code, std::string &path); // je mets void pour le moment mais c'est pas bon
+
+		void	displayServConf(void);
 };
 
 std::vector<std::string>	*lexe_config(std::string filename);
 void						lexer(std::string filename);
 void						fsm(Config *config, std::vector<std::string> *tokens);
-void						parse_listen(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
-void						parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
-void						parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
-void						parse_max_body_size(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
-void						parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
+
+void						parse_listen(Config *config,std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
+void						parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
+void						parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
+void						parse_max_body_size(Config *config,std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
+void						parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
+
+
 void						parse_location(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *srevconf);
 void						parse_root(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
 void						parse_index(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);

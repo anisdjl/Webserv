@@ -12,14 +12,24 @@ LocationConfig::~LocationConfig(void)
 
 LocationConfig	&LocationConfig::operator=(const LocationConfig &src)
 {
-	(void)src;
+	if (this != &src)
+	{
+		_path = src._path;
+		_root = src._root;
+		_index = src._index;
+		_methods = src._methods;
+		_autoindex = src._autoindex;
+		_cgis = src._cgis;
+		_upload_store = src._upload_store;
+		_return = src._return;
+	}
 
 	return (*this);
 }
 
 LocationConfig::LocationConfig(const LocationConfig &src)
 {
-	(void)src;
+	(*this) = src;
 }
 
 void	LocationConfig::setPath(std::string &path) {
@@ -64,4 +74,37 @@ void	LocationConfig::setReturn(int code)
 void	LocationConfig::setCgis(std::string &extension, std::string &path)
 {
 	_cgis.insert(std::make_pair(extension, path));
+}
+
+
+void	LocationConfig::displayLocation(void)
+{
+	std::cout << "=== location config ===" << std::endl;
+	std::cout << "path " << (*this)._path << std::endl;
+	std::cout << "root " << (*this)._root << std::endl;
+
+	std::cout << "index ";
+	for (std::vector<std::string>::iterator it = (*this)._index.begin(); it != (*this)._index.end(); ++it)
+		std::cout << *it << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "methods ";
+	for (std::vector<std::string>::iterator it = (*this)._methods.begin(); it != (*this)._methods.end(); ++it)
+		std::cout << *it << std::endl;
+	std::cout << std::endl;
+
+
+	std::cout << "autoindex " << (*this)._autoindex << std::endl;
+
+	std::cout << "cgis ";
+	for (std::map<std::string, std::string>::iterator it = (*this)._cgis.begin(); it != (*this)._cgis.end(); ++it)
+		std::cout << "cgi extension " << it->first << " cgi path " << it->second << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "upload stores " << (*this)._upload_store << std::endl;
+
+	std::cout << "return : ";
+	for (std::map<int, std::string>::iterator it = (*this)._return.begin(); it != (*this)._return.end(); ++it)
+		std::cout << "code " << it->first << " return path " << it->second << std::endl;
+	std::cout << std::endl;
 }

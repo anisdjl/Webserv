@@ -1,9 +1,8 @@
 #include "../../includes/parsing.hpp"
 
-void	parse_listen(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+void	parse_listen(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf)
 {
 	(void)config;
-	(void)locconfig;
 	(*index)++;
 
 	if ((*tokens)[*index + 1] != ";" || (*tokens)[*index] == ";")
@@ -20,10 +19,9 @@ void	parse_listen(Config *config,std::vector<std::string> *tokens, size_t *index
 	(*index) += 2;
 }
 
-void	parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+void	parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf)
 {
 	(void)config;
-	(void)locconfig;
 	(*index)++;
 
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
@@ -53,13 +51,13 @@ void	parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, 
 	}
 	if (nb_section != 4 || (*tokens)[*index][(*tokens)[*index].size() - 1] == '.')
 		throw std::runtime_error("Value error the ip adrress is invalid");
+	(*servconf).setHost((*tokens)[*index]);
 	(*index) += 2;
 }
 
-void	parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+void	parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf)
 {
 	(void)config;
-	(void)locconfig;
 	(*index)++;
 
 	if ((*tokens)[*index] == ";")
@@ -76,10 +74,9 @@ void	parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *
 	(*index)++;
 }
 
-void	parse_max_body_size(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+void	parse_max_body_size(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf)
 {
 	(void)config;
-	(void)locconfig;
 	(*index)++;
 
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
@@ -96,10 +93,9 @@ void	parse_max_body_size(Config *config, std::vector<std::string> *tokens, size_
 	(*index) += 2;
 }
 
-void	parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+void	parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf)
 {
 	(void)config;
-	(void)locconfig;
 
 	(*index)++;
 	std::vector<int>	codes;

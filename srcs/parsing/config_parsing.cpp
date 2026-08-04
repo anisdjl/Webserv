@@ -64,7 +64,7 @@ void	lexer(std::string filename)
 	fsm(config, tokens);
 }
 
-void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf)
 {
 	if ((*tokens)[*index] != "{")
 		throw std::runtime_error("Error: wrong configuration file format 2");
@@ -74,38 +74,40 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 	{ 
 		if ((*tokens)[*index] == "location")
 		{
+			LocationConfig					*locconfig = new LocationConfig;
 			parse_location(config, tokens, index, locconfig, servconf);
 			continue;
 		}
 		if ((*tokens)[*index] == "listen")
 		{
-			parse_listen(config, tokens, index, locconfig, servconf);
+			parse_listen(config, tokens, index, servconf);
 			continue;
 		}
 		if ((*tokens)[*index] == "host")
 		{
-			parse_host(config, tokens, index, locconfig, servconf);
+			parse_host(config, tokens, index, servconf);
 			continue;
 		}
 		if ((*tokens)[*index] == "server_name")
 		{
-			parse_server_name(config, tokens, index, locconfig, servconf);
+			parse_server_name(config, tokens, index, servconf);
 			continue;
 		}
 		if ((*tokens)[*index] == "client_max_body_size")
 		{
-			parse_max_body_size(config, tokens, index, locconfig, servconf);
+			parse_max_body_size(config, tokens, index, servconf);
 			continue;
 		}
 		if ((*tokens)[*index] == "error_page")
 		{
-			parse_error_page(config, tokens, index, locconfig, servconf);
+			parse_error_page(config, tokens, index, servconf);
 			continue;
 		}
 		if ((*tokens)[*index] == "}")
 		{
 			// si on est ici c'est qu'on a fini le server actuel
 			(*index)++;
+			(*config).setServer(servconf);
 			return ;	
 		}
 		throw std::runtime_error("Error: wrong configuration file format 3");
@@ -114,11 +116,10 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 
 void	fsm(Config *config, std::vector<std::string> *tokens)
 {
-	ServerConfig					*serverconf = new ServerConfig;
-	LocationConfig					*locationconf = new LocationConfig;
+	//ServerConfig					*serverconf = new ServerConfig;
+	//LocationConfig					*locationconf = new LocationConfig;
 
 	size_t	index = 0;
-	std::cout << "taille du vecteur de tokens " << tokens->size() << std::endl;
 	while (index < tokens->size())
 	{
 		if ((*tokens)[index] != "server")
@@ -126,10 +127,11 @@ void	fsm(Config *config, std::vector<std::string> *tokens)
 			std::cout << "index actuel " << index << " token actuel " << (*tokens)[index] << " token d'avant " << (*tokens)[index -1] << " token d'apres " << (*tokens)[index + 1] << std::endl;	
 			throw std::runtime_error ("Error: wrong configuration file format 1");
 		}
+		ServerConfig					*serverconf = new ServerConfig;
 		index++;
-		parse_server(config, tokens, &index, locationconf, serverconf);
+		parse_server(config, tokens, &index, serverconf);
 	}
-	std::cout << "valeur de l'index a la fin du parsing " << index << std::endl;
+	(*config).displayConfig();
 	// delete tokens;
 	// delete config; just for the test
 }

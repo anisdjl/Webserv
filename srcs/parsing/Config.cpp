@@ -24,3 +24,21 @@ Config::~Config(void)
 {
 	// vide pour le moment mais on va free apres
 }
+
+
+void	Config::setServer(ServerConfig *servconf)
+{
+	_servers.push_back(*servconf);
+	//(*servconf).displayServConf();
+	delete servconf;
+}
+
+void	Config::displayConfig(void)
+{
+	std::cout << "number of server config " << this->_servers.size() << std::endl;
+	for (std::vector<ServerConfig>::iterator it = this->_servers.begin(); it != this->_servers.end(); ++it)
+	{
+		std::cout << "server config :" <<std::endl;
+		it->displayServConf();
+	}
+}
