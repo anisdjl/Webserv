@@ -71,7 +71,7 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 	(*index)++;
 	config->increment();
 
-	while ((*tokens)[*index] != "}" && *index < tokens->size()) { // on check le } pcq celui de la location sera mange dans location
+	while ((*tokens)[*index] != "}" && *index < (*tokens).size()) { // on check le } pcq celui de la location sera mange dans location
 		if ((*tokens)[*index] == "location")
 		{
 			parse_location(config, tokens, index, locconfig, servconf);
@@ -120,6 +120,7 @@ void	fsm(Config *config, std::vector<std::string> *tokens)
 	LocationConfig					*locationconf = new LocationConfig;
 
 	size_t	index = 0;
+	std::cout << "taille du vecteur de tokens " << tokens->size() << std::endl;
 	while (index < tokens->size())
 	{
 		if ((*tokens)[index] != "server")
@@ -127,6 +128,7 @@ void	fsm(Config *config, std::vector<std::string> *tokens)
 		index++;
 		parse_server(config, tokens, &index, locationconf, serverconf);
 	}
+	std::cout << "valeur de l'index a la fin du parsing" << std::endl;
 	// delete tokens;
 	// delete config; just for the test
 }

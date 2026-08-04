@@ -41,16 +41,16 @@ void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *in
 			parse_upload(config, tokens, index, locconfig, servconf);
 			continue;
 		}
-		// if ((*tokens)[*index] == "return")
-		// {
-		// 	parse_return(config, tokens, index, locconfig, servconf);
-		// 	continue;
-		// }
-		// if ((*tokens)[*index] == "cgi_pass")
-		// {
-		// 	parse_cgi(config, tokens, index, locconfig, servconf);
-		// 	continue;
-		// }
+		if ((*tokens)[*index] == "return")
+		{
+			parse_return(config, tokens, index, locconfig, servconf);
+			continue;
+		}
+		if ((*tokens)[*index] == "cgi_pass")
+		{
+			parse_cgi(config, tokens, index, locconfig, servconf);
+			continue;
+		}
 		throw std::runtime_error("Error: wrong configuration file format");
 	}
 }
@@ -136,24 +136,47 @@ void	parse_upload(Config *config, std::vector<std::string> *tokens, size_t *inde
 void	parse_return(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconf, ServerConfig *servconf)
 {
 	(*index)++;
-
-	(void)config; (void)servconf; // je dois rajouter le check de la conf qui prends deux arguments et un argument
-
-	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] == ";" || (*tokens)[*index + 2] != ";")
-		throw std::runtime_error("Syntax error in return directive");
-	
-	for (size_t y = 0; y < (*tokens)[*index].size(); ++y)
+	(void)config; (void)servconf;
+	std::cout << "je suis ici" << std::endl;
+	if ((*tokens)[*index] != ";" && (*tokens)[*index + 1] == ";")
 	{
-		if (!isdigit((*tokens)[*index][y]))
-			throw std::runtime_error("Value error the first argument in the return directive must be a number");
+		for (size_t y = 0; y < (*tokens)[*index].size(); ++y)
+			if (!isdigit((*tokens)[*index][y]))
+				throw std::runtime_error("Value error the error code in the return directive must contain only digit");
+		int code = std::atoi((*tokens)[*index].c_str());
+		if (code > 599 || code < 100)
+			throw std::runtime_error("Value error the error code in the return value must be in range [100 - 599]");
+		(*locconf).setReturn(code);
+		std::cout << code << std::endl;
+		(*index) += 2;
+		return ;
 	}
-	int code = std::atoi((*tokens)[*index].c_str());
-	if (code > 599 || code < 100)
-		throw std::runtime_error("Value error the code of return must be between 100 and 599");
-	(*locconf).setReturn(code, (*tokens)[*index + 1]);
+	else if ((*tokens)[*index] != ";" && (*tokens)[*index + 1] != ";" && (*tokens)[*index + 2] == ";")
+	{
+		for (size_t y = 0; y < (*tokens)[*index].size(); ++y)
+			if (!isdigit((*tokens)[*index][y]))
+				throw std::runtime_error("Value error the error code in the return directive must contain only digit");
+		int code = std::atoi((*tokens)[*index].c_str());
+		if (code > 599 || code < 100)
+			throw std::runtime_error("Value error the error code in the return value must be in range [100 - 599]");
+		(*locconf).setReturn(code, (*tokens)[*index + 1]);
+		std::cout << code << " " << (*tokens)[*index + 1] << std::endl;
+		(*index) += 3;
+	}
+	else
+		throw std::runtime_error("Syntax error in return directive");
 }
 
 void	parse_cgi(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconf, ServerConfig *servconf)
 {
+	(*index)++;	
+	(void)config; (void)servconf;
+
+	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] == ";" || (*tokens)[*index + 2] != ";")
+		throw std::runtime_error("Syntax error in cgi directive");
 	
+	if ((*tokens)[*index][0] != '.')
+		throw std::runtime_error("Syntax error the extension name in the cgi direvtive must begin with a '.'");
+	(*locconf).setCgis((*tokens)[*index], (*tokens)[*index + 1]);
+	(*index) += 3;
 }

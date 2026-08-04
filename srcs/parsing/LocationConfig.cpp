@@ -54,3 +54,14 @@ void	LocationConfig::setReturn(int &code, std::string &path)
 {
 	_return.insert(std::make_pair(code, path));
 }
+
+void	LocationConfig::setReturn(int code)
+{
+	_return.insert(std::make_pair(code, ""));
+	// _return[code] = ""; ce cas sera en cas de doublon si on doit gerer les doublons pas sur de le garder
+}
+
+void	LocationConfig::setCgis(std::string &extension, std::string &path)
+{
+	_cgis.insert(std::make_pair(extension, path));
+}

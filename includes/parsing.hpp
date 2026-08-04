@@ -50,14 +50,14 @@ class Config
 class LocationConfig
 {
 	private:
-		std::string					_path;
-		std::string					_root; // inherites from the server if not mentionned in the conf or error 404
-		std::vector<std::string>	_index; // i don't remember
-		std::vector<std::string>	_methods; // only GET if absent in the conf file
-		bool						_autoindex; // off by default
-		std::vector<std::string>	_cgis; // cgis not allowed if not in the conf file
-		std::string					_upload_store; // upload interdit par defaut si pas dans le fichier de conf
-		std::map<int, std::string>	_return; // not mandatory, no redirection by default
+		std::string							_path;
+		std::string							_root; // inherites from the server if not mentionned in the conf or error 404
+		std::vector<std::string>			_index; // i don't remember
+		std::vector<std::string>			_methods; // only GET if absent in the conf file
+		bool								_autoindex; // off by default
+		std::map<std::string, std::string>	_cgis; // cgis not allowed if not in the conf file
+		std::string							_upload_store; // upload interdit par defaut si pas dans le fichier de conf
+		std::map<int, std::string>			_return; // not mandatory, no redirection by default
 	
 	public:
 		LocationConfig(void);
@@ -70,9 +70,10 @@ class LocationConfig
 		void	setIndex(std::string &index);
 		void	setMethods(std::string &method);
 		void	setAutoIndex(std::string &autoindex);
-		void	setCgis(std::string &cgi);
+		void	setCgis(std::string &extension, std::string &path);
 		void	setUpload(std::string &upload);
 		void	setReturn(int &code, std::string &path); // je mets void pour le moment mais c'est pas bon
+		void	setReturn(int code);
 };
 
 class	ServerConfig
