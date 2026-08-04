@@ -5,7 +5,7 @@ void	parse_listen(Config *config, std::vector<std::string> *tokens, size_t *inde
 	(void)config;
 	(*index)++;
 
-	if ((*tokens)[*index + 1] != ";" || (*tokens)[*index] == ";")
+	if ((*tokens)[*index + 1] != ";" || (*tokens)[*index] == ";"		)
 		throw std::runtime_error("Syntax error in listen directive");
 
 	for (size_t i = 0; i < (*tokens)[*index].size(); ++i)

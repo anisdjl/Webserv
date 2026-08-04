@@ -13,7 +13,7 @@ void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *in
 	if ((*tokens)[*index] != "{")
 		throw std::runtime_error("Syntax error missing '{'");
 	(*index)++;
-
+	(*config).increment();
 	while ((*index) < (*tokens).size()) // je viens de retirer la condition de while tokens != }
 	{
 		if ((*tokens)[*index] == "root")
@@ -55,6 +55,7 @@ void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *in
 		{
 			// si on est ici c'est qu'on a fini la location actuel
 			(*index)++;
+			(*config).decrement();
 			(*servconf).setLocations(locconfig);
 			return ;
 		}

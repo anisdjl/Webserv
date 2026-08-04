@@ -2,7 +2,7 @@
 
 Config::Config(void)
 {
-	
+	_nb_brackets = 0;
 }
 
 Config::Config(const Config &src)

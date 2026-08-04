@@ -69,7 +69,7 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 	if ((*tokens)[*index] != "{")
 		throw std::runtime_error("Error: wrong configuration file format 2");
 	(*index)++;
-
+	(*config).increment();
 	while (*index < (*tokens).size()) // je viens de retirer le condition du while (tokens != })
 	{ 
 		if ((*tokens)[*index] == "location")
@@ -107,6 +107,7 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 		{
 			// si on est ici c'est qu'on a fini le server actuel
 			(*index)++;
+			(*config).decrement();
 			(*config).setServer(servconf);
 			return ;	
 		}
@@ -116,9 +117,6 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 
 void	fsm(Config *config, std::vector<std::string> *tokens)
 {
-	//ServerConfig					*serverconf = new ServerConfig;
-	//LocationConfig					*locationconf = new LocationConfig;
-
 	size_t	index = 0;
 	while (index < tokens->size())
 	{
@@ -131,6 +129,8 @@ void	fsm(Config *config, std::vector<std::string> *tokens)
 		index++;
 		parse_server(config, tokens, &index, serverconf);
 	}
+	if ((*config).getNbBrackets() != 0)
+		throw std::runtime_error("Syntax error missung brackets");
 	(*config).displayConfig();
 	// delete tokens;
 	// delete config; just for the test

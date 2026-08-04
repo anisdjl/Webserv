@@ -26,7 +26,7 @@ class Config
 {
 	private:
 		std::vector<ServerConfig>			_servers; // le nombre de socket c'est le nombre de server config
-
+		int									_nb_brackets;
 	public:
 		Config(void);
 		Config(const Config &src);
@@ -35,6 +35,9 @@ class Config
 		
 		void	setServer(ServerConfig *servconf);
 		void	displayConfig(void);
+		void	increment(void) { _nb_brackets++; };
+		void	decrement(void) { _nb_brackets--; };
+		id_t	getNbBrackets(void) {return _nb_brackets;};
 };
 
 class LocationConfig
