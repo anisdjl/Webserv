@@ -10,9 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/webserv.hpp"
-#include "../includes/parsing.hpp"
-#include "../includes/socket.hpp"
+#include "../../includes/socket/socket.hpp"
 
 bool ft_listener(std::string &listener, int &socketfd)
 {

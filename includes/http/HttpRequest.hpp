@@ -1,8 +1,7 @@
 #ifndef HTTPREQUEST
 #define HTTPREQUEST
 
-#include <iostream>
-#include <map>
+#include "../webserv.hpp"
 
 // Exemple possible de request http :
 /*

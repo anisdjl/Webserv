@@ -1,9 +1,7 @@
 #ifndef HTTPRESPONSE
 #define HTTPRESPONSE
 
-#include <iostream>
-#include <string>
-#include <map>
+#include "../webserv.hpp"
 #include "HttpRequest.hpp"
 #include "../config/Config.hpp"
 

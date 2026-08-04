@@ -10,10 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/cgi.hpp"
 #include "../includes/webserv.hpp"
-#include "../includes/parsing.hpp"
-#include "../includes/socket.hpp"
+#include "../includes/socket/socket.hpp"
 
 
 ft_create

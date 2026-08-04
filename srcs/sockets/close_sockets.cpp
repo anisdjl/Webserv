@@ -10,9 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/webserv.hpp"
-#include "../includes/parsing.hpp"
-#include "../includes/socket.hpp"
+#include "../../includes/socket/socket.hpp"
 
 void ft_close_socket(std::map<int, t_socket> &map_socket, int target_fd)
 {

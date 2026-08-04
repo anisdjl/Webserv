@@ -11,8 +11,8 @@
 /* ************************************************************************** */
 
 #include "../includes/webserv.hpp"
-#include "../includes/parsing.hpp"
-#include "../includes/socket.hpp"
+#include "../includes/config/Config.hpp"
+#include "../includes/socket/socket.hpp"
 
 static volatile sig_atomic_t run = 1;
 

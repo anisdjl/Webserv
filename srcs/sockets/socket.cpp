@@ -6,19 +6,24 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:35:17 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/03 15:46:44 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/04 13:14:39 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
-#include "../includes/socket.hpp"
+#include "../../includes/socket/socket.hpp"
 
-Socket::Socket() : _fd(-1), _server_index(-1), _type(CONNECTION), _http_request(Request()) {}
+Socket::Socket() 
+: _fd(-1), _server_index(-1), _type(CONNECTION), _http_request(HttpRequest()), _http_response(HttpResponse())
+{}
 
-Socket::Socket(int fd, int server_index, Socket_type type, Request& request) : _fd(fd), _server_index(server_index), _type(type), _http_request(request) {}
+Socket::Socket(int fd, int server_index, Socket_type type, HttpRequest& request, HttpResponse& response) 
+: _fd(fd), _server_index(server_index), _type(type), _http_request(request), _http_response(HttpResponse(response))
+{}
 
-Socket::Socket(const Socket& other) : _fd(other._fd), _server_index(other._server_index), _type(other._type), _http_request(other._http_request) {}
-
+Socket::Socket(const Socket& other) 
+: _fd(other._fd), _server_index(other._server_index), _type(other._type), _http_request(other._http_request), _http_response(other._http_response)
+{}
 Socket::~Socket() {}
 
 int &Socket::getFd()
@@ -26,7 +31,7 @@ int &Socket::getFd()
 	return _fd;
 }
 
-const int Socket::getFd() const
+int Socket::getFd() const
 {
 	return _fd;
 }
@@ -41,7 +46,7 @@ Socket_type Socket::getType() const
 	return _type;
 }
 
-Request& Socket::getHttpRequest() const
+HttpRequest& Socket::getHttpRequest() const
 {
 	return _http_request;
 }
@@ -71,7 +76,7 @@ void Socket::setType(Socket_type type)
 	_type = type;
 }
 
-void Socket::setHttpRequest(Request& request)
+void Socket::setHttpRequest(HttpRequest& request)
 {
 	_http_request = request;
 }

@@ -10,9 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/webserv.hpp"
-#include "../includes/parsing.hpp"
-#include "../includes/socket.hpp"
+#include "../../includes/socket/socket.hpp"
 
 bool ft_parse_request(std::map<int, Socket> &map_socket, Socket &target, Config *config, int &epollfd)
 {
