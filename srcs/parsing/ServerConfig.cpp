@@ -48,3 +48,9 @@ void	ServerConfig::setErrorpage(int code, std::string &path)
 {
 	_error_page.insert(std::make_pair(code, path));
 }
+
+void	ServerConfig::setLocations(LocationConfig *locconfig)
+{
+	_locations.push_back(*locconfig);
+	// delete (locconfig); je suis pas sur de la delete ici
+}

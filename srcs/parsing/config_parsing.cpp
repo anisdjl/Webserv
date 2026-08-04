@@ -67,11 +67,11 @@ void	lexer(std::string filename)
 void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
 {
 	if ((*tokens)[*index] != "{")
-		throw std::runtime_error("Error: wrong configuration file format");
+		throw std::runtime_error("Error: wrong configuration file format 2");
 	(*index)++;
-	config->increment();
 
-	while ((*tokens)[*index] != "}" && *index < (*tokens).size()) { // on check le } pcq celui de la location sera mange dans location
+	while (*index < (*tokens).size()) // je viens de retirer le condition du while (tokens != })
+	{ 
 		if ((*tokens)[*index] == "location")
 		{
 			parse_location(config, tokens, index, locconfig, servconf);
@@ -104,18 +104,16 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 		}
 		if ((*tokens)[*index] == "}")
 		{
-			config->decrement();
+			// si on est ici c'est qu'on a fini le server actuel
 			(*index)++;
 			return ;	
 		}
-		throw std::runtime_error("Error: wrong configuration file format");
+		throw std::runtime_error("Error: wrong configuration file format 3");
 	}
 }
 
 void	fsm(Config *config, std::vector<std::string> *tokens)
 {
-	config->setState(MAIN_SECTION);
-
 	ServerConfig					*serverconf = new ServerConfig;
 	LocationConfig					*locationconf = new LocationConfig;
 
@@ -124,11 +122,14 @@ void	fsm(Config *config, std::vector<std::string> *tokens)
 	while (index < tokens->size())
 	{
 		if ((*tokens)[index] != "server")
-			throw std::runtime_error ("Error: wrong configuration file format");
+		{
+			std::cout << "index actuel " << index << " token actuel " << (*tokens)[index] << " token d'avant " << (*tokens)[index -1] << " token d'apres " << (*tokens)[index + 1] << std::endl;	
+			throw std::runtime_error ("Error: wrong configuration file format 1");
+		}
 		index++;
 		parse_server(config, tokens, &index, locationconf, serverconf);
 	}
-	std::cout << "valeur de l'index a la fin du parsing" << std::endl;
+	std::cout << "valeur de l'index a la fin du parsing " << index << std::endl;
 	// delete tokens;
 	// delete config; just for the test
 }

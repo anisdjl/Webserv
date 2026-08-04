@@ -14,7 +14,7 @@ void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *in
 		throw std::runtime_error("Syntax error missing '{'");
 	(*index)++;
 
-	while ((*tokens)[*index] != "}" && (*index) < (*tokens).size())
+	while ((*index) < (*tokens).size()) // je viens de retirer la condition de while tokens != }
 	{
 		if ((*tokens)[*index] == "root")
 		{
@@ -51,7 +51,14 @@ void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *in
 			parse_cgi(config, tokens, index, locconfig, servconf);
 			continue;
 		}
-		throw std::runtime_error("Error: wrong configuration file format");
+		if ((*tokens)[*index] == "}")
+		{
+			// si on est ici c'est qu'on a fini la location actuel
+			(*index)++;
+			//(*servconf).setLocations(locconfig);
+			return ;
+		}
+		throw std::runtime_error("Error: wrong configuration file format 4");
 	}
 }
 
@@ -113,7 +120,7 @@ void	parse_autoindex(Config *config, std::vector<std::string> *tokens, size_t *i
 	
 	if ((*tokens)[*index] != "on" && (*tokens)[*index] != "off")
 		throw std::runtime_error("Value error autoindex value must be 'on' or 'off'");
-	
+
 	(*locconfig).setAutoIndex((*tokens)[*index]);
 	(*index) += 2;
 }
@@ -128,8 +135,6 @@ void	parse_upload(Config *config, std::vector<std::string> *tokens, size_t *inde
 		throw std::runtime_error("Syntax error in upload_store directive");
 	
 	(*locconfig).setUpload((*tokens)[*index]);
-	std::cout << (*tokens)[*index] << std::endl;
-
 	(*index) += 2;
 }
 
@@ -137,7 +142,7 @@ void	parse_return(Config *config, std::vector<std::string> *tokens, size_t *inde
 {
 	(*index)++;
 	(void)config; (void)servconf;
-	std::cout << "je suis ici" << std::endl;
+
 	if ((*tokens)[*index] != ";" && (*tokens)[*index + 1] == ";")
 	{
 		for (size_t y = 0; y < (*tokens)[*index].size(); ++y)
@@ -147,7 +152,6 @@ void	parse_return(Config *config, std::vector<std::string> *tokens, size_t *inde
 		if (code > 599 || code < 100)
 			throw std::runtime_error("Value error the error code in the return value must be in range [100 - 599]");
 		(*locconf).setReturn(code);
-		std::cout << code << std::endl;
 		(*index) += 2;
 		return ;
 	}
@@ -160,7 +164,6 @@ void	parse_return(Config *config, std::vector<std::string> *tokens, size_t *inde
 		if (code > 599 || code < 100)
 			throw std::runtime_error("Value error the error code in the return value must be in range [100 - 599]");
 		(*locconf).setReturn(code, (*tokens)[*index + 1]);
-		std::cout << code << " " << (*tokens)[*index + 1] << std::endl;
 		(*index) += 3;
 	}
 	else

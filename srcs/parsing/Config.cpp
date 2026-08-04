@@ -2,8 +2,7 @@
 
 Config::Config(void)
 {
-	_state = MAIN_SECTION;
-	_nb_brackets = 0;
+	
 }
 
 Config::Config(const Config &src)
@@ -24,19 +23,4 @@ Config	&Config::operator=(const Config &src)
 Config::~Config(void)
 {
 	// vide pour le moment mais on va free apres
-}
-
-void	Config::setState(STATE state)
-{
-	_state = state;
-}
-
-void	Config::increment(void)
-{
-	_nb_brackets++;
-}
-
-void	Config::decrement(void)
-{
-	_nb_brackets--;
 }

@@ -6,16 +6,8 @@
 class LocationConfig;
 class ServerConfig;
 
-enum STATE {
-	SERVER_SECTION,
-	LOCATION_SECTION,
-	MAIN_SECTION
-};
-
 class Request
 {
-	// un etat is_complete pour savoir si la requete est complete ou pas
-
 	private:
 		std::string							_start_line;
 		std::map<std::string, std::string>	_header;
@@ -33,18 +25,13 @@ class Request
 class Config
 {
 	private:
-		STATE								_state;
 		std::vector<ServerConfig>			_servers; // le nombre de socket c'est le nombre de server config
-		int									_nb_brackets;
 
 	public:
-		void	increment(void);
-		void	decrement(void);
 		Config(void);
 		Config(const Config &src);
 		Config	&operator=(const Config &src);
 		~Config(void);
-		void	setState(STATE state);
 };
 
 class LocationConfig
@@ -92,6 +79,7 @@ class	ServerConfig
 		ServerConfig	&operator=(const ServerConfig &src);
 		ServerConfig(const ServerConfig &src);
 
+		void	setLocations(LocationConfig *locconfig);
 		void	setListen(std::string &listen);
 		void	setHost(std::string &host);
 		void	setServerName(std::string &server_name);
