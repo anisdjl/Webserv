@@ -25,11 +25,6 @@ std::string		HttpRequest::getVersion() const
     return this->_version;
 }
 
-std::map<std::string, std::string>	HttpRequest::getHeaders() const
-{
-    return this->_header;
-}
-
 std::string	HttpRequest::getBody() const
 {
     return this->_body;
@@ -40,7 +35,7 @@ int		HttpRequest::getErrorCode() const
     return this->_error;
 }
 
-std::string		HttpRequest::getHeader(std::string& key) const
+std::string		HttpRequest::getHeader(std::string key) const
 {
 	for(std::map<std::string, std::string >::const_iterator it = _header.begin();
 		it != _header.end(); ++it)

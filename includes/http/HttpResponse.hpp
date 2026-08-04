@@ -18,6 +18,7 @@ class HttpResponse
         std::string							_status_message;
         std::map<std::string, std::string>	_headers;
         std::string							_body;
+        std::string                         _findContentType(std::string path);
 		std::string                         _buildStringResponse();
         void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
