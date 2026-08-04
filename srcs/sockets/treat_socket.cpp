@@ -20,6 +20,12 @@ bool ft_parse_request(std::map<int, Socket> &map_socket, Socket &target, Config 
 	char buffer[BUFFER_SIZE + 1];
 
 
+	memset(buffer, 0, BUFFER_SIZE + 1);
+	bytes_read = recv(target.getFd(), buffer, BUFFER_SIZE, 0);
+	if (bytes_read == -1)
+		return (true);
+	if (ft_parse_request(target.http_request, config->getServers()[target.server_index], buffer, bytes_read))
+		return (true);
 	if (target.http_request.state == COMPLETE)
 	{
 
@@ -29,13 +35,6 @@ bool ft_parse_request(std::map<int, Socket> &map_socket, Socket &target, Config 
 		if (epoll_ctl(epollfd, EPOLL_CTL_MOD, target.getFd(), &temp) == -1)
 			return (true);
 	}
-	memset(buffer, 0, BUFFER_SIZE + 1);
-	bytes_read = recv(target.getFd(), buffer, BUFFER_SIZE, 0);
-	if (bytes_read == -1)
-		return (true);
-	if (ft_parse_request(target.http_request, config->getServers()[target.server_index], buffer, bytes_read))
-		return (true);
-
 	return (false);
 }
 
@@ -86,6 +85,7 @@ bool ft_create_connection(std::map<int, Socket> &map_socket, Socket &target)
 	temp_event.events = EPOLLIN;
 	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, temp.getFd(), &temp_event) == -1)
 			return (close(temp.getFd()), true);
+	map_socket.insert(std::make_pair(temp.getFd(), temp));
 	return (false);
 }
 

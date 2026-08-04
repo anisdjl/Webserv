@@ -159,6 +159,15 @@ void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, L
 		this->_headers.insert(std::make_pair("Content-Length", oss.str()));
 		this->_headers.insert(std::make_pair("Connection", "close"));
 }
+
+void HttpResponse::resetResponse()
+{
+	this->_status_code = 200;
+	this->_status_message = "OK";
+	this->_headers.clear();
+	this->_body.clear();
+}
+
 /*
 	Location
 	location->root // possible

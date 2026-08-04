@@ -13,6 +13,7 @@ class HttpResponse
 		HttpResponse();
         ~HttpResponse();
         std::string                         buildResponse(HttpRequest& request, ServerConfig &servConf);
+		void                                resetResponse();
 	private:
         int									_status_code;
         std::string							_status_message;
