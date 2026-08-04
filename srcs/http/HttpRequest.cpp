@@ -1,7 +1,9 @@
 #include "../../includes/http/HttpRequest.hpp"
 #include <map>
 
-HttpRequest::HttpRequest(){};
+HttpRequest::HttpRequest()
+: _state(INCOMPLETE)
+{};
 
 HttpRequest::~HttpRequest(){};
 

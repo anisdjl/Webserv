@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:36:31 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/03 15:48:36 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/04 16:04:53 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,9 @@
 bool ft_listener(std::string &listener, int &socketfd)
 {
 	struct addrinfo *info;
-	struct addrinfo hints{};
+	struct addrinfo hints;
 
+	std::memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
@@ -43,9 +44,10 @@ bool ft_listener(std::string &listener, int &socketfd)
 bool ft_construct_listener(std::map <int, Socket> &map_socket, Config *config, int const &epollfd)
 {
 	Socket temp_socket;
-	struct epoll_event temp{};
+	struct epoll_event temp;
 	int i = 0; 
 
+	std::memset(&temp, 0, sizeof(temp));
 	temp_socket.setType(LISTENER);
 	while(i < config->getServers().size())
 	{

@@ -18,13 +18,13 @@ bool ft_parse_request(std::map<int, Socket> &map_socket, Socket &target, Config 
 	char buffer[BUFFER_SIZE + 1];
 
 
-	memset(buffer, 0, BUFFER_SIZE + 1);
+	std::memset(buffer, 0, BUFFER_SIZE + 1);
 	bytes_read = recv(target.getFd(), buffer, BUFFER_SIZE, 0);
 	if (bytes_read == -1)
 		return (true);
-	if (ft_parse_request(target.http_request, config->getServers()[target.server_index], buffer, bytes_read))
+	if (ft_parse_request(target.getHttpRequest(), config->getServers()[target.getServerIndex()], buffer, bytes_read))
 		return (true);
-	if (target.http_request.state == COMPLETE)
+	if (target.getHttpRequest().getState() == COMPLETE)
 	{
 
 		struct epoll_event temp{};
@@ -36,13 +36,14 @@ bool ft_parse_request(std::map<int, Socket> &map_socket, Socket &target, Config 
 	return (false);
 }
 
-bool ft_send_request(std::map<int, Socket> &map_socket, Socket &target, Config *config)
+bool ft_send_request(std::map<int, Socket> &map_socket, Socket &target, Config *config, int &epollfd)
 {
 	HttpResponse response_builder;
 
-	std::string response = response_builder.buildResponse(target.http_request, config->getServers()[target.server_index]);
+	std::string response = response_builder.buildResponse(target.getHttpRequest(), config->getServers()[target.getServerIndex()]);
 	unsigned int bytes_sent = 0;
 	int temp_sent = 0;
+	struct epoll_event temp;
   
 	if (response.empty())
 		return (true);
@@ -53,10 +54,12 @@ bool ft_send_request(std::map<int, Socket> &map_socket, Socket &target, Config *
 			return (true);
 		bytes_sent += temp_sent;
 	}
-	struct epoll_event temp{};
+	std::memset(&temp, 0, sizeof(temp));
 	temp.data.fd = target.getFd();
 	temp.events = EPOLLIN;
-	// maybe reset la request
+	target.getHttpRequest().resetRequest();
+	target.getHttpResponse().resetResponse();
+	std::memset(&temp, 0, sizeof(temp));
 	if (epoll_ctl(epollfd, EPOLL_CTL_MOD, target.getFd(), &temp) == -1)
 		return (true);
 	return (false);
@@ -65,11 +68,12 @@ bool ft_send_request(std::map<int, Socket> &map_socket, Socket &target, Config *
 bool ft_create_connection(std::map<int, Socket> &map_socket, Socket &target)
 {
 	Socket temp;
-	struct epoll_event temp_event{};
+	struct epoll_event temp_event;
 	struct sockaddr_storage their_addr;
 	socklen_t addr_size;
 	int flags_fcntl;
 	
+	std::memset(&their_addr, 0, sizeof(their_addr));
 	addr_size = sizeof (their_addr);
 	temp = target;
 	temp.setType(CONNECTION);
@@ -89,7 +93,7 @@ bool ft_create_connection(std::map<int, Socket> &map_socket, Socket &target)
 
 bool ft_treat_socket(std::map<int, Socket> &map_socket, struct epoll_event &event, Config *config, int &epollfd)
 {
-	auto it = map_socket.find(event.data.fd);
+	std::map<int, Socket>::iterator it = map_socket.find(event.data.fd);
 		if (it == map_socket.end())
     		return false;
 	Socket &target = it->second;
@@ -111,7 +115,7 @@ bool ft_treat_socket(std::map<int, Socket> &map_socket, struct epoll_event &even
 	if (event.events & (EPOLLOUT))
 	{
 		if(target.type == CONNECTION)
-				return (ft_send_request(map_socket, target, config));
+				return (ft_send_request(map_socket, target, config, epollfd));
 		if(target.type == CGI)
 				return (ft_cgi(map_socket, target, config));
 	}

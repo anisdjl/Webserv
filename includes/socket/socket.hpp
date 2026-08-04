@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:39:24 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/04 13:14:25 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/04 18:11:48 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,8 @@ class Socket
     	int         	_server_index;
 		int 	   		_parent_index;
     	Socket_type 	_type;
-		HttpRequest		&_http_request;
-		HttpResponse	&_http_response;
+		HttpRequest		_http_request;
+		HttpResponse	_http_response;
 
 	public :
 

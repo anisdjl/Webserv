@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:35:17 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/04 13:14:39 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/04 15:28:16 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "../../includes/socket/socket.hpp"
 
 Socket::Socket() 
-: _fd(-1), _server_index(-1), _type(CONNECTION), _http_request(HttpRequest()), _http_response(HttpResponse())
+: _fd(-1), _server_index(-1), _type(CONNECTION), _http_request(HttpRequest()), _http_response(HttpResponse()) , _parent_index(-1)
 {}
 
 Socket::Socket(int fd, int server_index, Socket_type type, HttpRequest& request, HttpResponse& response) 
@@ -22,7 +22,7 @@ Socket::Socket(int fd, int server_index, Socket_type type, HttpRequest& request,
 {}
 
 Socket::Socket(const Socket& other) 
-: _fd(other._fd), _server_index(other._server_index), _type(other._type), _http_request(other._http_request), _http_response(other._http_response)
+: _fd(other._fd), _server_index(other._server_index), _type(other._type), _http_request(other._http_request), _http_response(other._http_response), _parent_index(other._parent_index)
 {}
 Socket::~Socket() {}
 
@@ -91,6 +91,8 @@ Socket& Socket::operator=(const Socket& other)
 		_server_index = other._server_index;
 		_type = other._type;
 		_http_request = other._http_request;
+		_http_response = other._http_response;
+		_parent_index = other._parent_index;
 	}
 	return *this;
 }
