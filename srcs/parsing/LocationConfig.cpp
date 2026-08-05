@@ -1,4 +1,4 @@
-#include "../../includes/parsing.hpp"
+#include "../../includes/config/Config.hpp"
 
 LocationConfig::LocationConfig(void) : _path(""), _root(""), _autoindex(false), _upload_store("")
 {

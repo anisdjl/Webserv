@@ -1,4 +1,4 @@
-#include "../../includes/parsing.hpp"
+#include "../../includes/config/Config.hpp"
 
 void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
 {

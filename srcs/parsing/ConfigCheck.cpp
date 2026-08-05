@@ -1,4 +1,4 @@
-#include "../../includes/parsing.hpp"
+#include "../../includes/config/Config.hpp"
 
 void	CheckConfig(Config &config)
 {
