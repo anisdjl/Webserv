@@ -33,7 +33,18 @@ bool ft_cgi_out(std::map<int, Socket> &map_socket,Socket &target, Config *config
 
 bool ft_cgi_hup(std::map<int, Socket> &map_socket,Socket &target, Config *config)
 {
+	// close le socket du cgi
 
+	target.getHttpResponse().buildResponse(target.getHttpRequest(), config->getServers()[target.getServerIndex()]);
+	if (target.getHttpResponse().getState() == BUILT)
+	{	
+		struct epoll_event temp;
+		std::memset(&temp, 0, sizeof(temp));
+		temp.data.fd = target.getFd();
+		temp.events  = EPOLLOUT;
+		if (epoll_ctl(epollfd, EPOLL_CTL_MOD, target.getFd(), &temp) == -1)
+			return (true);
+	}
 }
 
 bool ft_parse_request(std::map<int, Socket> &map_socket, Socket &target, Config *config, int &epollfd)
