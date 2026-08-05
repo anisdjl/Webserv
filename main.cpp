@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	try 
 	{
 		if (argc == 2)
-			config = lexer(argv[1])
+			config = lexer(argv[1]);
 		else
 			config = (lexer("default_config.conf"));
 	}

@@ -6,6 +6,15 @@ SRC = main.cpp \
 	  srcs/http/HttpResponse.cpp \
 	  srcs/config/Config.cpp
 
+	  srcs/parsing/ConfigParsing.cpp \
+	  srcs/parsing/Config.cpp \
+	  srcs/parsing/LocationConfig.cpp \
+	  srcs/parsing/ServerConfig.cpp \
+	  srcs/parsing/ServerParsingUtils.cpp \
+	  srcs/parsing/LocationParsingUtils.cpp \
+	  srcs/parsing/ConfigCheck.cpp \
+	  srcs/parsing/RequestParsing.cpp
+	  
 OBJ = $(SRC:.cpp=.o)
 
 GREEN   := \033[0;32m
