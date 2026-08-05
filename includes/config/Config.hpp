@@ -1,7 +1,7 @@
 #ifndef CONFIG_HPP
 # define CONFIG_HPP
 
-#include "../Webserv.hpp"
+# include "../Webserv.hpp"
 
 class Config
 {
@@ -95,6 +95,7 @@ class	ServerConfig
 		std::vector<LocationConfig>	getLocations(void) { return _locations; };
 
 		void	displayServConf(void);
+		LocationConfig	*matchLocation(const std::string& path);
 };
 
 std::vector<std::string>	*lexe_config(std::string filename);

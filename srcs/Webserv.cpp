@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.cpp                                        :+:      :+:    :+:   */
+/*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/30 23:23:13 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/03 12:05:20 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/05 14:25:58 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/webserv.hpp"
-#include "../includes/parsing.hpp"
-#include "../includes/socket.hpp"
+#include "../includes/Webserv.hpp"
+#include "../includes/config/Config.hpp"
+#include "../includes/socket/Socket.hpp"
 
 static volatile sig_atomic_t run = 1;
 
@@ -52,7 +52,7 @@ bool ft_open_socket(struct addrinfo *info, int &socketfd)
 
 bool ft_webserv(Config *config)
 {
-	std::map <int, t_socket> map_socket;
+	std::map <int, Socket> map_socket;
 	int epollfd = epoll_create1(0);
 	struct epoll_event events[128];
 	int nb_events;

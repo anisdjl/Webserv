@@ -1,24 +1,35 @@
 #ifndef HTTPRESPONSE
 #define HTTPRESPONSE
 
-#include <iostream>
-#include <string>
-#include <map>
 #include "HttpRequest.hpp"
 #include "../config/Config.hpp"
+
+enum ResponseState
+{
+	NOT_BUILT,
+	PROCESSING,
+	BUILT
+};
 
 class HttpResponse
 {
     public:
 		HttpResponse();
         ~HttpResponse();
-        std::string                         buildResponse(HttpRequest& request, ServerConfig &servConf);
+        void                                buildResponse(HttpRequest& request, ServerConfig &servConf);
+		void                                resetResponse();
+		ResponseState						getState();
+		void								setState(ResponseState state);
 	private:
+		ResponseState						_state;
         int									_status_code;
         std::string							_status_message;
         std::map<std::string, std::string>	_headers;
         std::string							_body;
+        std::string                         _findContentType(std::string path);
+		std::string							_response;
 		std::string                         _buildStringResponse();
+        // void                                _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket);
         void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
         void								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);

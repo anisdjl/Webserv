@@ -83,3 +83,22 @@ void	ServerConfig::displayServConf(void)
 	
 	std::cout << "nb of location " << (*this)._locations.size() << std::endl; 
 }
+
+LocationConfig*   ServerConfig::matchLocation(const std::string& path)
+{
+	LocationConfig	*match = NULL;
+	size_t			match_len = 0;
+	for (size_t i = 0; i < _locations.size(); i++)
+	{
+		std::string location_url = _locations[i].getPath();
+		if (path.compare(0, location_url.size(), location_url) == 0)
+		{
+			if (location_url.size() > match_len) // nv fav trouver
+			{
+				match = &_locations[i];
+				match_len = location_url.size();
+			}
+		}
+	}
+	return (match);
+}

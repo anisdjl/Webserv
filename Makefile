@@ -1,19 +1,18 @@
 CXX = c++
-CXXFLAGS = -std=c++98
+CXXFLAGS = -std=c++98 
 NAME = webserv
 SRC = main.cpp \
 	  srcs/http/HttpRequest.cpp \
 	  srcs/http/HttpResponse.cpp \
-	  srcs/config/Config.cpp
-
-	  srcs/parsing/ConfigParsing.cpp \
-	  srcs/parsing/Config.cpp \
-	  srcs/parsing/LocationConfig.cpp \
-	  srcs/parsing/ServerConfig.cpp \
-	  srcs/parsing/ServerParsingUtils.cpp \
-	  srcs/parsing/LocationParsingUtils.cpp \
-	  srcs/parsing/ConfigCheck.cpp \
-	  srcs/parsing/RequestParsing.cpp
+	  srcs/config/Config.cpp \
+	  srcs/config/ConfigParsing.cpp \
+	  srcs/config/Config.cpp \
+	  srcs/config/LocationConfig.cpp \
+	  srcs/config/ServerConfig.cpp \
+	  srcs/config/ServerParsingUtils.cpp \
+	  srcs/config/LocationParsingUtils.cpp \
+	  srcs/config/ConfigCheck.cpp \
+	  srcs/config/RequestParsing.cpp
 	  
 OBJ = $(SRC:.cpp=.o)
 

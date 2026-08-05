@@ -1,9 +1,8 @@
-#include "includes/webserv.hpp"
 #include "includes/http/HttpRequest.hpp"
 #include "includes/http/HttpResponse.hpp"
 #include "includes/config/Config.hpp"
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
 	Config *config;
 
@@ -25,6 +24,6 @@ int main(int argc, char **argv)
 		return (1);
 	}
 	if (ft_webserv(config))
-		return (ft_free_config (config), 1);
-	return (ft_free_config (config), 0);
+		return (delete (config), 1);
+	return (delete (config), 0);
 }

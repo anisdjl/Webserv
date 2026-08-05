@@ -1,7 +1,9 @@
 #include "../../includes/http/HttpRequest.hpp"
 #include <map>
 
-HttpRequest::HttpRequest(){};
+HttpRequest::HttpRequest()
+: _state(INCOMPLETE)
+{};
 
 HttpRequest::~HttpRequest(){};
 
@@ -25,11 +27,6 @@ std::string		HttpRequest::getVersion() const
     return this->_version;
 }
 
-std::map<std::string, std::string>	HttpRequest::getHeaders() const
-{
-    return this->_header;
-}
-
 std::string	HttpRequest::getBody() const
 {
     return this->_body;
@@ -40,7 +37,7 @@ int		HttpRequest::getErrorCode() const
     return this->_error;
 }
 
-std::string		HttpRequest::getHeader(std::string& key) const
+std::string		HttpRequest::getHeader(std::string key) const
 {
 	for(std::map<std::string, std::string >::const_iterator it = _header.begin();
 		it != _header.end(); ++it)
@@ -49,6 +46,11 @@ std::string		HttpRequest::getHeader(std::string& key) const
 			return it->second; 
 	}
 	return "";
+}
+
+RequestState	HttpRequest::getState() const
+{
+	return this->_state;
 }
 
 void	HttpRequest::setMethod(std::string method)
@@ -84,4 +86,20 @@ void	HttpRequest::setBody(std::string body)
 void 	HttpRequest::setError(int errorCode)
 {
 	this->_error = errorCode;
+}
+void 	HttpRequest::setState(RequestState state)
+{
+	this->_state = state;
+}
+
+void 	HttpRequest::resetRequest()
+{
+	this->_method.clear();
+	this->_path.clear();
+	this->_query_string.clear();
+	this->_version.clear();
+	this->_header.clear();
+	this->_body.clear();
+	this->_error = 0;
+	this->_state = INCOMPLETE;
 }
