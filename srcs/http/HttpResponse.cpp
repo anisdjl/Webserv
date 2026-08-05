@@ -8,20 +8,22 @@ HttpResponse::HttpResponse() : _status_code(200), _status_message("OK"), _header
 
 HttpResponse::~HttpResponse(){};
 
-std::string HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
+void HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
 {
    	if (request.getErrorCode() != 0)
     {
         std::cout << "[Debug] : ERROR "<< std::endl; // debug
         this->_buildErrorResponse(request.getErrorCode(), servConf, NULL);
-		return (_buildStringResponse());
+		_response = _buildStringResponse();
+		return ;
     }
     LocationConfig *location = servConf.matchLocation(request.getPath());
 	if (location && !this->_isMethodAllowed(request.getMethod(), location)) // check droit
 	{
 		std::cout << "[Debug] : ERROR 405"<< std::endl; // debug
 		this->_buildErrorResponse(405, servConf, location);
-		return (_buildStringResponse());
+		_response = _buildStringResponse();
+		return ;
 	}
     if (request.getMethod() == "GET")
     {
@@ -43,7 +45,8 @@ std::string HttpResponse::buildResponse(HttpRequest& request, ServerConfig &serv
         std::cout << "[Debug] : ERROR 501" << std::endl;
         this->_buildErrorResponse(501, servConf, location); // not found
     }
-	return (_buildStringResponse());
+	_response = _buildStringResponse();
+	return ;
 }
 
 bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *location)
@@ -166,6 +169,18 @@ void HttpResponse::resetResponse()
 	this->_status_message = "OK";
 	this->_headers.clear();
 	this->_body.clear();
+	this->_state = NOT_BUILT;
+	this->_response.clear();
+}
+
+ResponseState	HttpResponse::getState()
+{
+	return this->_state;
+}
+
+void	HttpResponse::setState(ResponseState state)
+{
+	this->_state = state;
 }
 
 /*

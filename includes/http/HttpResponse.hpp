@@ -5,6 +5,13 @@
 #include "HttpRequest.hpp"
 #include "../config/Config.hpp"
 
+enum ResponseState
+{
+	NOT_BUILT,
+	PROCESSING,
+	BUILT
+};
+
 class HttpResponse
 {
     public:
@@ -12,11 +19,15 @@ class HttpResponse
         ~HttpResponse();
         std::string                         buildResponse(HttpRequest& request, ServerConfig &servConf);
 		void                                resetResponse();
+		ResponseState						getState();
+		void								setState(ResponseState state);
 	private:
+		ResponseState						_state;
         int									_status_code;
         std::string							_status_message;
         std::map<std::string, std::string>	_headers;
         std::string							_body;
+		std::string							_response;
 		std::string                         _buildStringResponse();
         void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);

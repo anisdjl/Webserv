@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   socket.cpp                                         :+:      :+:    :+:   */
+/*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:35:17 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/04 15:28:16 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/05 10:31:56 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
-#include "../../includes/socket/socket.hpp"
+#include "../../includes/socket/Socket.hpp"
 
 Socket::Socket() 
 : _fd(-1), _server_index(-1), _type(CONNECTION), _http_request(HttpRequest()), _http_response(HttpResponse()) , _parent_index(-1)

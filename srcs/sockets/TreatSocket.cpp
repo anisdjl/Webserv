@@ -10,7 +10,31 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/socket/socket.hpp"
+#include "../../includes/socket/Socket.hpp"
+
+bool ft_cgi_in(std::map<int, Socket> &map_socket,Socket &target, Config *config)
+{
+	int bytes_read = 0;
+	Socket &parent = map_socket.find(target.getParentIndex())->second;
+	char buffer[BUFFER_SIZE + 1];
+
+	std::memset(buffer, 0, BUFFER_SIZE + 1);
+	bytes_read = recv(target.getFd(), buffer, BUFFER_SIZE, 0);
+	if (bytes_read == -1)
+		return (true);
+	parent.getHttpResponse().setBody(parent.getHttpResponse().getBody() + std::string(buffer, bytes_read));
+	return (false);
+}
+
+bool ft_cgi_out(std::map<int, Socket> &map_socket,Socket &target, Config *config)
+{
+
+}
+
+bool ft_cgi_hup(std::map<int, Socket> &map_socket,Socket &target, Config *config)
+{
+
+}
 
 bool ft_parse_request(std::map<int, Socket> &map_socket, Socket &target, Config *config, int &epollfd)
 {
@@ -18,29 +42,36 @@ bool ft_parse_request(std::map<int, Socket> &map_socket, Socket &target, Config 
 	char buffer[BUFFER_SIZE + 1];
 
 
-	std::memset(buffer, 0, BUFFER_SIZE + 1);
-	bytes_read = recv(target.getFd(), buffer, BUFFER_SIZE, 0);
-	if (bytes_read == -1)
-		return (true);
-	if (ft_parse_request(target.getHttpRequest(), config->getServers()[target.getServerIndex()], buffer, bytes_read))
-		return (true);
+	if (target.getHttpRequest().getState() == INCOMPLETE)
+	{	
+		std::memset(buffer, 0, BUFFER_SIZE + 1);
+		bytes_read = recv(target.getFd(), buffer, BUFFER_SIZE, 0);
+		if (bytes_read == -1)
+			return (true);
+		if (ft_parse_request(target.getHttpRequest(), config->getServers()[target.getServerIndex()], buffer, bytes_read))
+			return (true);
+	}
 	if (target.getHttpRequest().getState() == COMPLETE)
 	{
-
-		struct epoll_event temp{};
-		temp.data.fd = target.getFd();
-		temp.events  = EPOLLOUT;
-		if (epoll_ctl(epollfd, EPOLL_CTL_MOD, target.getFd(), &temp) == -1)
-			return (true);
+		if(target.getHttpResponse().getState() == NOT_BUILT)
+		{	
+			target.getHttpResponse().buildResponse(target.getHttpRequest(), config->getServers()[target.getServerIndex()]);
+		}
+		if (target.getHttpResponse().getState() == BUILT)
+		{	
+			struct epoll_event temp;
+			std::memset(&temp, 0, sizeof(temp));
+			temp.data.fd = target.getFd();
+			temp.events  = EPOLLOUT;
+			if (epoll_ctl(epollfd, EPOLL_CTL_MOD, target.getFd(), &temp) == -1)
+				return (true);
+		}
 	}
 	return (false);
 }
 
 bool ft_send_request(std::map<int, Socket> &map_socket, Socket &target, Config *config, int &epollfd)
 {
-	HttpResponse response_builder;
-
-	std::string response = response_builder.buildResponse(target.getHttpRequest(), config->getServers()[target.getServerIndex()]);
 	unsigned int bytes_sent = 0;
 	int temp_sent = 0;
 	struct epoll_event temp;
@@ -100,24 +131,26 @@ bool ft_treat_socket(std::map<int, Socket> &map_socket, struct epoll_event &even
 	
 	if (event.events & (EPOLLHUP | EPOLLERR))
 	{
+		if (target.getType() == CGI)
+			return
 		ft_close_socket(map_socket, target.getFd());
 		return (false);
 	}
 	if (event.events & (EPOLLIN))
 	{
-		if(target.type == LISTENER)
+		if(target.getType() == LISTENER)
 			return (ft_create_connection(map_socket, target));
-		if(target.type == CONNECTION)
+		if(target.getType() == CONNECTION)
 			return (ft_parse_request(map_socket, target, config, epollfd));
-		if(target.type == CGI)
-			return (ft_cgi(map_socket, target, config));
-	}
+		if(target.getType() == CGI)
+			return (ft_cgi_in(map_socket, target, config));
+		}
 	if (event.events & (EPOLLOUT))
 	{
-		if(target.type == CONNECTION)
+		if(target.getType() == CONNECTION)
 				return (ft_send_request(map_socket, target, config, epollfd));
-		if(target.type == CGI)
-				return (ft_cgi(map_socket, target, config));
+		if(target.getType() == CGI)
+				return (ft_cgi_out(map_socket, target, config));
 	}
 	return (false);
 }
