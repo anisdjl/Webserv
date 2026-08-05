@@ -1,19 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   socket.hpp                                         :+:      :+:    :+:   */
+/*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
+/*   By: eprieur <eprieur@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:39:24 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/04 18:11:48 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/05 12:26:05 by eprieur          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SOCKET_HPP
 #define SOCKET_HPP
 
-#include "../webserv.hpp"
 #include "../config/Config.hpp"
 #include "../http/HttpRequest.hpp"
 #include "../http/HttpResponse.hpp"
@@ -37,26 +36,25 @@ class Socket
 		HttpResponse	_http_response;
 
 	public :
-
-	Socket();
-	Socket(int fd, int server_index, Socket_type type, HttpRequest& request, HttpResponse& response);
-	Socket(const Socket& other);
-	~Socket();
-	int &getFd();
-	int getFd() const;
-	int getServerIndex() const;
-	int getParentIndex() const;
-	Socket_type getType() const;
-	HttpRequest& getHttpRequest() const;
-	HttpResponse& getHttpResponse() const;
-	
-	void setFd(int fd);
-	void setServerIndex(int index);
-	void setType(Socket_type type);
-	void setHttpRequest(HttpRequest& request);
-	void setHttpResponse(HttpResponse& response);
-	void setParentIndex(int index);
-	Socket& operator=(const Socket& other);
+		Socket();
+		Socket(int fd, int server_index, Socket_type type, HttpRequest& request, HttpResponse& response);
+		Socket(const Socket& other);
+		~Socket();
+		int &getFd();
+		int getFd() const;
+		int getServerIndex() const;
+		int getParentIndex() const;
+		Socket_type getType() const;
+		HttpRequest& getHttpRequest() const;
+		HttpResponse& getHttpResponse() const;
+		
+		void setFd(int fd);
+		void setServerIndex(int index);
+		void setType(Socket_type type);
+		void setHttpRequest(HttpRequest& request);
+		void setHttpResponse(HttpResponse& response);
+		void setParentIndex(int index);
+		Socket& operator=(const Socket& other);
 };
 
 bool ft_treat_socket(std::map<int, Socket> &map_socket, struct epoll_event &event, Config *config, int &epollfd);

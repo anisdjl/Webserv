@@ -30,7 +30,6 @@ void HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
 		_response = _buildStringResponse();
 		return ;
 	}
-
     if (request.getMethod() == "GET")
         this->_buildGetResponse(request, servConf, location);
     else if (request.getMethod() == "POST")
@@ -112,17 +111,32 @@ std::string	HttpResponse::_findContentType(std::string path)
 void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
 	std::string	root;
+	std::string req_path;
 	if (location && !location->getRoot().empty())
 		root = location->getRoot();
 	else
 		root = servConf.getRoot();
-	std::string req_path = root + req.getPath();
+	size_t 		pos = req_path.rfind(".");
+	if (req.getPath().size() == 1 && req.getPath()[0] == '/')
+	{
+		if (root.back() == '/')
+			req_path = root + "index.html";
+		else
+			req_path = root + "/index.html";
+	}
+	else if (pos != 2 && pos == std::string::npos 
+			&& req.getPath()[0] == '/' && req.getPath().back() == '/')
+		req_path = root + "index.html";
+	else
+		req_path = root + req.getPath();
 	if (access(req_path.c_str(), F_OK) == -1)
 		return (_buildErrorResponse(404, servConf, location));
 	if (access(req_path.c_str(), R_OK) == -1)
 		return (_buildErrorResponse(403, servConf, location));
 	this->_status_code = 200;
 	this->_status_message = "OK";
+
+	// if cgi => fonction vers cgiBuild
 
 	std::ifstream			infile(req_path.c_str(), std::ios::binary | std::ios::in | std::ios::ate);
 	std::ifstream::pos_type	size;
@@ -144,6 +158,31 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
 }
 
+// void	HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket)
+// {
+// 	int fd;
+// 	int pipe_in[2];
+// 	int pipe_out[2];
+
+// 	// creer pipe
+// 	// socketpair (pipe_in[0], pipe_out[1])= merge socket;
+// 	// fd = pipe_in[0] ou pipe_out[1]
+// 	// in : recevoir
+// 	// out :
+// 	/*
+// 		class socket :
+// 				fd
+// 				type : CGI
+// 				parent_fd = fd du parent
+// 		add au epoll
+// 		add a la mapsocket
+// 		fork()
+// 		{
+// 		tu fais ta magie
+// 		}
+// 	*/
+// }
+// int &epollfd, int &parent_fd, std::map<int, Socket> &map_socket
 // cas manquant :
 /*
 	manque cas avec cgi
