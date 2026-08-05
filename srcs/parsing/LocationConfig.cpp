@@ -1,8 +1,8 @@
 #include "../../includes/parsing.hpp"
 
-LocationConfig::LocationConfig(void)
+LocationConfig::LocationConfig(void) : _path(""), _root(""), _autoindex(false), _upload_store("")
 {
-	_autoindex = false;
+	_methods.push_back("GET");
 }
 
 LocationConfig::~LocationConfig(void)

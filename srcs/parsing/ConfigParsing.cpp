@@ -131,9 +131,8 @@ void	fsm(Config *config, std::vector<std::string> *tokens)
 	}
 	if ((*config).getNbBrackets() != 0)
 		throw std::runtime_error("Syntax error missung brackets");
+	CheckConfig(*config);
 	(*config).displayConfig();
-	// delete tokens;
-	// delete config; just for the test
 }
 
 // je dois trouver un moyen de checker si les {} sont bien ferme ou pas si le premier server a ete ferme ou pas

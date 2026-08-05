@@ -37,7 +37,9 @@ class Config
 		void	displayConfig(void);
 		void	increment(void) { _nb_brackets++; };
 		void	decrement(void) { _nb_brackets--; };
-		id_t	getNbBrackets(void) {return _nb_brackets;};
+		int		getNbBrackets(void) {return _nb_brackets;};
+
+		std::vector<ServerConfig>	getServer(void) { return _servers; };
 };
 
 class LocationConfig
@@ -68,6 +70,16 @@ class LocationConfig
 		void	setReturn(int &code, std::string &path); // je mets void pour le moment mais c'est pas bon
 		void	setReturn(int code);
 
+		std::string							getPath(void) { return _path; };
+		std::string							getRoot(void) { return _root; };
+		std::vector<std::string>			getIndex(void) { return _index; };
+		std::vector<std::string>			getMethods(void) { return _methods; };
+		bool								getAutoindex(void) { return _autoindex; };
+		std::map<std::string, std::string>	getCgis(void) { return _cgis; };
+		std::string							getUploadStore(void) { return _upload_store; };
+		std::map<int, std::string>			getReturn(void) { return _return; };
+
+		void	clearMethods(void) { _methods.clear(); };
 		void	displayLocation(void);
 };
 
@@ -94,6 +106,13 @@ class	ServerConfig
 		void	setClientMaxBody(long value);
 		void	setErrorpage(int code, std::string &path); // je mets void pour le moment mais c'est pas bon
 
+		std::string					getListen(void) { return _listen; };
+		std::string					getHost(void) { return _host; };
+		std::vector<std::string>	getServerName(void) { return _server_name; };
+		long						getClientMaxBodySize(void)	{ return _client_max_body_size; };
+		std::map<int, std::string>	getErrorPage(void) { return _error_page; };
+		std::vector<LocationConfig>	getLocations(void) { return _locations; };
+
 		void	displayServConf(void);
 };
 
@@ -116,5 +135,8 @@ void						parse_autoindex(Config *config, std::vector<std::string> *tokens, size
 void						parse_upload(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
 void						parse_return(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconf, ServerConfig *servconf);
 void						parse_cgi(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconf, ServerConfig *servconf);
+void						CheckConfig(Config &config);
+void						CheckServer(ServerConfig &server);
+
 
 #endif

@@ -105,6 +105,7 @@ void	parse_methods(Config *config, std::vector<std::string> *tokens, size_t *ind
 	(*index)++;
 	(void)config; (void)servconf;
 
+	locconfig->clearMethods();
 	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
 		throw std::runtime_error("Syntax error incomplete configuration");
 

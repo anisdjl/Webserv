@@ -2,10 +2,9 @@
 
 ServerConfig::ServerConfig(void)
 {
-	_listen = "NULL";
-	_host = "NULL";
+	_listen = "80";
+	_host = "0.0.0.0";
 	_client_max_body_size = 1000000;
-	// et rajouter tout le reste en fonction de ce qui est obligatoire ou pas
 }
 
 ServerConfig::~ServerConfig(void)
