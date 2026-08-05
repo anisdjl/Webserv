@@ -117,7 +117,7 @@ class	ServerConfig
 };
 
 std::vector<std::string>	*lexe_config(std::string filename);
-void						lexer(std::string filename);
+Config						*lexer(std::string filename);
 void						fsm(Config *config, std::vector<std::string> *tokens);
 
 void						parse_listen(Config *config,std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);

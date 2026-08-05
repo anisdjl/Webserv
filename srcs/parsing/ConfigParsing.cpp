@@ -55,13 +55,14 @@ std::vector<std::string>	*lexe_config(std::string filename)
 	return (tokens);
 }
 
-void	lexer(std::string filename)
+Config	*lexer(std::string filename)
 {
 	std::vector<std::string>	*tokens;
 	Config						*config = new Config();
 
 	tokens = lexe_config(filename);
 	fsm(config, tokens);
+	return (config);
 }
 
 void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf)
