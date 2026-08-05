@@ -9,23 +9,26 @@ HttpResponse::HttpResponse() : _status_code(200), _status_message("OK"), _header
 
 HttpResponse::~HttpResponse(){};
 
-std::string HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
+void HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
 {
    	if (request.getErrorCode() != 0)
     {
         this->_buildErrorResponse(request.getErrorCode(), servConf, NULL);
-		return (_buildStringResponse());
+		_response = _buildStringResponse();
+		return ;
     }
 	if (request.getVersion() != "HTTP/1.1")
 	{
 		this->_buildErrorResponse(505, servConf, NULL);
-		return (_buildStringResponse());
+		_response = _buildStringResponse();
+		return ;
 	}
     LocationConfig *location = servConf.matchLocation(request.getPath());
 	if (location && !this->_isMethodAllowed(request.getMethod(), location)) // check droit
 	{
 		this->_buildErrorResponse(405, servConf, location);
-		return (_buildStringResponse());
+		_response = _buildStringResponse();
+		return ;
 	}
 
     if (request.getMethod() == "GET")
@@ -36,7 +39,7 @@ std::string HttpResponse::buildResponse(HttpRequest& request, ServerConfig &serv
         this->_buildDeleteResponse(request, servConf, location);
     else // method not allowed /
         this->_buildErrorResponse(501, servConf, location); // not found
-	return (_buildStringResponse());
+	_response = _buildStringResponse();
 }
 
 bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *location)
@@ -242,6 +245,26 @@ void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, L
 	this->_headers.insert(std::make_pair("Connection", "close"));
 }
 
+void HttpResponse::resetResponse()
+{
+	this->_status_code = 200;
+	this->_status_message = "OK";
+	this->_headers.clear();
+	this->_body.clear();
+	this->_state = NOT_BUILT;
+	this->_response.clear();
+}
+
+ResponseState	HttpResponse::getState()
+{
+	return this->_state;
+}
+
+void	HttpResponse::setState(ResponseState state)
+{
+	this->_state = state;
+}
+
 /*
 	Location
 	location->root // possible
@@ -258,5 +281,37 @@ void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, L
 	413
 */
 
-// https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/cppBinaryFileIO-2.html
-// https://stackoverflow.com/questions/13648066/determine-the-size-of-a-binary-file
+/*
+std::map<int, std::string >::const_iterator ServerConfig::findErrorPage(int key) const
+{
+    return (_error_page.find(key));
+}
+*/
+
+// Exemple possible de request http :
+/*
+	POST /cgi-bin/upload.py?user=42&action=save HTTP/1.1\r\n
+	Host: localhost:8080\r\n
+	User-Agent: Mozilla/5.0 (X11; Linux x86_64)\r\n
+	Content-Type: application/x-www-form-urlencoded\r\n
+	Content-Length: 27\r\n
+	Cookie: session_id=abc123xyz\r\n
+	\r\n
+	name=JohnDoe&age=25&status=ok
+*/
+
+/* exemple possible de reponse :
+
+    HTTP/1.1 404 Not Found
+    Content-Type: text/html
+    Content-Length: 149
+    Connection: close
+
+    <html>
+    <head><title>404 Not Found</title></head>
+    <body>
+    <h1>404 Not Found</h1>
+    <hr><center>Webserv/1.0</center>
+    </body>
+    </html>
+*/

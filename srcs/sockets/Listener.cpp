@@ -1,24 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   listener.cpp                                       :+:      :+:    :+:   */
+/*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:36:31 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/01 18:28:10 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/05 10:35:19 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/webserv.hpp"
-#include "../includes/parsing.hpp"
-#include "../includes/socket.hpp"
+#include "../../includes/socket/Socket.hpp"
 
 bool ft_listener(std::string &listener, int &socketfd)
 {
 	struct addrinfo *info;
-	struct addrinfo hints{};
+	struct addrinfo hints;
 
+	std::memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
@@ -42,22 +41,23 @@ bool ft_listener(std::string &listener, int &socketfd)
 	return(false);
 }
 
-bool ft_construct_listener(std::map <int, t_socket> &map_socket, Config *config, int const &epollfd)
+bool ft_construct_listener(std::map <int, Socket> &map_socket, Config *config, int const &epollfd)
 {
-	t_socket temp_socket;
-	struct epoll_event temp{};
+	Socket temp_socket;
+	struct epoll_event temp;
 	int i = 0; 
 
-	temp_socket.type = LISTENER;
+	std::memset(&temp, 0, sizeof(temp));
+	temp_socket.setType(LISTENER);
 	while(i < config->getServers().size())
 	{
-		if(ft_listener(config->getServers()[i].getListen(), temp_socket.fd))
+		if(ft_listener(config->getServers()[i].getListen(), temp_socket.getFd()))
 			return (true);
-		temp_socket.server_index = i;
-		map_socket.insert(std::make_pair(temp_socket.fd, temp_socket));
-		temp.data.fd = temp_socket.fd;
+		temp_socket.setServerIndex(i);
+		map_socket.insert(std::make_pair(temp_socket.getFd(), temp_socket));
+		temp.data.fd = temp_socket.getFd();
 		temp.events = EPOLLIN;
-		if (epoll_ctl(epollfd, EPOLL_CTL_ADD, temp_socket.fd, &temp) == -1)
+		if (epoll_ctl(epollfd, EPOLL_CTL_ADD, temp_socket.getFd(), &temp) == -1)
 			return (true);
 		i++;
 	}

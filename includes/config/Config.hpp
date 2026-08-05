@@ -1,9 +1,7 @@
 #ifndef CONFIG_HPP
 # define CONFIG_HPP
 
-# include <string>
-# include <vector>
-# include <map>
+# include "../webserv.hpp"
 
 enum STATE
 {

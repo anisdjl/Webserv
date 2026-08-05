@@ -1,7 +1,9 @@
 #include "../../includes/http/HttpRequest.hpp"
 #include <map>
 
-HttpRequest::HttpRequest(){};
+HttpRequest::HttpRequest()
+: _state(INCOMPLETE)
+{};
 
 HttpRequest::~HttpRequest(){};
 
@@ -46,6 +48,11 @@ std::string		HttpRequest::getHeader(std::string key) const
 	return "";
 }
 
+RequestState	HttpRequest::getState() const
+{
+	return this->_state;
+}
+
 void	HttpRequest::setMethod(std::string method)
 {
 	this->_method = method;
@@ -79,4 +86,20 @@ void	HttpRequest::setBody(std::string body)
 void 	HttpRequest::setError(int errorCode)
 {
 	this->_error = errorCode;
+}
+void 	HttpRequest::setState(RequestState state)
+{
+	this->_state = state;
+}
+
+void 	HttpRequest::resetRequest()
+{
+	this->_method.clear();
+	this->_path.clear();
+	this->_query_string.clear();
+	this->_version.clear();
+	this->_header.clear();
+	this->_body.clear();
+	this->_error = 0;
+	this->_state = INCOMPLETE;
 }

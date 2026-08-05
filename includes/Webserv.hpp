@@ -1,6 +1,8 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
+#define BUFFER_SIZE 8192
+
 # include <iomanip>
 # include <iostream>
 # include <cstring> // pour strerror

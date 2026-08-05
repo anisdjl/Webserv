@@ -1,8 +1,26 @@
 #ifndef HTTPREQUEST
 #define HTTPREQUEST
 
-#include <iostream>
-#include <map>
+#include "../Webserv.hpp"
+
+// Exemple possible de request http :
+/*
+	POST /cgi-bin/upload.py?user=42&action=save HTTP/1.1\r\n
+	Host: localhost:8080\r\n
+	User-Agent: Mozilla/5.0 (X11; Linux x86_64)\r\n
+	Content-Type: application/x-www-form-urlencoded\r\n
+	Content-Length: 27\r\n
+	Cookie: session_id=abc123xyz\r\n
+	\r\n
+	name=JohnDoe&age=25&status=ok
+*/
+
+enum RequestState
+{
+	INCOMPLETE,
+	COMPLETE,
+	ERROR
+};
 
 class HttpRequest
 {
@@ -16,6 +34,7 @@ class HttpRequest
 		std::string                         	getBody() const;
 		int										getErrorCode() const;
 		std::string								getHeader(std::string key) const;
+		RequestState							getState() const;
 
 		void									setMethod(std::string method);
 		void 									setPath(std::string path);
@@ -24,7 +43,11 @@ class HttpRequest
 		void									setHeader(std::string key, std::string value);
 		void 									setBody(std::string body);
 		void									setError(int code);
+		void									setState(RequestState state);
+
+		void 									resetRequest();
 	private:
+		RequestState							_state;
 		std::string								_method; // POST
 		std::string								_path;	// a coté de post
 		std::string								_query_string; // les parametres possible
