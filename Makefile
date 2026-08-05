@@ -1,5 +1,5 @@
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 
+CXXFLAGS = -std=c++98 
 NAME = webserv
 SRC = main.cpp \
 	  srcs/http/HttpRequest.cpp \
