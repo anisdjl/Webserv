@@ -2,12 +2,14 @@ CXX = c++
 CXXFLAGS = -Wall -Werror -Wextra -std=c++98
 NAME = webserv
 SRC = main.cpp \
-	  srcs/parsing/config_parsing.cpp \
+	  srcs/parsing/ConfigParsing.cpp \
 	  srcs/parsing/Config.cpp \
 	  srcs/parsing/LocationConfig.cpp \
 	  srcs/parsing/ServerConfig.cpp \
-	  srcs/parsing/parsing_utils.cpp \
-	  srcs/parsing/parsing_utils_location.cpp
+	  srcs/parsing/ServerParsingUtils.cpp \
+	  srcs/parsing/LocationParsingUtils.cpp \
+	  srcs/parsing/ConfigCheck.cpp \
+	  srcs/parsing/RequestParsing.cpp
 	  
 OBJ = $(SRC:.cpp=.o)
 

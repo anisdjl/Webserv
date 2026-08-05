@@ -53,7 +53,6 @@ void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *in
 		}
 		if ((*tokens)[*index] == "}")
 		{
-			// si on est ici c'est qu'on a fini la location actuel
 			(*index)++;
 			(*config).decrement();
 			(*servconf).setLocations(locconfig);
@@ -68,6 +67,9 @@ void	parse_root(Config *config, std::vector<std::string> *tokens, size_t *index,
 	(*index)++;
 	(void)config; (void)servconf;
 
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
+
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
 		throw std::runtime_error("Syntax error in client max body size directive");
 
@@ -81,8 +83,14 @@ void	parse_index(Config *config, std::vector<std::string> *tokens, size_t *index
 	(*index)++;
 	(void)config; (void)servconf;
 
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
+	
 	while ((*tokens)[*index] != ";")
 	{
+		if ((*index) >= (*tokens).size())
+			throw std::runtime_error("Syntax error incomplete configuration");
+
 		if ((*index) == (*tokens).size() - 1)
 			throw std::runtime_error("Syntax error ';' missing");
 		
@@ -97,10 +105,16 @@ void	parse_methods(Config *config, std::vector<std::string> *tokens, size_t *ind
 	(*index)++;
 	(void)config; (void)servconf;
 
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
+
 	while ((*tokens)[*index] != ";")
 	{
 		if ((*index) == (*tokens).size() - 1)
 			throw std::runtime_error("Syntax error ';' missing");
+		
+		if ((*index) >= (*tokens).size())
+			throw std::runtime_error("Syntax error incomplete configuration");
 		
 		if ((*tokens)[*index] != "GET" && (*tokens)[*index] != "POST" && (*tokens)[*index] != "DELETE")
 			throw std::runtime_error("Syntax error wrong method directive must be GET, POST or DELETE");
@@ -115,6 +129,9 @@ void	parse_autoindex(Config *config, std::vector<std::string> *tokens, size_t *i
 {
 	(*index)++;
 	(void)config; (void)servconf;
+
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
 
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
 		throw std::runtime_error("Syntax error in autindex directive");
@@ -132,6 +149,9 @@ void	parse_upload(Config *config, std::vector<std::string> *tokens, size_t *inde
 	(void)config;
 	(void)servconf;
 
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
+
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
 		throw std::runtime_error("Syntax error in upload_store directive");
 	
@@ -143,6 +163,9 @@ void	parse_return(Config *config, std::vector<std::string> *tokens, size_t *inde
 {
 	(*index)++;
 	(void)config; (void)servconf;
+
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
 
 	if ((*tokens)[*index] != ";" && (*tokens)[*index + 1] == ";")
 	{
@@ -175,6 +198,9 @@ void	parse_cgi(Config *config, std::vector<std::string> *tokens, size_t *index, 
 {
 	(*index)++;	
 	(void)config; (void)servconf;
+
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
 
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] == ";" || (*tokens)[*index + 2] != ";")
 		throw std::runtime_error("Syntax error in cgi directive");

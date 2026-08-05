@@ -5,7 +5,10 @@ void	parse_listen(Config *config, std::vector<std::string> *tokens, size_t *inde
 	(void)config;
 	(*index)++;
 
-	if ((*tokens)[*index + 1] != ";" || (*tokens)[*index] == ";"		)
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
+
+	if ((*tokens)[*index + 1] != ";" || (*tokens)[*index] == ";")
 		throw std::runtime_error("Syntax error in listen directive");
 
 	for (size_t i = 0; i < (*tokens)[*index].size(); ++i)
@@ -23,6 +26,9 @@ void	parse_host(Config *config,std::vector<std::string> *tokens, size_t *index, 
 {
 	(void)config;
 	(*index)++;
+
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
 
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
 		throw std::runtime_error("Syntax error in host directive");
@@ -60,6 +66,9 @@ void	parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *
 	(void)config;
 	(*index)++;
 
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
+
 	if ((*tokens)[*index] == ";")
 		throw std::runtime_error("Syntax error the server name can't be empty");
 	
@@ -67,7 +76,9 @@ void	parse_server_name(Config *config,std::vector<std::string> *tokens, size_t *
 	{
 		if ((*index) == (*tokens).size() - 1) // si on a atteint la fin des tokens mais qu'on a toujours pas croise de ;
 			throw std::runtime_error("Syntax error ';' missing");
-		
+		if ((*index) >= (*tokens).size())
+			throw std::runtime_error("Syntax error incomplete configuration");
+
 		(*servconf).setServerName((*tokens)[*index]);
 		(*index)++;
 	}
@@ -78,6 +89,9 @@ void	parse_max_body_size(Config *config, std::vector<std::string> *tokens, size_
 {
 	(void)config;
 	(*index)++;
+
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
 
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
 		throw std::runtime_error("Syntax error in client max body size directive");
@@ -98,9 +112,14 @@ void	parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *i
 	(void)config;
 
 	(*index)++;
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
+
 	std::vector<int>	codes;
 	while ((*tokens)[*index + 1] != ";" && (*index) + 1 != (*tokens).size() - 1)
 	{
+		if ((*index) >= (*tokens).size())
+			throw std::runtime_error("Syntax error incomplete configuration");
 		for (size_t y = 0; y < (*tokens)[*index].size(); ++y)
 			if (!isdigit((*tokens)[*index][y]))
 				throw std::runtime_error("Value error invalid error code");
