@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:36:31 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/05 10:35:19 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/05 19:37:43 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,9 +49,9 @@ bool ft_construct_listener(std::map <int, Socket> &map_socket, Config *config, i
 
 	std::memset(&temp, 0, sizeof(temp));
 	temp_socket.setType(LISTENER);
-	while(i < config->getServers().size())
+	while(i < config->getServer().size())
 	{
-		if(ft_listener(config->getServers()[i].getListen(), temp_socket.getFd()))
+		if(ft_listener(config->getServer()[i].getListen(), temp_socket.getFd()))
 			return (true);
 		temp_socket.setServerIndex(i);
 		map_socket.insert(std::make_pair(temp_socket.getFd(), temp_socket));

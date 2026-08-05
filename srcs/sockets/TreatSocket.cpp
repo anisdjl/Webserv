@@ -31,11 +31,11 @@ bool ft_cgi_out(std::map<int, Socket> &map_socket,Socket &target, Config *config
 
 }
 
-bool ft_cgi_hup(std::map<int, Socket> &map_socket,Socket &target, Config *config)
+bool ft_cgi_hup(std::map<int, Socket> &map_socket,Socket &target, Config *config, int &epollfd)
 {
 	// close le socket du cgi
 
-	target.getHttpResponse().buildResponse(target.getHttpRequest(), config->getServers()[target.getServerIndex()]);
+	target.getHttpResponse().buildResponse(target.getHttpRequest(), config->getServer()[target.getServerIndex()]);
 	if (target.getHttpResponse().getState() == BUILT)
 	{	
 		struct epoll_event temp;
@@ -59,14 +59,14 @@ bool ft_parse_request(std::map<int, Socket> &map_socket, Socket &target, Config 
 		bytes_read = recv(target.getFd(), buffer, BUFFER_SIZE, 0);
 		if (bytes_read == -1)
 			return (true);
-		if (ft_parse_request(target.getHttpRequest(), config->getServers()[target.getServerIndex()], buffer, bytes_read))
+		if (ft_parse_http_request(target.getHttpRequest(), config->getServer()[target.getServerIndex()], buffer, bytes_read))
 			return (true);
 	}
 	if (target.getHttpRequest().getState() == COMPLETE)
 	{
 		if(target.getHttpResponse().getState() == NOT_BUILT)
 		{	
-			target.getHttpResponse().buildResponse(target.getHttpRequest(), config->getServers()[target.getServerIndex()]);
+			target.getHttpResponse().buildResponse(target.getHttpRequest(), config->getServer()[target.getServerIndex()]);
 		}
 		if (target.getHttpResponse().getState() == BUILT)
 		{	
@@ -86,7 +86,8 @@ bool ft_send_request(std::map<int, Socket> &map_socket, Socket &target, Config *
 	unsigned int bytes_sent = 0;
 	int temp_sent = 0;
 	struct epoll_event temp;
-  
+	std ::string response = target.getHttpResponse().getResponse();
+
 	if (response.empty())
 		return (true);
 	while (bytes_sent < response.length())
@@ -107,7 +108,7 @@ bool ft_send_request(std::map<int, Socket> &map_socket, Socket &target, Config *
 	return (false);
 }
 
-bool ft_create_connection(std::map<int, Socket> &map_socket, Socket &target)
+bool ft_create_connection(std::map<int, Socket> &map_socket, Socket &target , int &epollfd)
 {
 	Socket temp;
 	struct epoll_event temp_event;
@@ -143,14 +144,15 @@ bool ft_treat_socket(std::map<int, Socket> &map_socket, struct epoll_event &even
 	if (event.events & (EPOLLHUP | EPOLLERR))
 	{
 		if (target.getType() == CGI)
-			return
-		ft_close_socket(map_socket, target.getFd());
+			ft_cgi_hup(map_socket, target, config, epollfd);
+		else
+			ft_close_socket(map_socket, target.getFd());
 		return (false);
 	}
 	if (event.events & (EPOLLIN))
 	{
 		if(target.getType() == LISTENER)
-			return (ft_create_connection(map_socket, target));
+			return (ft_create_connection(map_socket, target, epollfd));
 		if(target.getType() == CONNECTION)
 			return (ft_parse_request(map_socket, target, config, epollfd));
 		if(target.getType() == CGI)
