@@ -304,6 +304,36 @@ void	HttpResponse::setState(ResponseState state)
 	this->_state = state;
 }
 
+void HttpResponse::add_bytes_sent(unsigned int bytes)
+{
+	this->_bytes_sent += bytes;
+}
+
+unsigned int HttpResponse::get_bytes_sent() const
+{
+	return this->_bytes_sent;
+}
+
+std::string HttpResponse::getResponse() const
+{
+	return this->_response;
+}
+
+void HttpResponse::setResponse(const std::string& response)
+{
+	this->_response = response;
+}
+
+std::string HttpResponse::getBody() const
+{
+	return this->_body;
+}
+
+void HttpResponse::setBody(const std::string& body)
+{
+	this->_body = body;
+}
+
 /*
 	Location
 	location->root // possible

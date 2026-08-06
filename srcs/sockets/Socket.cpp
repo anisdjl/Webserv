@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Socket.cpp                                         :+:      :+:    :+:   */
+/*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:35:17 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/05 10:31:56 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/06 10:53:47 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,11 @@ HttpRequest& Socket::getHttpRequest() const
 	return _http_request;
 }
 
+HttpResponse& Socket::getHttpResponse() const
+{
+	return _http_response;
+}
+
 int Socket::getParentIndex() const
 {
 	return _parent_index;
@@ -81,6 +86,10 @@ void Socket::setHttpRequest(HttpRequest& request)
 	_http_request = request;
 }
 
+void Socket::setHttpResponse(HttpResponse& response)
+{
+	_http_response = response;
+}
 
 
 Socket& Socket::operator=(const Socket& other)

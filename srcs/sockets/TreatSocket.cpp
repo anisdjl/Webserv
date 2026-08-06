@@ -82,29 +82,27 @@ bool ft_parse_request(std::map<int, Socket> &map_socket, Socket &target, Config 
 }
 
 bool ft_send_request(std::map<int, Socket> &map_socket, Socket &target, Config *config, int &epollfd)
-{
-	unsigned int bytes_sent = 0;
+{ 
 	int temp_sent = 0;
 	struct epoll_event temp;
 	std ::string response = target.getHttpResponse().getResponse();
 
 	if (response.empty())
 		return (true);
-	while (bytes_sent < response.length())
-	{
-		temp_sent = send(target.getFd(), response.c_str() + bytes_sent, response.length() - bytes_sent, 0);
-		if (temp_sent == -1)
-			return (true);
-		bytes_sent += temp_sent;
-	}
-	std::memset(&temp, 0, sizeof(temp));
-	temp.data.fd = target.getFd();
-	temp.events = EPOLLIN;
-	target.getHttpRequest().resetRequest();
-	target.getHttpResponse().resetResponse();
-	std::memset(&temp, 0, sizeof(temp));
-	if (epoll_ctl(epollfd, EPOLL_CTL_MOD, target.getFd(), &temp) == -1)
+	temp_sent = send(target.getFd(), response.c_str() + target.getHttpResponse().get_bytes_sent(), response.length() - target.getHttpResponse().get_bytes_sent(), 0);
+	if (temp_sent == -1)
 		return (true);
+	target.getHttpResponse().add_bytes_sent(temp_sent);
+	std::memset(&temp, 0, sizeof(temp));
+	if (target.getHttpResponse().get_bytes_sent() >= response.length())
+	{
+		temp.data.fd = target.getFd();
+		temp.events = EPOLLIN;
+		target.getHttpRequest().resetRequest();
+		target.getHttpResponse().resetResponse();
+		if (epoll_ctl(epollfd, EPOLL_CTL_MOD, target.getFd(), &temp) == -1)
+			return (true);
+	}
 	return (false);
 }
 

@@ -20,8 +20,15 @@ class HttpResponse
 		void                                resetResponse();
 		ResponseState						getState();
 		void								setState(ResponseState state);
+        void                                add_bytes_sent(unsigned int bytes);
+        unsigned int                        get_bytes_sent() const;
+        std::string                         getResponse() const;
+        void                                setResponse(const std::string& response);
+        void                                setBody(const std::string& body);
+        std::string                         getBody() const;
 	private:
 		ResponseState						_state;
+        unsigned int                        _bytes_sent;
         int									_status_code;
         std::string							_status_message;
         std::map<std::string, std::string>	_headers;
