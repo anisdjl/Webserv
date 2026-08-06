@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/30 23:23:13 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/06 11:23:47 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/06 19:18:10 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,10 @@ bool ft_webserv(Config *config)
 	int nb_events;
 	int i;
 
-	if (epollfd == -1 || ft_construct_listener(map_socket, config, epollfd))
+	if (epollfd == -1)
 		return (true);
+	if(ft_construct_listener(map_socket, config, epollfd))
+		return (ft_close_all_sockets(map_socket, epollfd), true);
 	signal(SIGINT, ft_handler);
 	while(run)
 	{
@@ -67,16 +69,15 @@ bool ft_webserv(Config *config)
 		if (nb_events == 0)
 			continue ;
 		if (nb_events == -1)
-			return (true); //erreur a traiter
+			return (ft_close_all_sockets(map_socket, epollfd), true);
 		i = 0;
 		while (i < nb_events)
 		{
 			if(ft_treat_socket(map_socket, events[i], config, epollfd))
-				return (true);
+				return (ft_close_all_sockets(map_socket, epollfd), true);
 			i++;
 		}
 	}
-	close(epollfd);
-	ft_close_all_sockets(map_socket);
+	ft_close_all_sockets(map_socket, epollfd);
 	return (false);
 }

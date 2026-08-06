@@ -5,7 +5,7 @@
 #include <fcntl.h>
 #include <sstream>
 
-HttpResponse::HttpResponse() : _status_code(200), _status_message("OK"), _headers(), _body("") {} // tmp
+HttpResponse::HttpResponse() : _status_code(200), _status_message("OK"), _headers(), _body("") , _bytes_sent(0) {} // tmp
 
 HttpResponse::~HttpResponse(){};
 
@@ -292,6 +292,7 @@ void HttpResponse::resetResponse()
 	this->_body.clear();
 	this->_state = NOT_BUILT;
 	this->_response.clear();
+	this->_bytes_sent = 0;
 }
 
 ResponseState	HttpResponse::getState()
