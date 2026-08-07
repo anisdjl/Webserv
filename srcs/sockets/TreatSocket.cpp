@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "../../includes/socket/Socket.hpp"
+#include "../../includes/socket/Connection.hpp"
+#include "../../includes/socket/Cgi.hpp"
 
 bool ft_parse_request(std::map<int, Socket> &map_socket, Connection &target, Config *config, const int &epollfd)
 {
