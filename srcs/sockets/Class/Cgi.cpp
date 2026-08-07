@@ -1,32 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Cgi.hpp                                            :+:      :+:    :+:   */
+/*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/08/06 20:02:41 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/07 14:55:01 by ymoumene         ###   ########.fr       */
+/*   Created: 2026/08/07 15:21:35 by ymoumene          #+#    #+#             */
+/*   Updated: 2026/08/07 15:22:55 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CGI_HPP
-#define CGI_HPP
+#include "../includes/socket/Cgi.hpp"
 
-#include "Socket.hpp"
 
-class Cgi : public Socket
+
+
+
+int CGI::getParentIndex() const
 {
-    private :
-            int 	   		_parent_index;
-    public:
-        int getParentIndex() const;
-        void setParentIndex(int index);
-        Cgi();
-        Cgi(int fd, int server_index, int parent_index);
-        Cgi(const Cgi& other);
-        ~Cgi();
-        Cgi& operator=(const Cgi& other);
-};
+	return _parent_index;
+}
 
-#endif
+void CGI::setParentIndex(int index)
+{
+	_parent_index = index;
+}

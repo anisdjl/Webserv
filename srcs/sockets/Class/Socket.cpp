@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   socket.cpp                                         :+:      :+:    :+:   */
+/*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:35:17 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/06 10:53:47 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/07 15:31:10 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ Socket::Socket(int fd, int server_index, Socket_type type, HttpRequest& request,
 : _fd(fd), _server_index(server_index), _type(type), _http_request(request), _http_response(HttpResponse(response))
 {}
 
-Socket::Socket(const Socket& other) 
-: _fd(other._fd), _server_index(other._server_index), _type(other._type), _http_request(other._http_request), _http_response(other._http_response), _parent_index(other._parent_index)
+Socket::Socket(const Socket& src) 
+: _fd(src._fd), _server_index(src._server_index), _type(src._type), _http_request(src._http_request), _http_response(src._http_response), _parent_index(src._parent_index)
 {}
 Socket::~Socket() {}
 
@@ -46,26 +46,6 @@ Socket_type Socket::getType() const
 	return _type;
 }
 
-HttpRequest& Socket::getHttpRequest() const
-{
-	return _http_request;
-}
-
-HttpResponse& Socket::getHttpResponse() const
-{
-	return _http_response;
-}
-
-int Socket::getParentIndex() const
-{
-	return _parent_index;
-}
-
-void Socket::setParentIndex(int index)
-{
-	_parent_index = index;
-}
-
 void Socket::setFd(int fd)
 {
 	_fd = fd;
@@ -81,27 +61,13 @@ void Socket::setType(Socket_type type)
 	_type = type;
 }
 
-void Socket::setHttpRequest(HttpRequest& request)
+Socket& Socket::operator=(const Socket& src)
 {
-	_http_request = request;
-}
-
-void Socket::setHttpResponse(HttpResponse& response)
-{
-	_http_response = response;
-}
-
-
-Socket& Socket::operator=(const Socket& other)
-{
-	if (this != &other)
+	if (this != &src)
 	{
-		_fd = other._fd;
-		_server_index = other._server_index;
-		_type = other._type;
-		_http_request = other._http_request;
-		_http_response = other._http_response;
-		_parent_index = other._parent_index;
+		_fd = src._fd;
+		_server_index = src._server_index;
+		_type = src._type;
 	}
 	return *this;
 }

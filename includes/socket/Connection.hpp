@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:03:14 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/06 20:06:37 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/07 14:54:33 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class Connection : public Socket
 		HttpResponse& getHttpResponse() const;
         
         Connection();
-        Connection(int fd, int server_index, Socket_type type, HttpRequest& request, HttpResponse& response);
+        Connection(int fd, int server_index, HttpRequest& request, HttpResponse& response);
         Connection(const Connection& other);
         ~Connection();
         Connection& operator=(const Connection& other);

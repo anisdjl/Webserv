@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   socket.hpp                                         :+:      :+:    :+:   */
+/*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:39:24 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/06 20:07:09 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/07 15:39:00 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,24 +27,27 @@ enum Socket_type
 
 class Socket
 {
-	private:
+	protected:
 		int         	_fd;
     	int         	_server_index;
     	Socket_type 	_type;
-
-	public :
+		
 		Socket();
-		Socket(int fd, int server_index, Socket_type type, HttpRequest& request, HttpResponse& response);
-		Socket(const Socket& other);
+		Socket(int fd, int server_index, Socket_type type);
+		Socket(const Socket& src);
+		
+	public :
+
+		
 		~Socket();
 		int &getFd();
 		int getFd() const;
 		int getServerIndex() const;
-		Socket_type getType() const;		
+		Socket_type getType() const;
 		void setFd(int fd);
 		void setServerIndex(int index);
 		void setType(Socket_type type);
-		Socket& operator=(const Socket& other);
+		Socket& operator=(const Socket& src);
 };
 
 bool ft_treat_socket(std::map<int, Socket> &map_socket, struct epoll_event &event, Config *config, const int &epollfd);
