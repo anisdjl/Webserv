@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.cpp                                        :+:      :+:    :+:   */
+/*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/30 23:23:13 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/06 19:18:10 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/07 17:11:25 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,12 @@ bool ft_webserv(Config *config)
 		if (nb_events == 0)
 			continue ;
 		if (nb_events == -1)
-			return (ft_close_all_sockets(map_socket, epollfd), true);
+		{
+			if (errno == EINTR)
+				break ;
+			else
+				return (ft_close_all_sockets(map_socket, epollfd), true);
+		}
 		i = 0;
 		while (i < nb_events)
 		{

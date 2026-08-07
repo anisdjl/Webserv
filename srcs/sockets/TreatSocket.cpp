@@ -133,6 +133,6 @@ bool ft_treat_socket(std::map<int, Socket> &map_socket, struct epoll_event &even
 				return (ft_cgi_out(map_socket, target, config));
 	}
 	if (event.events & (EPOLLRDHUP) && (target.getType() == CONNECTION) && (target.getHttpRequest().getState() == INCOMPLETE))
-			return (ft_close_socket(map_socket, target.getFd(), epollfd), false); // attention temporaire, car si cgi est en train de s'executer ce n'est pas une erreur.
+			return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
 	return (false);
 }
