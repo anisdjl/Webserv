@@ -1,11 +1,4 @@
 #include "../../includes/http/HttpResponse.hpp"
-#include <sys/stat.h>
-#include <cstdlib>
-#include <fstream>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sstream>
-#include <dirent.h>
 
 HttpResponse::HttpResponse() : _state(NOT_BUILT), _status_code(200), _status_message("OK"), _headers(), _body("") {}
 
@@ -58,16 +51,6 @@ void HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
 	_response = _buildStringResponse();
 }
 
-bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *location)
-{
-	for (std::vector<std::string>::const_iterator it = location->getMethods().begin();
-		it != location->getMethods().end(); ++it)
-	{
-		if (*it == methode)
-			return (true);
-	}
-	return (false);
-}
 // for (size_t i = 0; i < location->getMethods().size(); i++)
 
 std::string HttpResponse::_buildStringResponse()
@@ -85,44 +68,6 @@ std::string HttpResponse::_buildStringResponse()
     ss << this->_body;
 	// /r pour la norme http
     return (ss.str());
-}
-
-std::string	HttpResponse::_findContentType(std::string path)
-{
-	if (path.empty())
-		return ("application/octet-stream");
-	size_t pos = path.rfind(".");
-	if (pos == std::string::npos || pos == 0)
-		return ("application/octet-stream");
-	std::string	extension = path.substr(pos + 1);
-	
-	if (extension == "html")
-		return ("text/html");
-	else if (extension == "css")
-		return ("text/css");
-	else if (extension == "js")
-		return ("text/javascript");
-	else if (extension == "json")
-		return ("application/json");
-	else if (extension == "png")
-		return ("image/png");
-	else if (extension == "jpeg" || extension == "jpg")
-		return ("image/jpeg");
-	else if (extension == "svg")
-		return ("image/svg+xml");
-	else if (extension == "webp")
-		return ("image/webp");
-	else if (extension == "avif")
-		return ("image/avif");
-	else if (extension == "gif")
-			return ("image/gif");
-	else if (extension == "pdf")
-		return ("application/pdf");
-	else if (extension == "txt")
-		return ("text/plain");
-	else if (extension == "zip")
-		return ("application/zip");
-	return ("application/octet-stream");
 }
 
 void	HttpResponse::_buildAutoIndexResponse(std::string path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
@@ -178,7 +123,7 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 	{
 		std::string 				html_index;
 		std::vector<std::string>	index_vector;
-		
+
 		if (location && !location->getIndex().empty())
 			index_vector = location->getIndex();
 		else if (!servConf.getIndex().empty())
@@ -187,7 +132,7 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 			index_vector.push_back("index.html");
 		if (req_path[req_path.size() - 1] != '/')
         	req_path += "/";
-		for (std::vector<std::string>::const_iterator it = index_vector.begin(); 
+		for (std::vector<std::string>::const_iterator it = index_vector.begin();
 			it !=  index_vector.end(); ++it)
 		{
 			if (access((req_path + *it).c_str(), F_OK) == 0)
@@ -238,20 +183,70 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
 	if (location && req.getBody().size() > location->getClientMaxBodySize())
-		return (_buildErrorResponse(403, servConf, location));
+		return (_buildErrorResponse(413, servConf, location));
 	else if (req.getBody().size() > servConf.getClientMaxBodySize())
+		return (_buildErrorResponse(413, servConf, location));
+
+	// if cgi ?
+
+	std::string upload_path;
+	if (location && !location->getUploadStore().empty())
+		upload_path = location->getUploadStore();
+	else if (!servConf.getUploadStore().empty())
+		upload_path = servConf.getUploadStore();
+	else
 		return (_buildErrorResponse(403, servConf, location));
+
+	std::string root;
+	if (location && !location->getRoot().empty())
+		root = location->getRoot();
+	else
+		root = servConf.getRoot();
+	if (root.empty())
+		return (_buildErrorResponse(500, servConf, location));
+	if (upload_path[0] != '/' && root[root.size() - 1] != '/')
+		upload_path = "/" + upload_path;
+	else if (upload_path[0] == '/' && root[root.size() - 1] == '/')
+		upload_path.erase(upload_path.begin());
+	if (upload_path[upload_path.size() - 1] != '/')
+		upload_path += "/";
+	upload_path = root + upload_path;
+	std::string file_name;
+	for (int i = 0; i < 6; ++i)
+		file_name = file_name + static_cast<char>('a' + std::rand()%26);
+	if (access(upload_path.c_str(), W_OK | F_OK))
+		return (_buildErrorResponse(500, servConf, location));
+	upload_path = upload_path + file_name + _extensionFinder(req);
+    std::ofstream outfile(upload_path.c_str() ,std::ios::binary | std::ios::out);
+	if (!outfile.is_open())
+		return (_buildErrorResponse(500, servConf, location));
+	outfile.write(req.getBody().c_str(), req.getBody().size());
+	outfile.close();
+	this->_status_code = 201;
+	this->_status_message = "Created";
+
+	this->_body = "File uploaded successfully" ;
+
+	std::ostringstream oss;
+	oss << this->_body.size();
+	this->_headers.insert(std::make_pair("Server", "WeebServ"));
+	this->_headers.insert(std::make_pair("Location", upload_path));
+	this->_headers.insert(std::make_pair("Content-Type", "text/plain"));
+	this->_headers.insert(std::make_pair("Content-Length", oss.str()));
+	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
+}
+
 	/* 
+		c'est un cgi ? oui -> lancer buildCgi
+					   non -> continuer
+
 		trouver l'upload store serv ou loc
 	 	si vide alors erreur
 
-		c'est un cgi ? oui -> lancer buildCgi
-					   non -> continuer
+		
 		crée le fichier + nom etc
 		code 201 + header
 	*/
-
-}
 
 void	HttpResponse::_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
@@ -300,18 +295,18 @@ void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, L
 		else
 			root = servConf.getRoot();
 		html_path = root + it->second;
-	}
+	} 
 
 	std::ifstream	infile(html_path.c_str());
 	// this->_body.clear();
 	if (!infile.is_open())
 	{
-			this->_body = "<html>\n"
-								"<head><title>" + this->_status_message + "</title></head>\n"
-								"<body>\n"
-									"<h1>" + this->_status_message + "</h1>\n"
-								"</body>\n"
-							"</html>";
+		this->_body = "<html>\n"
+							"<head><title>" + this->_status_message + "</title></head>\n"
+							"<body>\n"
+								"<h1>" + this->_status_message + "</h1>\n"
+							"</body>\n"
+						"</html>";
 	}
 	else
 	{
@@ -367,6 +362,12 @@ void	HttpResponse::setState(ResponseState state)
 	parser :
 	400
 	413
+
+	Traiter les chemins absolues ?
+	manque un / sur le debut ? get
+	traiter les doubles /
+	root vide partout
+	manque cas avec cgi
 */
 
 // void	HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket)
@@ -394,9 +395,3 @@ void	HttpResponse::setState(ResponseState state)
 // 	*/
 // }
 // int &epollfd, int &parent_fd, std::map<int, Socket> &map_socket
-// cas manquant :
-/*
-	manque cas avec cgi
-	auto index
-	/ et /img/
-*/

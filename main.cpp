@@ -21,6 +21,7 @@ void runTest(const std::string& testName, HttpRequest& req, ServerConfig& servCo
 
 int main()
 {
+    std::srand(std::time(0));
     ServerConfig servConf;
     servConf.setRoot("./www");
 

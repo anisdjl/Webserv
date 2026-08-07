@@ -60,6 +60,10 @@ const std::vector<std::string>& ServerConfig::getIndex() const
     return this->_index;
 }
 
+std::string ServerConfig::getUploadStore() const
+{
+    return this->_upload_store;
+}
 
 // LocationConfig
 

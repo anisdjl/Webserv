@@ -50,6 +50,7 @@ class ServerConfig
 		std::string                     _root;
         std::vector<std::string>        _index;
         std::vector<std::string>        _server_name;
+        std::string                     _upload_store;
         long                            _client_max_body_size;
         std::map<int, std::string>      _error_page;
         std::vector<LocationConfig>     _locations;
@@ -66,6 +67,7 @@ class ServerConfig
         long                            			getClientMaxBodySize() const;
         std::map<int, std::string >::const_iterator	findErrorPage(int key) const;
 		const std::map<int, std::string >			&getErrorPage() const;
+        std::string									getUploadStore() const;
         const std::vector<LocationConfig>&			getLocations() const;
         // func
         LocationConfig*								matchLocation(const std::string& path);

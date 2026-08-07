@@ -3,6 +3,14 @@
 
 #include "HttpRequest.hpp"
 #include "../config/Config.hpp"
+#include <sys/stat.h>
+#include <cstdlib>
+#include <fstream>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sstream>
+#include <dirent.h>
+#include <ctime>
 
 enum ResponseState
 {
@@ -32,9 +40,9 @@ class HttpResponse
         std::map<std::string, std::string>	_headers;
         std::string							_body;
 		std::string							_response;
-        std::string                         _buildPath(); // 
         std::string                         _findContentType(std::string path);
 		std::string                         _buildStringResponse();
+        std::string                         _extensionFinder(HttpRequest &req);
         // void                                _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket);
         void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
