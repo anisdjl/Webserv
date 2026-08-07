@@ -26,33 +26,35 @@ class Config
 class LocationConfig
 {
     private:
-        std::string                     _path;
-        std::string                     _root;
-        std::vector<std::string>        _index;
-        std::vector<std::string>        _methods;
-        bool                            _autoindex;
-        std::vector<std::string>        _cgis;
-        long                            _client_max_body_size;
-        std::string                     _upload_store;
-		std::string                     _return;
+        std::string                     		_path;
+        std::string                     		_root;
+        std::vector<std::string>        		_index;
+        std::vector<std::string>        		_methods;
+        bool                            		_autoindex;
+        std::map<std::string, std::string>      _cgis;
+        long                            		_client_max_body_size;
+        std::string                     		_upload_store;
+		std::map<int, std::string>				_return;
     public:
         LocationConfig();
         ~LocationConfig();
-        std::string                     getPath() const;
-        const std::vector<std::string>& getIndex() const;
-        const std::vector<std::string>& getMethods() const;
-        bool                            getAutoIndex() const;
-        const std::vector<std::string>& getCgis() const;
-        std::string                     getUploadStore() const;
-        std::string                     getRoot() const;
-        long                            getClientMaxBodySize() const;
-        std::string                     getReturn() const;
+		const std::string					getPath(void) const{ return _path; };
+		const std::string					getRoot(void) const { return _root; };
+		std::vector<std::string>			getIndex(void) const { return _index; };
+		std::vector<std::string>			getMethods(void) const { return _methods; };
+		bool								getAutoindex(void) const { return _autoindex; };
+		std::map<std::string, std::string>	getCgis(void) const { return _cgis; };
+		std::string							getUploadStore(void) { return _upload_store; };
+		std::map<int, std::string>			getReturn(void) const { return _return; };
+		long                            	getClientMaxBodySize(void) const { return _client_max_body_size; };
 
         // === debug ===
         void setPath(std::string path) { _path = path; }
         void setRoot(std::string root) { _root = root; }
         void setAutoIndex(bool autoindex) { _autoindex = autoindex; }
         void addMethod(std::string method) { _methods.push_back(method); }
+
+
 
 		void	clearMethods(void) { _methods.clear(); };
 		void	displayLocation(void);

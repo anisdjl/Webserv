@@ -145,7 +145,7 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 		}
 		if (!html_index.empty())
 			req_path += html_index;
-		else if (location && location->getAutoIndex() == true)
+		else if (location && location->getAutoindex() == true)
 			return (_buildAutoIndexResponse(req_path, req, servConf, location));
 		else
 			return (_buildErrorResponse(403, servConf, location));
