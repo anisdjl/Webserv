@@ -1,19 +1,88 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Connection.hpp                                     :+:      :+:    :+:   */
+/*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/08/06 20:03:14 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/07 16:08:12 by ymoumene         ###   ########.fr       */
+/*   Created: 2026/08/07 16:01:25 by ymoumene          #+#    #+#             */
+/*   Updated: 2026/08/07 16:09:18 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CONNECTION_HPP
-#define CONNECTION_HPP
+#ifndef SOCKET_HPP
+#define SOCKET_HPP
 
-#include "Socket.hpp"
+#include "../config/Config.hpp"
+#include "../http/HttpRequest.hpp"
+#include "../http/HttpResponse.hpp"
+
+enum Socket_type
+{
+    LISTENER,
+    CONNECTION,
+    CGI
+};
+
+class Socket
+{
+	protected:
+		int         	_fd;
+    	int         	_server_index;
+    	Socket_type 	_type;
+		
+		Socket() : _fd(-1), _server_index(-1), _type(LISTENER) {};
+		Socket(int fd, int server_index, Socket_type type)
+		: _fd(fd), _server_index(server_index), _type(type) 
+		{};
+		Socket(const Socket& src) 
+		: _fd(src._fd), _server_index(src._server_index), _type(src._type) 
+		{};
+		
+	public :
+
+		
+		~Socket();
+		int &getFd()
+		{
+			return (this->_fd);
+		};
+		int getFd() const
+		{
+			return (this->_fd);
+		};
+		int getServerIndex() const
+		{
+			return (this->_server_index);
+		};
+		Socket_type getType() const
+		{
+			return (this->_type);
+		};
+		void setFd(int fd)
+		{
+			this->_fd = fd;
+		};
+		void setServerIndex(int index)
+		{
+			this->_server_index = index;
+		};
+		void setType(Socket_type type)
+		{
+			this->_type = type;
+		};
+		Socket& operator=(const Socket& src)
+		{
+			if (this != &src)
+			{
+				this->_fd = src._fd;
+				this->_server_index = src._server_index;
+				this->_type = src._type;
+			}
+			return (*this);
+		};
+};
+
 
 class Connection : public Socket
 {
@@ -38,10 +107,6 @@ class Connection : public Socket
 		{
 			return (this->_http_response);
 		};
-		void setHttpResponse(HttpResponse& response);
-        HttpRequest& getHttpRequest() const;
-		HttpResponse& getHttpResponse() const;
-        
         Connection() : Socket(), _http_request(HttpRequest()), _http_response(HttpResponse())
 		{
 			this->_type = CONNECTION;
@@ -67,5 +132,6 @@ class Connection : public Socket
 			return (*this);
 		};
 };
+
 
 #endif

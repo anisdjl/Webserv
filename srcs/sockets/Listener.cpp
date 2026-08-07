@@ -6,11 +6,12 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:36:31 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/05 19:37:43 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/07 15:44:20 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/socket/Socket.hpp"
+#include "../../includes/socket/Listen.hpp"
 
 bool ft_listener(std::string &listener, int &socketfd)
 {
@@ -43,12 +44,11 @@ bool ft_listener(std::string &listener, int &socketfd)
 
 bool ft_construct_listener(std::map <int, Socket> &map_socket, Config *config, int const &epollfd)
 {
-	Socket temp_socket;
+	Listen temp_socket();
 	struct epoll_event temp;
 	int i = 0; 
 
 	std::memset(&temp, 0, sizeof(temp));
-	temp_socket.setType(LISTENER);
 	while(i < config->getServer().size())
 	{
 		if(ft_listener(config->getServer()[i].getListen(), temp_socket.getFd()))
