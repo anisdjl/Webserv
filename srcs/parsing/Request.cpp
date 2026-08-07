@@ -4,7 +4,10 @@ HttpRequest::HttpRequest()
 : _state(INCOMPLETE)
 {};
 
-HttpRequest::~HttpRequest(){};
+HttpRequest::~HttpRequest()
+{
+
+}
 
 std::string		HttpRequest::getMethod() const
 {

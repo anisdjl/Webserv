@@ -9,7 +9,8 @@ SRC = main.cpp \
 	  srcs/parsing/ServerParsingUtils.cpp \
 	  srcs/parsing/LocationParsingUtils.cpp \
 	  srcs/parsing/ConfigCheck.cpp \
-	  srcs/parsing/RequestParsing.cpp
+	  srcs/parsing/RequestParsing.cpp \
+	  srcs/parsing/connection.cpp
 	  
 OBJ = $(SRC:.cpp=.o)
 
