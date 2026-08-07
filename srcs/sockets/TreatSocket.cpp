@@ -75,7 +75,7 @@ bool ft_send_request(std::map<int, Socket> &map_socket, Connection &target, Conf
 
 void ft_create_connection(std::map<int, Socket> &map_socket, Socket &target , const int &epollfd)
 {
-	Connection temp();
+	Connection temp;
 	struct epoll_event temp_event;
 	struct sockaddr_storage their_addr;
 	socklen_t addr_size;
@@ -83,7 +83,7 @@ void ft_create_connection(std::map<int, Socket> &map_socket, Socket &target , co
 	
 	std::memset(&their_addr, 0, sizeof(their_addr));
 	addr_size = sizeof (their_addr);
-	temp = target;
+	temp.setServerIndex(target.getServerIndex());
 	temp.setFd(accept(target.getFd(), (struct sockaddr *)&their_addr, &addr_size));
 	if (temp.getFd() == -1)
 		return ;
@@ -94,7 +94,7 @@ void ft_create_connection(std::map<int, Socket> &map_socket, Socket &target , co
 		return ;
 	}
 	temp_event.data.fd = temp.getFd();
-	temp_event.events = EPOLLIN | ;
+	temp_event.events = EPOLLIN | EPOLLRDHUP;
 	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, temp.getFd(), &temp_event) == -1)
 		close(temp.getFd());
 	else
@@ -132,7 +132,7 @@ bool ft_treat_socket(std::map<int, Socket> &map_socket, struct epoll_event &even
 		if(target.getType() == CGI)
 				return (ft_cgi_out(map_socket, target, config));
 	}
-	if (event.events & (EPOLLRDHUP) && (target.getType() == CONNECTION) && (target.getHttpRequest().getState() == INCOMPLETE))
+	if (event.events & (EPOLLRDHUP) && (target.getType() == CONNECTION) )//&& (target.getHttpRequest().getState() == INCOMPLETE))
 			return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
 	return (false);
 }
