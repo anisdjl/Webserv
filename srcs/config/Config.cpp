@@ -11,13 +11,42 @@ Config::Config(const Config &src)
 	// on laisse vide pour le moment
 }
 
-Config	&Config::operator=(const Config &src)
+std::map<int, std::string >::const_iterator ServerConfig::findErrorPage(int key) const
 {
-	if (&src != this)
+    return (_error_page.find(key));
+}
+
+
+// LocationConfig
+
+LocationConfig::LocationConfig() {}
+
+LocationConfig::~LocationConfig() {}
+
+long		LocationConfig::getClientMaxBodySize() const
+{
+	return this->_client_max_body_size;
+}
+
+// func
+
+LocationConfig*   ServerConfig::matchLocation(const std::string& path)
+{
+	LocationConfig	*match = NULL;
+	size_t			match_len = 0;
+	for (size_t i = 0; i < _locations.size(); i++)
 	{
-		std::cout << "je ferai ca plus tard" << std::endl;
+		std::string location_url = _locations[i].getPath();
+		if (path.compare(0, location_url.size(), location_url) == 0)
+		{
+			if (location_url.size() > match_len) // nv fav trouver
+			{
+				match = &_locations[i];
+				match_len = location_url.size();
+			}
+		}
 	}
-	return (*this);
+	return (match);
 }
 
 Config::~Config(void)
@@ -39,6 +68,6 @@ void	Config::displayConfig(void)
 	for (std::vector<ServerConfig>::iterator it = this->_servers.begin(); it != this->_servers.end(); ++it)
 	{
 		std::cout << "server config :" <<std::endl;
-		it->displayServConf();
+		// it->displayServConf();
 	}
 }
