@@ -1,21 +1,29 @@
 CXX = c++
-CXXFLAGS = -std=c++98 
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 
 NAME = webserv
+
+ODIR = includes/obj
+
 SRC = main.cpp \
-	  srcs/http/HttpRequest.cpp \
-	  srcs/http/HttpUtils.cpp \
-	  srcs/http/HttpResponse.cpp \
-	  srcs/config/Config.cpp \
-	  srcs/config/ConfigParsing.cpp \
-	  srcs/config/Config.cpp \
-	  srcs/config/LocationConfig.cpp \
-	  srcs/config/ServerConfig.cpp \
-	  srcs/config/ServerParsingUtils.cpp \
-	  srcs/config/LocationParsingUtils.cpp \
-	  srcs/config/ConfigCheck.cpp \
-	  srcs/config/RequestParsing.cpp
-	  
-OBJ = $(SRC:.cpp=.o)
+	srcs/Webserv.cpp \
+	srcs/http/HttpRequest.cpp \
+	srcs/http/HttpResponse.cpp \
+	srcs/config/Config.cpp \
+	srcs/config/ConfigParsing.cpp \
+	srcs/config/Config.cpp \
+	srcs/config/LocationConfig.cpp \
+	srcs/config/ServerConfig.cpp \
+	srcs/config/ServerParsingUtils.cpp \
+	srcs/config/LocationParsingUtils.cpp \
+	srcs/config/ConfigCheck.cpp \
+	srcs/config/RequestParsing.cpp \
+	srcs/sockets/CloseSockets.cpp \
+	srcs/sockets/Listener.cpp \
+	srcs/sockets/Socket.cpp \
+	srcs/sockets/TreatSocket.cpp
+
+
+OBJ = $(SRC:$(CDIR)/%.cpp=$(ODIR)/%.o)
 
 GREEN   := \033[0;32m
 YELLOW  := \033[0;33m

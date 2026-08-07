@@ -1,6 +1,6 @@
 #include "../../includes/http/HttpResponse.hpp"
 
-HttpResponse::HttpResponse() : _state(NOT_BUILT), _status_code(200), _status_message("OK"), _headers(), _body("") {}
+HttpResponse::HttpResponse() : _status_code(200), _status_message("OK"), _headers(), _body("") , _bytes_sent(0) {} // tmp
 
 HttpResponse::~HttpResponse(){};
 
@@ -336,6 +336,7 @@ void HttpResponse::resetResponse()
 	this->_body.clear();
 	this->_state = NOT_BUILT;
 	this->_response.clear();
+	this->_bytes_sent = 0;
 }
 
 ResponseState	HttpResponse::getState()
@@ -346,6 +347,36 @@ ResponseState	HttpResponse::getState()
 void	HttpResponse::setState(ResponseState state)
 {
 	this->_state = state;
+}
+
+void HttpResponse::add_bytes_sent(unsigned int bytes)
+{
+	this->_bytes_sent += bytes;
+}
+
+unsigned int HttpResponse::get_bytes_sent() const
+{
+	return this->_bytes_sent;
+}
+
+std::string HttpResponse::getResponse() const
+{
+	return this->_response;
+}
+
+void HttpResponse::setResponse(const std::string& response)
+{
+	this->_response = response;
+}
+
+std::string HttpResponse::getBody() const
+{
+	return this->_body;
+}
+
+void HttpResponse::setBody(const std::string& body)
+{
+	this->_body = body;
 }
 
 /*
