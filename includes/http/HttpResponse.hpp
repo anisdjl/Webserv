@@ -20,17 +20,24 @@ class HttpResponse
 		void                                resetResponse();
 		ResponseState						getState();
 		void								setState(ResponseState state);
+        /*	debug	*/
+        std::string							getResponse() const;
+        std::string							getBody() const;
+		int         						getStatusCode() const;
+        /*			*/
 	private:
 		ResponseState						_state;
         int									_status_code;
         std::string							_status_message;
         std::map<std::string, std::string>	_headers;
         std::string							_body;
-        std::string                         _findContentType(std::string path);
 		std::string							_response;
+        std::string                         _buildPath(); // 
+        std::string                         _findContentType(std::string path);
 		std::string                         _buildStringResponse();
         // void                                _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket);
-        void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
+        void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
         void								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);

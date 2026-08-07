@@ -45,7 +45,7 @@ std::map<int, std::string >::const_iterator ServerConfig::findErrorPage(int key)
     return (_error_page.find(key));
 }
 
-std::map<int, std::string > ServerConfig::getErrorPage() const
+const std::map<int, std::string >& ServerConfig::getErrorPage() const
 {
     return (_error_page);
 }
@@ -54,6 +54,12 @@ const std::vector<LocationConfig>& ServerConfig::getLocations() const
 {
     return this->_locations;
 }
+
+const std::vector<std::string>& ServerConfig::getIndex() const
+{
+    return this->_index;
+}
+
 
 // LocationConfig
 
@@ -94,6 +100,11 @@ const std::vector<std::string>& LocationConfig::getCgis() const
 std::string LocationConfig::getUploadStore() const
 {
     return this->_upload_store;
+}
+
+long		LocationConfig::getClientMaxBodySize() const
+{
+	return this->_client_max_body_size;
 }
 
 // func

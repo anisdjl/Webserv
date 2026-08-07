@@ -1,13 +1,30 @@
 #include "../../includes/http/HttpResponse.hpp"
+#include <sys/stat.h>
 #include <cstdlib>
 #include <fstream>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sstream>
+#include <dirent.h>
 
-HttpResponse::HttpResponse() : _status_code(200), _status_message("OK"), _headers(), _body("") {} // tmp
+HttpResponse::HttpResponse() : _state(NOT_BUILT), _status_code(200), _status_message("OK"), _headers(), _body("") {}
 
 HttpResponse::~HttpResponse(){};
+
+std::string		HttpResponse::getResponse() const
+{
+	return (this->_response);
+}
+
+std::string		HttpResponse::getBody() const
+{
+	return (this->_body);
+}
+
+int         	HttpResponse::getStatusCode() const
+{
+	return (this->_status_code);
+}
 
 void HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
 {
@@ -108,27 +125,86 @@ std::string	HttpResponse::_findContentType(std::string path)
 	return ("application/octet-stream");
 }
 
+void	HttpResponse::_buildAutoIndexResponse(std::string path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+{
+	std::vector<std::string> file;
+
+	DIR *dir= opendir(path.c_str());
+	if (!dir)
+		return (_buildErrorResponse(500, servConf, location));
+	dirent *pdir;
+	while((pdir = readdir(dir)))
+		file.push_back(pdir->d_name);
+	closedir(dir);
+	this->_body = "<html>\n"
+						"<head><title>" + req.getPath() + "</title></head>\n"
+						"<body>\n"
+							"<hr>"
+							"<pre>"
+							"<h1> " + req.getPath() + " </h1>\n";
+	for (std::vector<std::string>::const_iterator it = file.begin(); 
+		it !=  file.end(); ++it)
+		this->_body += "<a href=\"" + *it + "\">" + *it +"</a>\n";
+	this->_body +=	"</pre>";
+	this->_body += "</body>\n";
+	this->_body +=	"</html>";
+	
+	this->_status_code = 200;
+    this->_status_message = "OK";
+	std::ostringstream oss;
+	oss << this->_body.size();
+	this->_headers.insert(std::make_pair("Server", "WeebServ"));
+	this->_headers.insert(std::make_pair("Content-Type", "text/html"));
+	this->_headers.insert(std::make_pair("Content-Length", oss.str()));
+	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
+} // ignoré . ?
+
+// https://en.angie.software/angie/docs/configuration/modules/http/http_autoindex/
+// https://www.codespeedy.com/get-all-the-files-in-a-directory-using-cpp/
+
 void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
 	std::string	root;
-	std::string req_path;
 	if (location && !location->getRoot().empty())
 		root = location->getRoot();
 	else
 		root = servConf.getRoot();
-	size_t 		pos = req_path.rfind(".");
-	if (req.getPath().size() == 1 && req.getPath()[0] == '/')
+	std::string req_path = root + req.getPath();
+
+	/* chemin ou dossier vide ? */
+	struct stat s;
+	const char *path = req_path.c_str();
+	if (stat(path, &s) == 0 && S_ISDIR(s.st_mode))
 	{
-		if (root.back() == '/')
-			req_path = root + "index.html";
+		std::string 				html_index;
+		std::vector<std::string>	index_vector;
+		
+		if (location && !location->getIndex().empty())
+			index_vector = location->getIndex();
+		else if (!servConf.getIndex().empty())
+			index_vector = servConf.getIndex();
 		else
-			req_path = root + "/index.html";
+			index_vector.push_back("index.html");
+		if (req_path[req_path.size() - 1] != '/')
+        	req_path += "/";
+		for (std::vector<std::string>::const_iterator it = index_vector.begin(); 
+			it !=  index_vector.end(); ++it)
+		{
+			if (access((req_path + *it).c_str(), F_OK) == 0)
+			{
+				if (access((req_path + *it).c_str(), R_OK) != 0)
+					return (_buildErrorResponse(403, servConf, location));
+				html_index = *it;
+				break;
+			}
+		}
+		if (!html_index.empty())
+			req_path += html_index;
+		else if (location && location->getAutoIndex() == true)
+			return (_buildAutoIndexResponse(req_path, req, servConf, location));
+		else
+			return (_buildErrorResponse(403, servConf, location));
 	}
-	else if (pos != 2 && pos == std::string::npos 
-			&& req.getPath()[0] == '/' && req.getPath().back() == '/')
-		req_path = root + "index.html";
-	else
-		req_path = root + req.getPath();
 	if (access(req_path.c_str(), F_OK) == -1)
 		return (_buildErrorResponse(404, servConf, location));
 	if (access(req_path.c_str(), R_OK) == -1)
@@ -150,58 +226,30 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 			infile.read(&this->_body[0], size);
 		}
 	}
+	
 	std::ostringstream oss;
 	oss << this->_body.size();
 	this->_headers.insert(std::make_pair("Server", "WeebServ"));
-	this->_headers.insert(std::make_pair("Content-Type", _findContentType(req.getPath())));
+	this->_headers.insert(std::make_pair("Content-Type", _findContentType(req_path)));
 	this->_headers.insert(std::make_pair("Content-Length", oss.str()));
 	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
 }
 
-// void	HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket)
-// {
-// 	int fd;
-// 	int pipe_in[2];
-// 	int pipe_out[2];
-
-// 	// creer pipe
-// 	// socketpair (pipe_in[0], pipe_out[1])= merge socket;
-// 	// fd = pipe_in[0] ou pipe_out[1]
-// 	// in : recevoir
-// 	// out :
-// 	/*
-// 		class socket :
-// 				fd
-// 				type : CGI
-// 				parent_fd = fd du parent
-// 		add au epoll
-// 		add a la mapsocket
-// 		fork()
-// 		{
-// 		tu fais ta magie
-// 		}
-// 	*/
-// }
-// int &epollfd, int &parent_fd, std::map<int, Socket> &map_socket
-// cas manquant :
-/*
-	manque cas avec cgi
-	auto index
-	/ et /img/
-*/
-
-/*
-	GET HTTP/1.1
-	Host: www.aaaa.com
-	User-Agent: Mozilla/5.0
-	Accept: text/html,application/xhtml+xml,image/webp,application/json
-	Accept-Language: fr-FR
-	Connection: keep-alive
-	Cookie: session_id=abc123
-*/
-
 void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
+	if (location && req.getBody().size() > location->getClientMaxBodySize())
+		return (_buildErrorResponse(403, servConf, location));
+	else if (req.getBody().size() > servConf.getClientMaxBodySize())
+		return (_buildErrorResponse(403, servConf, location));
+	/* 
+		trouver l'upload store serv ou loc
+	 	si vide alors erreur
+
+		c'est un cgi ? oui -> lancer buildCgi
+					   non -> continuer
+		crée le fichier + nom etc
+		code 201 + header
+	*/
 
 }
 
@@ -240,11 +288,12 @@ void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, L
 			this->_status_message = "Internal Server Error";
 			break;
 	}
-	std::string		root;
-	std::string		html_path("");
+	std::string	root;
+	std::string	html_path("");
+	const std::map<int, std::string >&	error_page = servConf.getErrorPage();
 	std::map<int, std::string >::const_iterator	it = servConf.findErrorPage(error_code);
 
-	if (it != servConf.getErrorPage().end())
+	if (it != error_page.end())
 	{
 		if (location && !location->getRoot().empty())
 			root = location->getRoot();
@@ -320,37 +369,34 @@ void	HttpResponse::setState(ResponseState state)
 	413
 */
 
+// void	HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket)
+// {
+// 	int fd;
+// 	int pipe_in[2];
+// 	int pipe_out[2];
+
+// 	// creer pipe
+// 	// socketpair (pipe_in[0], pipe_out[1])= merge socket;
+// 	// fd = pipe_in[0] ou pipe_out[1]
+// 	// in : recevoir
+// 	// out :
+// 	/*
+// 		class socket :
+// 				fd
+// 				type : CGI
+// 				parent_fd = fd du parent
+// 		add au epoll
+// 		add a la mapsocket
+// 		fork()
+// 		{
+// 		tu fais ta magie
+// 		}
+// 	*/
+// }
+// int &epollfd, int &parent_fd, std::map<int, Socket> &map_socket
+// cas manquant :
 /*
-std::map<int, std::string >::const_iterator ServerConfig::findErrorPage(int key) const
-{
-    return (_error_page.find(key));
-}
-*/
-
-// Exemple possible de request http :
-/*
-	POST /cgi-bin/upload.py?user=42&action=save HTTP/1.1\r\n
-	Host: localhost:8080\r\n
-	User-Agent: Mozilla/5.0 (X11; Linux x86_64)\r\n
-	Content-Type: application/x-www-form-urlencoded\r\n
-	Content-Length: 27\r\n
-	Cookie: session_id=abc123xyz\r\n
-	\r\n
-	name=JohnDoe&age=25&status=ok
-*/
-
-/* exemple possible de reponse :
-
-    HTTP/1.1 404 Not Found
-    Content-Type: text/html
-    Content-Length: 149
-    Connection: close
-
-    <html>
-    <head><title>404 Not Found</title></head>
-    <body>
-    <h1>404 Not Found</h1>
-    <hr><center>Webserv/1.0</center>
-    </body>
-    </html>
+	manque cas avec cgi
+	auto index
+	/ et /img/
 */
