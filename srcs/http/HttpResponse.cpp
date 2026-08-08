@@ -1,6 +1,6 @@
 #include "../../includes/http/HttpResponse.hpp"
 
-HttpResponse::HttpResponse() : _status_code(200), _status_message("OK"), _headers(), _body("") , _bytes_sent(0) {} // tmp
+HttpResponse::HttpResponse() : _status_code(200), _status_message("OK"), _headers(), _bytes_sent(0), _body("") {}
 
 HttpResponse::~HttpResponse(){};
 
@@ -46,8 +46,8 @@ void HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
         this->_buildPostResponse(request, servConf, location);
     else if (request.getMethod() == "DELETE")
         this->_buildDeleteResponse(request, servConf, location);
-    else // method not allowed /
-        this->_buildErrorResponse(501, servConf, location); // not found
+    else
+		this->_buildErrorResponse(501, servConf, location); // not found
 	_response = _buildStringResponse();
 }
 
@@ -182,7 +182,7 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 
 void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
-	if (location && req.getBody().size() > location->getClientMaxBodySize())
+	if (location && req.getBody().size() > static_cast<size_t>(location->getClientMaxBodySize())) // NE DOis JAMAIS etre negatif
 		return (_buildErrorResponse(413, servConf, location));
 	else if (req.getBody().size() > servConf.getClientMaxBodySize())
 		return (_buildErrorResponse(413, servConf, location));
@@ -359,19 +359,9 @@ unsigned int HttpResponse::get_bytes_sent() const
 	return this->_bytes_sent;
 }
 
-std::string HttpResponse::getResponse() const
-{
-	return this->_response;
-}
-
 void HttpResponse::setResponse(const std::string& response)
 {
 	this->_response = response;
-}
-
-std::string HttpResponse::getBody() const
-{
-	return this->_body;
 }
 
 void HttpResponse::setBody(const std::string& body)

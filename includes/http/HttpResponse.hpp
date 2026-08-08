@@ -35,10 +35,8 @@ class HttpResponse
         /*			*/
         void                                add_bytes_sent(unsigned int bytes);
         unsigned int                        get_bytes_sent() const;
-        std::string                         getResponse() const;
         void                                setResponse(const std::string& response);
         void                                setBody(const std::string& body);
-        std::string                         getBody() const;
 	private:
 		ResponseState						_state;
         unsigned int                        _bytes_sent;

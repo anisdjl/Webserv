@@ -11,49 +11,17 @@ Config::Config(const Config &src)
 	// on laisse vide pour le moment
 }
 
-std::map<int, std::string >::const_iterator ServerConfig::findErrorPage(int key) const
-{
-    return (_error_page.find(key));
-}
-
-
-// LocationConfig
-
-LocationConfig::LocationConfig() {}
-
-LocationConfig::~LocationConfig() {}
-
-long		LocationConfig::getClientMaxBodySize() const
-{
-	return this->_client_max_body_size;
-}
-
-// func
-
-LocationConfig*   ServerConfig::matchLocation(const std::string& path)
-{
-	LocationConfig	*match = NULL;
-	size_t			match_len = 0;
-	for (size_t i = 0; i < _locations.size(); i++)
-	{
-		std::string location_url = _locations[i].getPath();
-		if (path.compare(0, location_url.size(), location_url) == 0)
-		{
-			if (location_url.size() > match_len) // nv fav trouver
-			{
-				match = &_locations[i];
-				match_len = location_url.size();
-			}
-		}
-	}
-	return (match);
-}
-
 Config::~Config(void)
 {
 	// vide pour le moment mais on va free apres
 }
 
+std::map<int, std::string >::const_iterator ServerConfig::findErrorPage(int key) const
+{
+    return (_error_page.find(key));
+}
+
+// func
 
 void	Config::setServer(ServerConfig *servconf)
 {
