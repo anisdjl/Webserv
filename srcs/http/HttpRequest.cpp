@@ -7,35 +7,6 @@ HttpRequest::HttpRequest()
 
 HttpRequest::~HttpRequest(){};
 
-std::string		HttpRequest::getMethod() const
-{
-    return this->_method;
-}
-
-std::string		HttpRequest::getPath() const
-{
-    return this->_path;
-}
-
-std::string		HttpRequest::getQueryString() const
-{
-    return this->_query_string;
-}
-
-std::string		HttpRequest::getVersion() const
-{
-    return this->_version;
-}
-
-std::string	HttpRequest::getBody() const
-{
-    return this->_body;
-}
-
-int		HttpRequest::getErrorCode() const
-{
-    return this->_error;
-}
 
 std::string		HttpRequest::getHeader(std::string key) const
 {
@@ -46,50 +17,6 @@ std::string		HttpRequest::getHeader(std::string key) const
 			return it->second; 
 	}
 	return "";
-}
-
-RequestState	HttpRequest::getState() const
-{
-	return this->_state;
-}
-
-void	HttpRequest::setMethod(std::string method)
-{
-	this->_method = method;
-}
-
-void	HttpRequest::setPath(std::string path)
-{
-    this->_path = path;
-}
-
-void	HttpRequest::setQueryString(std::string query)
-{
-    this->_query_string = query;
-}
-
-void	HttpRequest::setVersion(std::string version)
-{
-	this->_version = version;
-}
-
-void	HttpRequest::setHeader(std::string key, std::string value)
-{
-	this->_header[key] = value;
-}
-
-void	HttpRequest::setBody(std::string body)
-{
-	this->_body = body;
-}
-
-void 	HttpRequest::setError(int errorCode)
-{
-	this->_error = errorCode;
-}
-void 	HttpRequest::setState(RequestState state)
-{
-	this->_state = state;
 }
 
 void 	HttpRequest::resetRequest()
@@ -104,4 +31,46 @@ void 	HttpRequest::resetRequest()
 	this->_state = INCOMPLETE;
 	this->_avancement = NOT_STARTED;
 	this->_buffer.clear();
+}
+
+
+bool 	HttpRequest::_ft_parse_first_line()
+{
+	if (this->_method.empty() && this->_ft_skip_line(1))
+		return (true);
+	size_t pos = this->_buffer.find("\r\n");
+	if(pos != std::string::npos)
+	{
+		std::string line = this->_buffer.substr(0, pos);
+		if(ft_parse_method_and_stuff(line))
+		 	return (true);
+		else
+		{
+			this->_avancement = FIRST_LINE;
+			return (false);
+		}
+	}
+	return (true);
+}
+
+bool HttpRequest::_ft_parse_first_headers()
+{
+	while((pos = this->_buffer.find("\r\n") != std::string::npos))
+	{
+		
+	}
+}
+
+
+
+void 	HttpRequest::ft_parse_http_request(const std::string& buffer)
+{
+	this->addToBuffer(buffer);
+	if (this->_avancement == NOT_STARTED &&  this->_ft_parse_first_line())
+		return ;
+	else if (this->_avancement == FIRST_LINE && this->_ft_parse_headers()) 
+		return ;
+	else if (this->_avancement == HEADER && this->_ft_parse_body())
+		return ;
+	return ;
 }
