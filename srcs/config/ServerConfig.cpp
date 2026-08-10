@@ -102,3 +102,4 @@ LocationConfig*   ServerConfig::matchLocation(const std::string& path)
 	}
 	return (match);
 }
+// si rien donnée location / sinon NULL

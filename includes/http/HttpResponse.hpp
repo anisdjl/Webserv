@@ -39,9 +39,9 @@ class HttpResponse
         void                                setBody(const std::string& body);
 	private:
 		ResponseState						_state;
-        unsigned int                        _bytes_sent;
         int									_status_code;
         std::string							_status_message;
+        unsigned int                        _bytes_sent;
         std::map<std::string, std::string>	_headers;
         std::string							_body;
 		std::string							_response;
@@ -52,6 +52,7 @@ class HttpResponse
         void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
+        void								HttpResponse::_buildRedirResponse(std::string new_path);
         void								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);

@@ -31,6 +31,7 @@ class LocationConfig
         std::vector<std::string>        		_index;
         std::vector<std::string>        		_methods;
         bool                            		_autoindex;
+		bool									_auto_index_define;
         std::map<std::string, std::string>      _cgis;
         long                            		_client_max_body_size;
         std::string                     		_upload_store;
@@ -45,6 +46,7 @@ class LocationConfig
 		std::vector<std::string>			getIndex(void) const { return _index; };
 		std::vector<std::string>			getMethods(void) const { return _methods; };
 		bool								getAutoindex(void) const { return _autoindex; };
+		bool								getAutoindexDefine(void) { return _auto_index_define; };
 		std::map<std::string, std::string>	getCgis(void) const { return _cgis; };
 		std::string							getUploadStore(void) { return _upload_store; };
 		std::map<int, std::string>			getReturn(void) const { return _return; };
@@ -73,6 +75,8 @@ class	ServerConfig
         std::string                     _host;
 		std::string                     _root;
         std::vector<std::string>        _index;
+		bool							_auto_index;
+		bool							_auto_index_define;
         std::vector<std::string>        _server_name;
         std::string                     _upload_store;
         long                            _client_max_body_size;
@@ -90,8 +94,7 @@ class	ServerConfig
 		void	setHost(std::string &host);
 		void	setServerName(std::string &server_name);
 		void	setClientMaxBody(long value);
-		void	setErrorpage(int code, std::string &path); // je mets void pour le moment mais c'est pas bon
-
+		void	setErrorpage(int code, std::string &path); // je mets void pour le moment mais c'est pas bon//il faut set a 400 le code si faux
 		std::string						getListen(void) { return _listen; };
 		std::string						getHost(void) { return _host; };
 		std::string						getRoot(void) { return _root; };
@@ -101,7 +104,9 @@ class	ServerConfig
 		long							getClientMaxBodySize(void)	{ return _client_max_body_size; };
 		std::map<int, std::string>&		getErrorPage(void) { return _error_page; };
 		std::vector<LocationConfig>&	getLocations(void) { return _locations; };
-		
+		bool							getAutoindex(void) { return _auto_index; };
+		bool							getAutoindexDefine(void) { return _auto_index_define; };
+
 		void	displayServConf(void);
         //=== func ===
         LocationConfig*								matchLocation(const std::string& path);

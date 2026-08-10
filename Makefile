@@ -1,5 +1,5 @@
 CXX = c++
-CXXFLAGS = -std=c++98 
+CXXFLAGS = -Wall -Werror -Wextra -std=c++98
 NAME = webserv
 
 SRC = main.cpp \
