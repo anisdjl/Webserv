@@ -7,7 +7,6 @@ HttpRequest::HttpRequest()
 
 HttpRequest::~HttpRequest(){};
 
-
 std::string		HttpRequest::getHeader(std::string key) const
 {
 	for(std::map<std::string, std::string >::const_iterator it = _header.begin();
@@ -30,9 +29,7 @@ void 	HttpRequest::resetRequest()
 	this->_error = 0;
 	this->_state = INCOMPLETE;
 	this->_avancement = NOT_STARTED;
-	this->_buffer.clear();
 }
-
 
 bool 	HttpRequest::_ft_parse_first_line()
 {
@@ -53,15 +50,30 @@ bool 	HttpRequest::_ft_parse_first_line()
 	return (true);
 }
 
-bool HttpRequest::_ft_parse_first_headers()
+bool HttpRequest::_ft_parse_headers()
 {
-	while((pos = this->_buffer.find("\r\n") != std::string::npos))
+	while((size_t pos = this->_buffer.find("\r\n")) != std::string::npos)
 	{
-		
+		if(pos + 2 < this->_buffer.length() && this->_buffer[pos + 2] == '\r' && pos + 3 < this->_buffer.length() && this->_buffer[pos+3] == '\n')
+		{
+			this->_avancement = HEADER;
+			return (false);
+		}
+		if (this->_ft_parse_line_header())
+			return (true);
 	}
+	return (true);
 }
 
-
+bool HttpRequest::_ft_parse_body()
+{
+	if((size_t pos = this->_buffer.find("\r\n\r\n")) == std::string::npos)
+		return (true);
+	this->_body = this->_buffer.substr(0, pos + 4);
+	this->_buffer.erase(0, pos + 4);
+	this->_ft_check_flags_header();
+	this->_state = COMPLETE;
+}
 
 void 	HttpRequest::ft_parse_http_request(const std::string& buffer)
 {
