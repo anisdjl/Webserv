@@ -3,6 +3,7 @@
 
 #include "../Webserv.hpp"
 
+
 // Exemple possible de request http :
 /*
 	POST /cgi-bin/upload.py?user=42&action=save HTTP/1.1\r\n
@@ -22,6 +23,14 @@ enum RequestState
 	ERROR
 };
 
+enum avancementState
+{
+	NOT_STARTED,
+	FIRST_LINE,
+	HEADER,
+	BODY
+};
+
 class HttpRequest
 {
     public:
@@ -35,6 +44,8 @@ class HttpRequest
 		int										getErrorCode() const;
 		std::string								getHeader(std::string key) const;
 		RequestState							getState() const;
+		avancementState							getAvancement() const {return (this->_avancement);}
+		std::string								getBuffer() const {return (this->_buffer);}
 
 		void									setMethod(std::string method);
 		void 									setPath(std::string path);
@@ -44,10 +55,15 @@ class HttpRequest
 		void 									setBody(std::string body);
 		void									setError(int code);
 		void									setState(RequestState state);
+		void 									setAvancement(avancementState state){this->_avancement = state;}
+		void 									setBuffer(std::string buffer){this->_buffer = buffer;}
 
 		void 									resetRequest();
+		void 									addToBuffer(const std::string& data) { this->_buffer += data; }
 	private:
 		RequestState							_state;
+		avancementState							_avancement;
+		std::string								_buffer;
 		std::string								_method; // POST
 		std::string								_path;	// a coté de post
 		std::string								_query_string; // les parametres possible

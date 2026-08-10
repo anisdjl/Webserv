@@ -2,7 +2,7 @@
 #include <map>
 
 HttpRequest::HttpRequest()
-: _state(INCOMPLETE)
+: _state(INCOMPLETE), _avancement(NOT_STARTED), _error(0)
 {};
 
 HttpRequest::~HttpRequest(){};
@@ -102,4 +102,6 @@ void 	HttpRequest::resetRequest()
 	this->_body.clear();
 	this->_error = 0;
 	this->_state = INCOMPLETE;
+	this->_avancement = NOT_STARTED;
+	this->_buffer.clear();
 }
