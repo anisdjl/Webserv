@@ -112,7 +112,7 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
 	if (event.events & (EPOLLHUP | EPOLLERR))
 	{
 		if (target.getType() == CGI)
-			ft_cgi_hup(map_socket, target, config, epollfd);
+			(map_socket, target, config, epollfd);
 		else
 			ft_close_socket(map_socket, target.getFd(), epollfd);
 		return (false);
