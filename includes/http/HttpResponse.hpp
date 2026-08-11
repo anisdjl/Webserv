@@ -36,12 +36,12 @@ class HttpResponse
         std::string                         _findContentType(std::string path);
 		std::string							_response;
 		std::string                         _buildStringResponse();
-        // void                                _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket);
         void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
         void								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+		void								_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket);
 };
 
 /*
