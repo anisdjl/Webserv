@@ -42,7 +42,7 @@ bool HttpRequest::_ft_skip_line()
 			this->_buffer.erase(0, 3);
 		return (false);
 	}
-	return (true)
+	return (true);
 }
 
 bool 	HttpRequest::_ft_parse_request_line(size_t &pos)
