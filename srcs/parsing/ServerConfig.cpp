@@ -2,6 +2,7 @@
 
 ServerConfig::ServerConfig(void)
 {
+	_autoindexfound  = false;
 	_listen = "80";
 	_host = "0.0.0.0";
 	_client_max_body_size = 1000000;
