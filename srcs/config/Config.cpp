@@ -11,20 +11,17 @@ Config::Config(const Config &src)
 	// on laisse vide pour le moment
 }
 
-Config	&Config::operator=(const Config &src)
-{
-	if (&src != this)
-	{
-		std::cout << "je ferai ca plus tard" << std::endl;
-	}
-	return (*this);
-}
-
 Config::~Config(void)
 {
 	// vide pour le moment mais on va free apres
 }
 
+std::map<int, std::string >::const_iterator ServerConfig::findErrorPage(int key) const
+{
+    return (_error_page.find(key));
+}
+
+// func
 
 void	Config::setServer(ServerConfig *servconf)
 {
@@ -39,6 +36,6 @@ void	Config::displayConfig(void)
 	for (std::vector<ServerConfig>::iterator it = this->_servers.begin(); it != this->_servers.end(); ++it)
 	{
 		std::cout << "server config :" <<std::endl;
-		it->displayServConf();
+		// it->displayServConf();
 	}
 }

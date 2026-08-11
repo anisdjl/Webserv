@@ -1,29 +1,18 @@
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 
+CXXFLAGS = -Wall -Werror -Wextra -std=c++98
 NAME = webserv
 
-ODIR = includes/obj
-
 SRC = main.cpp \
-	srcs/Webserv.cpp \
-	srcs/http/HttpRequest.cpp \
-	srcs/http/HttpResponse.cpp \
-	srcs/config/Config.cpp \
-	srcs/config/ConfigParsing.cpp \
-	srcs/config/Config.cpp \
-	srcs/config/LocationConfig.cpp \
-	srcs/config/ServerConfig.cpp \
-	srcs/config/ServerParsingUtils.cpp \
-	srcs/config/LocationParsingUtils.cpp \
-	srcs/config/ConfigCheck.cpp \
-	srcs/config/RequestParsing.cpp \
-	srcs/sockets/CloseSockets.cpp \
-	srcs/sockets/Listener.cpp \
-	srcs/sockets/Socket.cpp \
-	srcs/sockets/TreatSocket.cpp
+	  srcs/http/HttpRequest.cpp \
+	  srcs/http/HttpResponse.cpp \
+	  srcs/http/HttpUtils.cpp \
+	  srcs/http/HttpErrorResponse.cpp \
+	  srcs/http/HttpDeleteResponse.cpp \
+	  srcs/config/Config.cpp \
+      srcs/config/ServerConfig.cpp \
+      srcs/config/LocationConfig.cpp
 
-
-OBJ = $(SRC:$(CDIR)/%.cpp=$(ODIR)/%.o)
+OBJ = $(SRC:.cpp=.o)
 
 GREEN   := \033[0;32m
 YELLOW  := \033[0;33m
@@ -36,12 +25,13 @@ $(NAME): $(OBJ)
 	@printf "\n$(GREEN)[Compilation] Compilation principale ...$(RESET)\n"
 	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
 
-%.o: %.cpp
+$(ODIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	@printf "\n$(YELLOW)[Nettoyage] Nettoyage fichiers objets ...$(RESET)\n"
-	rm -f $(OBJ)
+	rm -rf $(OBJ)
 
 fclean: clean
 	@printf "\n$(YELLOW)[Nettoyage] Nettoyage global ...$(RESET)\n"

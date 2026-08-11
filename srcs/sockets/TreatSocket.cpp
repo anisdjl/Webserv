@@ -19,15 +19,13 @@ bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, C
 	int bytes_read = 0;
 	char buffer[BUFFER_SIZE + 1];
 
-
 	if (target.getHttpRequest().getState() == INCOMPLETE)
 	{	
 		std::memset(buffer, 0, BUFFER_SIZE + 1);
 		bytes_read = recv(target.getFd(), buffer, BUFFER_SIZE, 0);
 		if (bytes_read < 1)
 			return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
-		if (ft_parse_http_request(target.getHttpRequest(), config->getServer()[target.getServerIndex()], buffer, bytes_read))
-			return (true);
+		target.getHttpRequest().ft_parse_http_request(std::string(buffer));
 	}
 	if (target.getHttpRequest().getState() == COMPLETE)
 	{

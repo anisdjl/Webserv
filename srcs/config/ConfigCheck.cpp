@@ -17,7 +17,10 @@ void	CheckServer(ServerConfig &server)
 		throw std::runtime_error("Error: Server must have at least one location block");
 	
 	std::vector<LocationConfig> locs = server.getLocations();
-    for (size_t i = 0; i < locs.size(); ++i)
-        if (locs[i].getRoot().empty() && locs[i].getReturn().empty())
-            throw std::runtime_error("Error: location must have a root and a return");
+	for (size_t i = 0; i < locs.size(); ++i)
+	{
+		if (locs[i].getRoot().empty() && locs[i].getReturn().empty())
+			throw std::runtime_error("Error: location must have a root and a return");
+		
+	}
 }

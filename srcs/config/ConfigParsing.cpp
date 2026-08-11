@@ -72,7 +72,12 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 	(*index)++;
 	(*config).increment();
 	while (*index < (*tokens).size()) // je viens de retirer le condition du while (tokens != })
-	{ 
+	{
+		if ((*tokens)[*index] == "root")
+		{
+			parse_root_server(config, tokens, index, servconf);
+			continue;
+		}
 		if ((*tokens)[*index] == "location")
 		{
 			LocationConfig					*locconfig = new LocationConfig;
@@ -104,6 +109,11 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 			parse_error_page(config, tokens, index, servconf);
 			continue;
 		}
+		if ((*tokens)[*index] == "autoindex")
+		{
+			parse_autoindex_server(config, tokens, index, servconf);
+			continue;
+		}
 		if ((*tokens)[*index] == "}")
 		{
 			// si on est ici c'est qu'on a fini le server actuel
@@ -114,6 +124,22 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 		}
 		throw std::runtime_error("Error: wrong configuration file format 3");
 	}
+}
+
+void	parse_root_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf)
+{
+	(*index)++;
+	(void)config;
+
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
+
+	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
+		throw std::runtime_error("Syntax error in client max body size directive");
+
+	(*servconf).setRoot((*tokens)[*index]);
+
+	(*index) += 2;
 }
 
 void	fsm(Config *config, std::vector<std::string> *tokens)
@@ -133,7 +159,7 @@ void	fsm(Config *config, std::vector<std::string> *tokens)
 	if ((*config).getNbBrackets() != 0)
 		throw std::runtime_error("Syntax error missung brackets");
 	CheckConfig(*config);
-	(*config).displayConfig();
+	// (*config).displayConfig();
 }
 
 // je dois trouver un moyen de checker si les {} sont bien ferme ou pas si le premier server a ete ferme ou pas

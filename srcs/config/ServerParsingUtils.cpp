@@ -135,4 +135,24 @@ void	parse_error_page(Config *config,std::vector<std::string> *tokens, size_t *i
 	(*index) += 2;
 }
 
+
+void	parse_autoindex_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf)
+{
+	(*index)++;
+	(void)config;
+
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
+
+	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
+		throw std::runtime_error("Syntax error in autindex directive");
+	
+	if ((*tokens)[*index] != "on" && (*tokens)[*index] != "off")
+		throw std::runtime_error("Value error autoindex value must be 'on' or 'off'");
+
+	(*servconf).setAutoIndexfound(true);
+	(*servconf).setAutoindex((*tokens)[*index]);
+	(*index) += 2;
+}
+
 // il me reste les 3 parties a parser, mettre les elements par defaut dans le constructeur si besoin

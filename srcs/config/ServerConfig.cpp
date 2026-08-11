@@ -2,9 +2,12 @@
 
 ServerConfig::ServerConfig(void)
 {
+	_autoindexfound  = false;
 	_listen = "80";
 	_host = "0.0.0.0";
 	_client_max_body_size = 1000000;
+	_autoindexfound = false;
+	_root = "";
 }
 
 ServerConfig::~ServerConfig(void)
@@ -101,4 +104,22 @@ LocationConfig*   ServerConfig::matchLocation(const std::string& path)
 		}
 	}
 	return (match);
+}
+// si rien donnée location / sinon NULL
+void	ServerConfig::setAutoindex(std::string &autoindex)
+{
+	if (autoindex == "on")
+		_autoindex = true;
+	else if (autoindex == "off")
+		_autoindex = false;
+}
+
+void	ServerConfig::setRoot(std::string &root)
+{
+	_root = root;
+}
+
+void	ServerConfig::setAutoIndexfound(bool found)
+{
+	_autoindexfound = found;
 }
