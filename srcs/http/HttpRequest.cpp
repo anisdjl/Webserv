@@ -155,21 +155,51 @@ void HttpRequest::_ft_verif_length(std::string &length, size_t &max_body_size)
 	}
 }
 
-bool HttpRequest::_ft_parse_chunk(size_t &pos, std::string &new_body)
-{}
+int HttpRequest::_ft_parse_chunk(size_t &pos, std::string &new_body)
+{
+	char *end;
+	std::string chunk_size_str = this->_body.substr(0, pos);
+	size_t chunk_size = std::strtoul(chunk_size_str.c_str(), &end, 16);
+	std::string chunk_data;
+
+	if (*end != '\0')
+	    return (this->setError(400), true);
+	this->_body.erase(0, pos + 2);
+	if (chunk_size == 0)
+		return (1);
+	pos = this->_body.find("\r\n");
+	if (pos == std::string::npos || pos != chunk_size)
+	{
+		this->setError(400);
+		return (-1);
+	}
+	chunk_data = this->_body.substr(0, pos);
+	new_body += chunk_data;
+	this->_body.erase(0, pos + 2);
+	return (0);
+}
+
 
 void HttpRequest::_ft_unchunked(std::string &flags)
 {
 	size_t pos;
 	std::string new_body;
-
+	int	i;
 	
 	if(flags.find("chunked") == std::string::npos)
 		return ;
-	while((pos = this->_body.find("\r\n")) != std::string::npos)
+	while(1)
 	{
-		if (this->_ft_parse_chunk(pos, new_body))
+		if ((pos = this->_body.find("\r\n")) == std::string::npos)
 		{
+			this->setError(400);
+			return ;					
+		}
+		i = this->_ft_parse_chunk(pos, new_body);
+		if (i != 0)
+		{
+			if (i == 1 && this->_body.compare(0, 2, "\r\n") == 0)
+				break ;
 			this->setError(400);
 			return ;			
 		}
