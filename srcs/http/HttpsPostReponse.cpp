@@ -50,9 +50,7 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 	outfile.close();
 	this->_status_code = 201;
 	this->_status_message = "Created";
-
 	this->_body = "File uploaded successfully" ;
-
 	std::ostringstream oss;
 	oss << this->_body.size();
 	this->_headers.insert(std::make_pair("Server", "WeebServ"));

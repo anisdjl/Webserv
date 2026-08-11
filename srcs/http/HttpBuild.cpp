@@ -14,6 +14,8 @@ void			HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
 		_response = _buildStringResponse();
 		return ;
 	}
+	if (request.getMethod() != "GET" && request.getMethod() != "POST" && request.getMethod() != "DELETE")
+		return _buildErrorResponse(501, servConf, NULL);
     LocationConfig *location = servConf.matchLocation(request.getPath());
 	if (location && !this->_isMethodAllowed(request.getMethod(), location)) // check droit
 	{
