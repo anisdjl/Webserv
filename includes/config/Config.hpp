@@ -7,13 +7,6 @@ class LocationConfig;
 class ServerConfig;
 class HttpRequest;
 
-enum RequestState
-{
-	INCOMPLETE,
-	COMPLETE,
-	ERROR
-};
-
 
 enum Socket_type
 {
