@@ -5,6 +5,8 @@ ServerConfig::ServerConfig(void)
 	_listen = "80";
 	_host = "0.0.0.0";
 	_client_max_body_size = 1000000;
+	_autoindexfound = false;
+	_root = "";
 }
 
 ServerConfig::~ServerConfig(void)
@@ -95,4 +97,9 @@ void	ServerConfig::setAutoindex(std::string &autoindex)
 void	ServerConfig::setRoot(std::string &root)
 {
 	_root = root;
+}
+
+void	ServerConfig::setAutoIndexfound(bool found)
+{
+	_autoindexfound = found;
 }

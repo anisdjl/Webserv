@@ -90,7 +90,8 @@ class LocationConfig
 		std::map<std::string, std::string>	_cgis; // cgis not allowed if not in the conf file
 		std::string							_upload_store; // upload interdit par defaut si pas dans le fichier de conf
 		std::map<int, std::string>			_return; // not mandatory, no redirection by default
-	
+		bool								_autoindexfound;
+
 	public:
 		LocationConfig(void);
 		LocationConfig(const LocationConfig &src);
@@ -106,6 +107,7 @@ class LocationConfig
 		void	setUpload(std::string &upload);
 		void	setReturn(int &code, std::string &path); // je mets void pour le moment mais c'est pas bon
 		void	setReturn(int code);
+		void	setAutoIndexfound(bool found);
 
 		std::string							getPath(void) { return _path; };
 		std::string							getRoot(void) { return _root; };
@@ -131,6 +133,7 @@ class	ServerConfig
 		long						_client_max_body_size;
 		std::map<int, std::string>	_error_page;
 		std::vector<LocationConfig>	_locations;
+		bool						_autoindexfound;
 
 	public:
 		ServerConfig(void);
@@ -146,6 +149,7 @@ class	ServerConfig
 		void	setErrorpage(int code, std::string &path); // je mets void pour le moment mais c'est pas bon
 		void	setAutoindex(std::string &autoindex);
 		void	setRoot(std::string &root);
+		void	setAutoIndexfound(bool found);
 
 		std::string					getListen(void) { return _listen; };
 		std::string					getHost(void) { return _host; };
