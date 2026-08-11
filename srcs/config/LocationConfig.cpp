@@ -1,6 +1,6 @@
 #include "../../includes/config/Config.hpp"
 
-LocationConfig::LocationConfig(void) : _path(""), _root(""), _autoindex(false), _upload_store("")
+LocationConfig::LocationConfig(void) : _path(""), _root(""), _autoindex(false), _upload_store(""), _autoindexfound(false)
 {
 	_methods.push_back("GET");
 }
