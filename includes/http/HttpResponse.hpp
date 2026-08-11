@@ -49,7 +49,7 @@ class HttpResponse
 		std::string                         _extensionFinder(HttpRequest &req);
 		std::string							_clearPathGarbage(std::string &path);
 		std::string                         _buildStringResponse();
-        // void                                _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket);
+        void                                _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
