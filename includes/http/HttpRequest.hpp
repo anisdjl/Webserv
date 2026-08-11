@@ -58,7 +58,7 @@ class HttpRequest
 		void 									setAvancement(avancementState state){this->_avancement = state;}
 		void 									setBuffer(std::string buffer){this->_buffer = buffer;}
 
-		void 									ft_parse_http_request(const std::string& buffer);
+		void 									ft_parse_http_request(const std::string& buffer, size_t max_body_size);
 		void 									resetRequest();
 		void 									addToBuffer(const std::string& data) { this->_buffer += data; }
 	private:
@@ -75,11 +75,14 @@ class HttpRequest
 
 		bool 									_ft_parse_first_line();
 		bool									_ft_parse_header();
-		bool									_ft_parse_body();
+		bool									_ft_parse_body(size_t &max_body_size);
 		bool									_ft_skip_line();
 		bool									_ft_parse_request_line(size_t &pos);
 		bool									_ft_parse_line_header(size_t &pos);
-		void									_ft_check_flags_header();
+		bool 									_ft_parse_chunk(size_t &pos, std::string &new_body);
+		void									_ft_check_flags_header(size_t &max_body_size);
+		void									_ft_verif_length(std::string &length, size_t &max_body_size);
+		void									_ft_unchunked(std::string &flags);
 };
 
 // Exemple possible de request http :

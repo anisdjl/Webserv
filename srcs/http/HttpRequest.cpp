@@ -134,7 +134,50 @@ bool HttpRequest::_ft_parse_header()
 	return (true);
 }
 
-void HttpRequest::_ft_check_flags_header()
+void HttpRequest::_ft_verif_length(std::string &length, size_t &max_body_size)
+{
+	if (length.empty())
+	{
+		this->setError(400);
+		return ;
+	}
+	char *end;
+	size_t content_length = std::strtoul(length.c_str(), &end, 10);
+	if (*end != '\0' || content_length > max_body_size)
+	{
+		this->setError(400);
+		return ;
+	}
+	if (this->_body.length() != content_length)
+	{
+		this->setError(413);
+		return ;
+	}
+}
+
+bool HttpRequest::_ft_parse_chunk(size_t &pos, std::string &new_body)
+{}
+
+void HttpRequest::_ft_unchunked(std::string &flags)
+{
+	size_t pos;
+	std::string new_body;
+
+	
+	if(flags.find("chunked") == std::string::npos)
+		return ;
+	while((pos = this->_body.find("\r\n")) != std::string::npos)
+	{
+		if (this->_ft_parse_chunk(pos, new_body))
+		{
+			this->setError(400);
+			return ;			
+		}
+	}
+	this->_body = new_body;
+}
+
+void HttpRequest::_ft_check_flags_header(size_t &max_body_size)
 {
 	std::map<std::string , std::string>::iterator chunked_it = this->_header.find("Transfer-Encoding");
 	std::map<std::string , std::string>::iterator length_it = this->_header.find("Content-Length");
@@ -143,16 +186,15 @@ void HttpRequest::_ft_check_flags_header()
 	|| (chunked_it == this->_header.end() && length_it == this->_header.end()))
 	{
 		this->setError(400);
-		return ;11
+		return ;
 	}
 	if (chunked_it != this->_header.end())
-		this->_ft_unchunked();	
+		this->_ft_unchunked(chunked_it->second);	
 	else
-		this->ft_verif_length();
+		this->_ft_verif_length(length_it->second, max_body_size);
 }
 
-
-bool HttpRequest::_ft_parse_body()
+bool HttpRequest::_ft_parse_body(size_t &max_body_size)
 {
 	size_t pos;
 
@@ -160,18 +202,18 @@ bool HttpRequest::_ft_parse_body()
 		return (true);
 	this->_body = this->_buffer.substr(0, pos + 4);
 	this->_buffer.erase(0, pos + 4);
-	this->_ft_check_flags_header();
+	this->_ft_check_flags_header(max_body_size);
 	this->_state = COMPLETE;
 }
 
-void 	HttpRequest::ft_parse_http_request(const std::string& buffer)
+void 	HttpRequest::ft_parse_http_request(const std::string& buffer, size_t max_body_size)
 {
 	this->addToBuffer(buffer);
 	if (this->_avancement == NOT_STARTED &&  this->_ft_parse_first_line())
 		return ;
 	else if (this->_avancement == FIRST_LINE && this->_ft_parse_header()) 
 		return ;
-	else if (this->_avancement == HEADER && this->_ft_parse_body())
+	else if (this->_avancement == HEADER && this->_ft_parse_body(max_body_size))
 		return ;
 	return ;
 }
