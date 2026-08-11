@@ -123,8 +123,10 @@ class LocationConfig
 class	ServerConfig
 {
 	private:
+		std::string					_root; // je viens de le rajouter a la demande d'evan
 		std::string					_listen;
 		std::string					_host;
+		bool						_autoindex; // je viens de le rajouter a la demande d'evan
 		std::vector<std::string>	_server_name;
 		long						_client_max_body_size;
 		std::map<int, std::string>	_error_page;
@@ -142,6 +144,8 @@ class	ServerConfig
 		void	setServerName(std::string &server_name);
 		void	setClientMaxBody(long value);
 		void	setErrorpage(int code, std::string &path); // je mets void pour le moment mais c'est pas bon
+		void	setAutoindex(std::string &autoindex);
+		void	setRoot(std::string &root);
 
 		std::string					getListen(void) { return _listen; };
 		std::string					getHost(void) { return _host; };
@@ -285,6 +289,7 @@ void						CheckConfig(Config &config);
 void						CheckServer(ServerConfig &server);
 // bool						ft_parse_request(Connection &target, const ServerConfig &config, const char *buffer, ssize_t bytesRead);
 bool						parserequests(const char *buff, ssize_t bytes);
-
+void						parse_autoindex_server	(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
+void						parse_root_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
 
 #endif

@@ -83,3 +83,16 @@ void	ServerConfig::displayServConf(void)
 	
 	std::cout << "nb of location " << (*this)._locations.size() << std::endl; 
 }
+
+void	ServerConfig::setAutoindex(std::string &autoindex)
+{
+	if (autoindex == "on")
+		_autoindex = true;
+	else if (autoindex == "off")
+		_autoindex = false;
+}
+
+void	ServerConfig::setRoot(std::string &root)
+{
+	_root = root;
+}
