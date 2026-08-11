@@ -94,16 +94,16 @@ bool HttpRequest::_ft_parse_line_header(size_t &pos)
 	}
 	key = line.substr(0, pos_value);
 	start = key.find_first_not_of(" \t");
-    if (start != std::string::npos)
-        key.erase(0, start);
-    else
-        key.clear();
+	if (start != std::string::npos)
+		key.erase(0, start);
+	else
+		key.clear();
 	value = line.substr(pos_value + 1 , line.length());
 	start = value.find_first_not_of(" \t");
     if (start != std::string::npos)
-        value.erase(0, start);
-    else
-        value.clear();
+		value.erase(0, start);
+	else
+		value.clear();
 	if(key.empty() || value.empty())
 	{
 		this->setError(400);
@@ -232,6 +232,7 @@ bool HttpRequest::_ft_parse_body(size_t &max_body_size)
 	this->_buffer.erase(0, pos + 4);
 	this->_ft_check_flags_header(max_body_size);
 	this->_state = COMPLETE;
+	return false;
 }
 
 void 	HttpRequest::ft_parse_http_request(const std::string& buffer, size_t max_body_size)
