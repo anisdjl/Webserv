@@ -49,9 +49,12 @@ void	LocationConfig::setMethods(const std::string &method)
 	_methods.push_back(method);
 }
 
-void	LocationConfig::setAutoIndex(bool autoindex) 
+void	LocationConfig::setAutoIndex(std::string &autoindex) 
 {
-	this->_autoindex = autoindex;
+	if (autoindex == "on")
+		_autoindex = true;
+	else if (autoindex == "off")
+		_autoindex = false;
 }
 
 void	LocationConfig::setUpload(const std::string &upload)
