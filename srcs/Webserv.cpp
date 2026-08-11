@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/30 23:23:13 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/07 17:11:25 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/08 18:21:16 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ bool ft_open_socket(struct addrinfo *info, int &socketfd)
 
 bool ft_webserv(Config *config)
 {
-	std::map <int, Socket> map_socket;
+	std::map <int, Socket *> map_socket;
 	int epollfd = epoll_create1(0);
 	struct epoll_event events[128];
 	int nb_events;
@@ -65,7 +65,7 @@ bool ft_webserv(Config *config)
 	signal(SIGINT, ft_handler);
 	while(run)
 	{
-		nb_events = epoll_wait(epollfd, events, 128 , -1);
+		nb_events = epoll_wait(epollfd, events, 128 , 5000);
 		if (nb_events == 0)
 			continue ;
 		if (nb_events == -1)

@@ -2,7 +2,6 @@
 
 Request::Request(void)
 {
-
 }
 
 Request &Request::operator=(const Request &src)

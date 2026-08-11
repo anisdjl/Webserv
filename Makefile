@@ -25,12 +25,13 @@ $(NAME): $(OBJ)
 	@printf "\n$(GREEN)[Compilation] Compilation principale ...$(RESET)\n"
 	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
 
-%.o: %.cpp
+$(ODIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	@printf "\n$(YELLOW)[Nettoyage] Nettoyage fichiers objets ...$(RESET)\n"
-	rm -f $(OBJ)
+	rm -rf $(ODIR)
 
 fclean: clean
 	@printf "\n$(YELLOW)[Nettoyage] Nettoyage global ...$(RESET)\n"
