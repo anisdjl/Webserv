@@ -31,7 +31,7 @@ $(ODIR)/%.o: %.cpp
 
 clean:
 	@printf "\n$(YELLOW)[Nettoyage] Nettoyage fichiers objets ...$(RESET)\n"
-	rm -rf $(ODIR)
+	rm -rf $(OBJ)
 
 fclean: clean
 	@printf "\n$(YELLOW)[Nettoyage] Nettoyage global ...$(RESET)\n"

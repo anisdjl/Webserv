@@ -57,7 +57,6 @@ class HttpResponse
         void								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
-        void								_buildPutResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 };
 
 /*
