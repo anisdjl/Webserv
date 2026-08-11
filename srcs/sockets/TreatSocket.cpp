@@ -19,7 +19,6 @@ bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, C
 	int bytes_read = 0;
 	char buffer[BUFFER_SIZE + 1];
 
-
 	if (target.getHttpRequest().getState() == INCOMPLETE)
 	{	
 		std::memset(buffer, 0, BUFFER_SIZE + 1);
