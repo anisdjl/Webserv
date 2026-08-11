@@ -6,6 +6,8 @@ SRC = main.cpp \
 	  srcs/http/HttpRequest.cpp \
 	  srcs/http/HttpResponse.cpp \
 	  srcs/http/HttpUtils.cpp \
+	  srcs/http/HttpErrorResponse.cpp \
+	  srcs/http/HttpDeleteResponse.cpp \
 	  srcs/config/Config.cpp \
       srcs/config/ServerConfig.cpp \
       srcs/config/LocationConfig.cpp

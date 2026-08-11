@@ -26,7 +26,7 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 		upload_path.erase(upload_path.begin());
 	if (upload_path[upload_path.size() - 1] != '/')
 		upload_path += "/";
-	std::string	create_url = upload_path;
+	std::string	create_uri = upload_path;
 	upload_path = root + upload_path;
 	std::string file_name;
 	std::string already_exist;
@@ -42,7 +42,7 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 	}
 	while (access(already_exist.c_str(), F_OK) == 0);
 	upload_path = upload_path + file_name + extension;
-	create_url = create_url + file_name + extension;
+	create_uri = create_uri + file_name + extension;
     std::ofstream	outfile(upload_path.c_str() ,std::ios::binary | std::ios::out);
 	if (!outfile.is_open())
 		return (_buildErrorResponse(500, servConf, location));
@@ -54,9 +54,9 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 	std::ostringstream oss;
 	oss << this->_body.size();
 	this->_headers.insert(std::make_pair("Server", "WeebServ"));
-	if (create_url[0] != '/')
-		create_url = '/' + create_url;
-	this->_headers.insert(std::make_pair("Location", create_url));
+	if (create_uri[0] != '/')
+		create_uri = '/' + create_uri;
+	this->_headers.insert(std::make_pair("Location", create_uri));
 	this->_headers.insert(std::make_pair("Content-Type", "text/plain"));
 	this->_headers.insert(std::make_pair("Content-Length", oss.str()));
 	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
