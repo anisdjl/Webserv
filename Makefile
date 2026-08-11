@@ -1,8 +1,8 @@
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 
-NAME = webserv
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
-ODIR = includes/obj
+NAME = webserv
+ODIR = obj
 
 SRC = main.cpp \
 	srcs/Webserv.cpp \
@@ -10,7 +10,6 @@ SRC = main.cpp \
 	srcs/http/HttpResponse.cpp \
 	srcs/config/Config.cpp \
 	srcs/config/ConfigParsing.cpp \
-	srcs/config/Config.cpp \
 	srcs/config/LocationConfig.cpp \
 	srcs/config/ServerConfig.cpp \
 	srcs/config/ServerParsingUtils.cpp \
@@ -22,8 +21,7 @@ SRC = main.cpp \
 	srcs/sockets/Socket.cpp \
 	srcs/sockets/TreatSocket.cpp
 
-
-OBJ = $(SRC:$(CDIR)/%.cpp=$(ODIR)/%.o)
+OBJ = $(SRC:%.cpp=$(ODIR)/%.o)
 
 GREEN   := \033[0;32m
 YELLOW  := \033[0;33m
@@ -36,12 +34,13 @@ $(NAME): $(OBJ)
 	@printf "\n$(GREEN)[Compilation] Compilation principale ...$(RESET)\n"
 	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
 
-%.o: %.cpp
+$(ODIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	@printf "\n$(YELLOW)[Nettoyage] Nettoyage fichiers objets ...$(RESET)\n"
-	rm -f $(OBJ)
+	rm -rf $(ODIR)
 
 fclean: clean
 	@printf "\n$(YELLOW)[Nettoyage] Nettoyage global ...$(RESET)\n"
