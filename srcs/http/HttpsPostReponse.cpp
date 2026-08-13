@@ -28,6 +28,7 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 		upload_path += "/";
 	std::string	create_uri = upload_path;
 	upload_path = root + upload_path;
+	upload_path = _clearPathGarbage(upload_path);
 	std::string file_name;
 	std::string already_exist;
 	std::string extension = _extensionFinder(req);
@@ -56,6 +57,7 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 	this->_headers.insert(std::make_pair("Server", "WeebServ"));
 	if (create_uri[0] != '/')
 		create_uri = '/' + create_uri;
+	create_uri = _clearPathGarbage(create_uri);
 	this->_headers.insert(std::make_pair("Location", create_uri));
 	this->_headers.insert(std::make_pair("Content-Type", "text/plain"));
 	this->_headers.insert(std::make_pair("Content-Length", oss.str()));

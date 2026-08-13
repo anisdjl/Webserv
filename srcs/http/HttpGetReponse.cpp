@@ -22,6 +22,7 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 	if (root.empty())
 		return (_buildErrorResponse(500, servConf, location));
 	std::string req_path = root + req.getPath();
+	req_path = _clearPathGarbage(req_path);
 	/* chemin ou dossier vide ? */
 	struct stat s;
 	const char *path = req_path.c_str();
@@ -60,7 +61,10 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 		else
 			auto_index = false;
 		if (!html_index.empty())
+		{
+			req_path = _clearPathGarbage(req_path);
 			req_path += html_index;
+		}
 		else if (auto_index)
             return (_buildAutoIndexResponse(req_path, req, servConf, location));
 		else
