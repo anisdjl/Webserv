@@ -1,5 +1,6 @@
 #include "../../includes/http/HttpRequest.hpp"
 #include <map>
+#include <algorithm>
 
 HttpRequest::HttpRequest() : _state(INCOMPLETE), _avancement(NOT_STARTED), _error(0){};
 
@@ -121,91 +122,117 @@ bool HttpRequest::_ft_parse_header()
 
 	while((pos = this->_buffer.find("\r\n")) != std::string::npos)
 	{
-		if(pos + 2 < this->_buffer.length() && this->_buffer[pos + 2] == '\r' && pos + 3 < this->_buffer.length() && this->_buffer[pos+3] == '\n')
+		if (this->_ft_parse_line_header(pos))
+			return (true);
+		if(pos == 0)
 		{
+			this->_buffer.erase(0,2);
 			this->_avancement = HEADER;
 			return (false);
 		}
-		if (this->_ft_parse_line_header(pos))
-			return (true);
 	}
 	return (true);
 }
 
-void HttpRequest::_ft_verif_length(std::string &length, size_t &max_body_size)
+ssize_t HttpRequest::_ft_verif_length(std::string &length, size_t &max_body_size)
 {
-	if (length.empty())
-	{
-		this->setError(400);
-		return ;
-	}
 	char *end;
 	size_t content_length = std::strtoul(length.c_str(), &end, 10);
-	if (*end != '\0' || content_length > max_body_size)
+
+	if (length.empty() || *end != '\0' || content_length > max_body_size)
 	{
 		this->setError(400);
-		return ;
+		this->_state = COMPLETE;
+		return(-1) ;
 	}
-	if (this->_body.length() != content_length)
+	else if (this->_body.length() != content_length)
 	{
+		this->_state = COMPLETE;
 		this->setError(413);
-		return ;
+		return(-1) ;
 	}
+	return (content_length);
 }
 
-int HttpRequest::_ft_parse_chunk(size_t &pos, std::string &new_body)
+bool HttpRequest::_ft_parse_with_length(std::string &length, size_t &max_body_size)
+{
+	ssize_t len;
+	size_t len_2;
+
+	len = this->_ft_verif_length(length, max_body_size); 
+	if(len == -1)
+		return (true);
+	len_2 = len - this->_body.length();
+	this->_body += this->_buffer.substr(0,std::max(len_2, this->_buffer.length()));
+	if (this->_body.length() == len)
+		this->_state = COMPLETE;
+	return (false);
+}
+
+bool HttpRequest::_ft_parse_chunk(size_t &pos)
 {
 	char *end;
-	std::string chunk_size_str = this->_body.substr(0, pos);
+	std::string chunk_size_str = this->_buffer.substr(0, pos);
 	size_t chunk_size = std::strtoul(chunk_size_str.c_str(), &end, 16);
 	std::string chunk_data;
 
 	if (*end != '\0')
 	    return (this->setError(400), true);
-	this->_body.erase(0, pos + 2);
 	if (chunk_size == 0)
-		return (1);
-	pos = this->_body.find("\r\n");
-	if (pos == std::string::npos || pos != chunk_size)
 	{
-		this->setError(400);
-		return (-1);
+		this->_buffer.erase(0, 1);
+		this->_state = COMPLETE;
+		return (true);
 	}
-	chunk_data = this->_body.substr(0, pos);
-	new_body += chunk_data;
-	this->_body.erase(0, pos + 2);
-	return (0);
+	if (this->_buffer.length() < chunk_size)
+		return (true);
+	this->_body += this->_buffer.substr(pos +2, pos + 2 + chunk_size);
+	this->_body.erase(0, pos + 2 + chunk_size);
+	return (false);
 }
 
-
-void HttpRequest::_ft_unchunked(std::string &flags)
+bool HttpRequest::_ft_parse_with_chunked(std::string &flags, size_t &max_body_size)
 {
 	size_t pos;
-	std::string new_body;
+	char *end;
+	unsigned int len;
+
 	int	i;
 	
 	if(flags.find("chunked") == std::string::npos)
-		return ;
-	while(1)
 	{
-		if ((pos = this->_body.find("\r\n")) == std::string::npos)
-		{
-			this->setError(400);
-			return ;					
-		}
-		i = this->_ft_parse_chunk(pos, new_body);
-		if (i != 0)
-		{
-			if (i == 1 && this->_body.compare(0, 2, "\r\n") == 0)
-				break ;
-			this->setError(400);
-			return ;			
-		}
+		this->_state = COMPLETE;
+		this->setError(400);
+		return(true) ;
 	}
-	this->_body = new_body;
+	while((pos = this->_body.find("\r\n")) != std::string::npos)
+	{
+		if (this->_ft_parse_chunk(pos))
+			return (true);
+	}
+	return (false);
 }
 
-void HttpRequest::_ft_check_flags_header(size_t &max_body_size)
+
+	// while(1)
+	// {
+	// 	if ((pos = this->_body.find("\r\n")) == std::string::npos)
+	// 	{
+	// 		this->_state = COMPLETE;
+	// 		this->setError(400);
+	// 		return ;					
+	// 	}
+	// 	i = this->_ft_parse_chunk(pos, new_body);
+	// 	if (i != 0)
+	// 	{
+	// 		if (i == 1 && this->_body.compare(0, 2, "\r\n") == 0)
+	// 			break ;
+	// 		this->setError(400);
+	// 		return ;
+	// 	}
+
+
+bool HttpRequest::_ft_parse_body(size_t &max_body_size)
 {
 	std::map<std::string , std::string>::iterator chunked_it = this->_header.find("Transfer-Encoding");
 	std::map<std::string , std::string>::iterator length_it = this->_header.find("Content-Length");
@@ -213,26 +240,15 @@ void HttpRequest::_ft_check_flags_header(size_t &max_body_size)
 	if((chunked_it != this->_header.end() && length_it != this->_header.end()) 
 	|| (chunked_it == this->_header.end() && length_it == this->_header.end()))
 	{
+		this->_state = COMPLETE;
 		this->setError(400);
 		return ;
 	}
-	if (chunked_it != this->_header.end())
-		this->_ft_unchunked(chunked_it->second);	
-	else
-		this->_ft_verif_length(length_it->second, max_body_size);
-}
-
-bool HttpRequest::_ft_parse_body(size_t &max_body_size)
-{
-	size_t pos;
-
-	if(( pos = this->_buffer.find("\r\n\r\n")) == std::string::npos)
-		return (true);
-	this->_body = this->_buffer.substr(0, pos + 4);
-	this->_buffer.erase(0, pos + 4);
-	this->_ft_check_flags_header(max_body_size);
+	if ((chunked_it != this->_header.end() && this->_ft_parse_with_chunked(chunked_it->second, max_body_size)) 
+	|| (length_it != this->_header.end() && this->_ft_parse_with_length(length_it->second, max_body_size)))
+			return (true);
 	this->_state = COMPLETE;
-	return false;
+	return (false);
 }
 
 void 	HttpRequest::ft_parse_http_request(const std::string& buffer, size_t max_body_size)
