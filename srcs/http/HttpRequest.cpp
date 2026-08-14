@@ -121,15 +121,15 @@ bool HttpRequest::_ft_parse_header()
 	size_t pos;
 
 	while((pos = this->_buffer.find("\r\n")) != std::string::npos)
-	{
-		if (this->_ft_parse_line_header(pos))
-			return (true);
+	{	
 		if(pos == 0)
 		{
 			this->_buffer.erase(0,2);
 			this->_avancement = HEADER;
 			return (false);
 		}
+		if (this->_ft_parse_line_header(pos))
+			return (true);
 	}
 	return (true);
 }
@@ -139,37 +139,35 @@ ssize_t HttpRequest::_ft_verif_length(std::string &length, size_t &max_body_size
 	char *end;
 	size_t content_length = std::strtoul(length.c_str(), &end, 10);
 
-	if (length.empty() || *end != '\0' || content_length > max_body_size)
+	if (length.empty() || *end != '\0' )
 	{
 		this->setError(400);
 		this->_state = COMPLETE;
 		return(-1) ;
 	}
-	else if (this->_body.length() != content_length)
+	else if (content_length > max_body_size)
 	{
 		this->_state = COMPLETE;
 		this->setError(413);
 		return(-1) ;
 	}
+	if (this->_buffer.length() < content_length)
+		return (-1);
 	return (content_length);
 }
 
 bool HttpRequest::_ft_parse_with_length(std::string &length, size_t &max_body_size)
 {
-	ssize_t len;
-	size_t len_2;
-
-	len = this->_ft_verif_length(length, max_body_size); 
-	if(len == -1)
+	ssize_t len = this->_ft_verif_length(length, max_body_size);
+	if (len == -1)
 		return (true);
-	len_2 = len - this->_body.length();
-	this->_body += this->_buffer.substr(0,std::max(len_2, this->_buffer.length()));
-	if (this->_body.length() == len)
-		this->_state = COMPLETE;
+	this->_body += this->_buffer.substr(0,len);
+	this->_buffer.erase(0, len);
+	this->_state = COMPLETE;
 	return (false);
 }
 
-bool HttpRequest::_ft_parse_chunk(size_t &pos)
+bool HttpRequest::_ft_parse_chunk(size_t &pos, size_t &max_body_size)
 {
 	char *end;
 	std::string chunk_size_str = this->_buffer.substr(0, pos);
@@ -180,24 +178,26 @@ bool HttpRequest::_ft_parse_chunk(size_t &pos)
 	    return (this->setError(400), true);
 	if (chunk_size == 0)
 	{
-		this->_buffer.erase(0, 1);
+		this->_buffer.erase(0, std::min (5, static_cast<int>(this->_buffer.length())));
 		this->_state = COMPLETE;
 		return (true);
 	}
 	if (this->_buffer.length() < chunk_size)
 		return (true);
-	this->_body += this->_buffer.substr(pos +2, pos + 2 + chunk_size);
-	this->_body.erase(0, pos + 2 + chunk_size);
+	this->_body += this->_buffer.substr(pos + 2, chunk_size);
+	this->_buffer.erase(0, pos + 2 + chunk_size);
+	if (this->_body.length() > max_body_size)
+	{
+		this->_state = COMPLETE;
+		this->setError(413);
+		return (true);
+	}
 	return (false);
 }
 
 bool HttpRequest::_ft_parse_with_chunked(std::string &flags, size_t &max_body_size)
 {
 	size_t pos;
-	char *end;
-	unsigned int len;
-
-	int	i;
 	
 	if(flags.find("chunked") == std::string::npos)
 	{
@@ -205,32 +205,16 @@ bool HttpRequest::_ft_parse_with_chunked(std::string &flags, size_t &max_body_si
 		this->setError(400);
 		return(true) ;
 	}
-	while((pos = this->_body.find("\r\n")) != std::string::npos)
+	if ((pos = this->_buffer.find("\r\n0\r\n")) == std::string::npos)
+		return (true);
+	while((pos = this->_buffer.find("\r\n")) != std::string::npos)
 	{
-		if (this->_ft_parse_chunk(pos))
+		if (this->_ft_parse_chunk(pos, max_body_size))
 			return (true);
 	}
+
 	return (false);
 }
-
-
-	// while(1)
-	// {
-	// 	if ((pos = this->_body.find("\r\n")) == std::string::npos)
-	// 	{
-	// 		this->_state = COMPLETE;
-	// 		this->setError(400);
-	// 		return ;					
-	// 	}
-	// 	i = this->_ft_parse_chunk(pos, new_body);
-	// 	if (i != 0)
-	// 	{
-	// 		if (i == 1 && this->_body.compare(0, 2, "\r\n") == 0)
-	// 			break ;
-	// 		this->setError(400);
-	// 		return ;
-	// 	}
-
 
 bool HttpRequest::_ft_parse_body(size_t &max_body_size)
 {
@@ -242,7 +226,7 @@ bool HttpRequest::_ft_parse_body(size_t &max_body_size)
 	{
 		this->_state = COMPLETE;
 		this->setError(400);
-		return ;
+		return (true);
 	}
 	if ((chunked_it != this->_header.end() && this->_ft_parse_with_chunked(chunked_it->second, max_body_size)) 
 	|| (length_it != this->_header.end() && this->_ft_parse_with_length(length_it->second, max_body_size)))

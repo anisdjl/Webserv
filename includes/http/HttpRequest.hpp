@@ -65,8 +65,8 @@ class HttpRequest
 		bool									_ft_skip_line();
 		bool									_ft_parse_request_line(size_t &pos);
 		bool									_ft_parse_line_header(size_t &pos);
-		bool									_ft_parse_chunk(size_t &pos);
-		ssize_t								_ft_verif_length(std::string &length, size_t &max_body_size);
+		bool									_ft_parse_chunk(size_t &pos, size_t &max_body_size);
+		ssize_t									_ft_verif_length(std::string &length, size_t &max_body_size);
 		bool									_ft_parse_with_length(std::string &length, size_t &max_body_size);
 		bool									_ft_parse_with_chunked(std::string &flags, size_t &max_body_size);
 };
