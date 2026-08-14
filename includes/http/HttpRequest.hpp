@@ -6,7 +6,8 @@
 enum RequestState
 {
 	INCOMPLETE,
-	COMPLETE
+	COMPLETE,
+	ERROR
 };
 
 enum avancementState

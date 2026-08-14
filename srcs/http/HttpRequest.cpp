@@ -124,6 +124,12 @@ bool HttpRequest::_ft_parse_header()
 	{	
 		if(pos == 0)
 		{
+			if (this->_header.find("Host") == this->_header.end())
+			{
+				this->setError(400);
+				this->_state = ERROR;
+				return (true);
+			}
 			this->_buffer.erase(0,2);
 			this->_avancement = HEADER;
 			return (false);
