@@ -8,12 +8,11 @@ HttpRequest::~HttpRequest(){};
 
 std::string		HttpRequest::getHeader(std::string key) const
 {
-	for(std::map<std::string, std::string >::const_iterator it = _header.begin();
-		it != _header.end(); ++it)
-	{
-		if (it->first == key)
-			return it->second; 
-	}
+	std::string n_key = this->_ft_tolower(key);
+	
+	std::map<std::string, std::string >::const_iterator it = _header.find(n_key);
+	if (it != _header.end())
+		return it->second;
 	return "";
 }
 
@@ -78,6 +77,18 @@ bool 	HttpRequest::_ft_parse_first_line()
 	return (true);
 }
 
+std::string HttpRequest::_ft_tolower(const std::string& src)
+{
+	std::string dest = src;
+	int i = 0;
+	while (dest[i])
+	{
+		dest[i] = std::tolower(dest[i]);
+		i++;
+	}
+	return (dest);
+}
+
 bool HttpRequest::_ft_parse_line_header(size_t &pos)
 {
 	std::string line = this->_buffer.substr(0, pos);
@@ -93,7 +104,7 @@ bool HttpRequest::_ft_parse_line_header(size_t &pos)
 		this->_state = COMPLETE;
 		return (true);	
 	}
-	key = line.substr(0, pos_value);
+	key = this->_ft_tolower(line.substr(0, pos_value));
 	start = key.find_first_not_of(" \t");
 	if (start != std::string::npos)
 		key.erase(0, start);
@@ -127,7 +138,7 @@ bool HttpRequest::_ft_parse_header()
 			if (this->_header.find("Host") == this->_header.end())
 			{
 				this->setError(400);
-				this->_state = ERROR;
+				this->_state = COMPLETE;
 				return (true);
 			}
 			this->_buffer.erase(0,2);

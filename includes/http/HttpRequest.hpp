@@ -6,8 +6,7 @@
 enum RequestState
 {
 	INCOMPLETE,
-	COMPLETE,
-	ERROR
+	COMPLETE
 };
 
 enum avancementState
@@ -60,6 +59,7 @@ class HttpRequest
 		std::string 							_body; 
 		int										_error;
 
+		std::string								_ft_tolower(const std::string& src);
 		bool 									_ft_parse_first_line();
 		bool									_ft_parse_header();
 		bool									_ft_parse_body(size_t &max_body_size);

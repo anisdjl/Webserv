@@ -14,8 +14,6 @@ const char *stateName(RequestState state)
 {
 	if (state == COMPLETE)
 		return "COMPLETE";
-	if (state == ERROR)
-		return "ERROR";
 	return "INCOMPLETE";
 }
 
@@ -127,6 +125,7 @@ bool testSimpleGet(std::string &reason, bool verbose)
 	if (verbose)
 		printRequest(request, 1);
 	return expect(request.getState() == COMPLETE, "la requete reste incomplete", reason)
+		&& expect(request.getErrorCode() == 0, "un GET valide ne doit pas avoir d'erreur", reason)
 		&& expect(request.getMethod() == "GET", "methode attendue: GET", reason)
 		&& expect(request.getPath() == "/index.html", "chemin attendu: /index.html", reason)
 		&& expect(request.getVersion() == "HTTP/1.1", "version attendue: HTTP/1.1", reason)
@@ -141,6 +140,7 @@ bool testByteByByteQuery(std::string &reason, bool verbose)
 	const std::string raw =
 		"GET /search?q=webserv&lang=fr HTTP/1.1\r\n"
 		"Host: localhost\r\n"
+		"Content-Length: 0\r\n"
 		"\r\n";
 
 	feedInChunks(request, raw, 1);
@@ -148,6 +148,7 @@ bool testByteByByteQuery(std::string &reason, bool verbose)
 		printRequest(request, 1);
 	return expect(request.getState() == COMPLETE,
 		"la requete envoyee octet par octet reste incomplete", reason)
+		&& expect(request.getErrorCode() == 0, "la requete avec query ne doit pas avoir d'erreur", reason)
 		&& expect(request.getPath() == "/search", "chemin attendu: /search", reason)
 		&& expect(request.getQueryString() == "q=webserv&lang=fr",
 			"query string incorrecte", reason);
@@ -168,6 +169,7 @@ bool testContentLengthBody(std::string &reason, bool verbose)
 	if (verbose)
 		printRequest(request, 1);
 	return expect(request.getState() == COMPLETE, "POST incomplet apres les 5 octets", reason)
+		&& expect(request.getErrorCode() == 0, "le POST valide ne doit pas avoir d'erreur", reason)
 		&& expect(request.getMethod() == "POST", "methode attendue: POST", reason)
 		&& expect(request.getBody() == "Hello", "body attendu: Hello", reason);
 }
@@ -186,6 +188,7 @@ bool testCaseInsensitiveHeaders(std::string &reason, bool verbose)
 		printRequest(request, 1);
 	return expect(request.getState() == COMPLETE,
 		"les noms de headers doivent etre insensibles a la casse", reason)
+		&& expect(request.getErrorCode() == 0, "les headers valides ne doivent pas produire d'erreur", reason)
 		&& expect(request.getHeader("host") == "localhost",
 			"les noms de headers devraient etre normalises en minuscules", reason)
 		&& expect(request.getHeader("content-length") == "0",
@@ -208,6 +211,7 @@ bool testChunkedBody(std::string &reason, bool verbose)
 	if (verbose)
 		printRequest(request, 1);
 	return expect(request.getState() == COMPLETE, "body chunked incomplet", reason)
+		&& expect(request.getErrorCode() == 0, "le body chunked valide ne doit pas avoir d'erreur", reason)
 		&& expect(request.getBody() == "Wikipedia",
 			"le body chunked doit etre decode en Wikipedia", reason);
 }
@@ -226,18 +230,24 @@ bool testIncompleteBody(std::string &reason, bool verbose)
 	if (verbose)
 		printRequest(request, 1);
 	return expect(request.getState() == INCOMPLETE,
-		"une requete avec seulement 3 octets sur 5 ne doit pas etre COMPLETE", reason);
+		"une requete avec seulement 3 octets sur 5 ne doit pas etre COMPLETE", reason)
+		&& expect(request.getErrorCode() == 0,
+			"un body pas encore entier n'est pas une erreur HTTP", reason);
 }
 
 bool testMissingHost(std::string &reason, bool verbose)
 {
 	HttpRequest request;
-	const std::string raw = "GET / HTTP/1.1\r\n\r\n";
+	const std::string raw =
+		"GET / HTTP/1.1\r\n"
+		"Content-Length: 0\r\n"
+		"\r\n";
 
 	feedInChunks(request, raw, raw.size());
 	if (verbose)
 		printRequest(request, 1);
-	return expect(request.getState() == ERROR, "Host est obligatoire en HTTP/1.1", reason)
+	return expect(request.getState() == COMPLETE,
+		"une requete invalide entierement recue doit terminer le parsing", reason)
 		&& expect(request.getErrorCode() == 400, "code attendu pour Host absent: 400", reason);
 }
 
@@ -255,8 +265,8 @@ bool testConflictingLengthHeaders(std::string &reason, bool verbose)
 	feedInChunks(request, raw, raw.size());
 	if (verbose)
 		printRequest(request, 1);
-	return expect(request.getState() == ERROR,
-		"Content-Length et Transfer-Encoding ensemble doivent etre rejetes", reason)
+	return expect(request.getState() == COMPLETE,
+		"une requete invalide entierement recue doit terminer le parsing", reason)
 		&& expect(request.getErrorCode() == 400,
 			"code attendu pour des longueurs conflictuelles: 400", reason);
 }
@@ -265,13 +275,14 @@ bool testPipelinedRequests(std::string &reason, bool verbose)
 {
 	HttpRequest request;
 	const std::string raw =
-		"GET /one HTTP/1.1\r\nHost: localhost\r\n\r\n"
-		"GET /two HTTP/1.1\r\nHost: localhost\r\n\r\n";
+		"GET /one HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n"
+		"GET /two HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n";
 
 	request.ft_parse_http_request(raw, 100000);
 	if (verbose)
 		printRequest(request, 1);
 	if (!expect(request.getState() == COMPLETE, "la premiere requete n'est pas COMPLETE", reason)
+		|| !expect(request.getErrorCode() == 0, "la premiere requete a une erreur", reason)
 		|| !expect(request.getPath() == "/one", "premier chemin attendu: /one", reason)
 		|| !expect(!request.getBuffer().empty(),
 			"les octets de la seconde requete doivent rester dans le buffer", reason))
@@ -282,6 +293,7 @@ bool testPipelinedRequests(std::string &reason, bool verbose)
 	if (verbose)
 		printRequest(request, 2);
 	return expect(request.getState() == COMPLETE, "la seconde requete n'est pas COMPLETE", reason)
+		&& expect(request.getErrorCode() == 0, "la seconde requete a une erreur", reason)
 		&& expect(request.getPath() == "/two", "second chemin attendu: /two", reason)
 		&& expect(request.getBuffer().empty(), "des octets restent apres la seconde requete", reason);
 }
@@ -355,7 +367,7 @@ int inspectRaw(const std::string &raw, std::string::size_type chunkSize)
 	std::string::size_type offset = 0;
 	unsigned int requestNumber = 0;
 	unsigned int guard = 0;
-	bool sawError = false;
+	bool sawHttpError = false;
 
 	while (offset < raw.size() || request.getState() != INCOMPLETE)
 	{
@@ -364,10 +376,10 @@ int inspectRaw(const std::string &raw, std::string::size_type chunkSize)
 			std::cerr << "Erreur: boucle de parsing bloquee (buffer non consomme).\n";
 			return 1;
 		}
-		if (request.getState() == COMPLETE || request.getState() == ERROR)
+		if (request.getState() == COMPLETE)
 		{
-			if (request.getState() == ERROR)
-				sawError = true;
+			if (request.getErrorCode() != 0)
+				sawHttpError = true;
 			printRequest(request, ++requestNumber);
 			request.resetRequest();
 			request.ft_parse_http_request("", 100000);
@@ -396,7 +408,7 @@ int inspectRaw(const std::string &raw, std::string::size_type chunkSize)
 		if (!request.getBuffer().empty())
 			std::cout << "raw      : \"" << escapeBytes(request.getBuffer()) << "\"\n";
 	}
-	return (!sawError && requestNumber > 0 && !partialRequest) ? 0 : 1;
+	return (!sawHttpError && requestNumber > 0 && !partialRequest) ? 0 : 1;
 }
 
 void printUsage(const char *program)

@@ -34,6 +34,11 @@ Les neuf tests couvrent :
 - le conflit `Content-Length` / `Transfer-Encoding` ;
 - deux requetes presentes dans le meme `recv()`.
 
+Le parseur utilise deux etats seulement : `INCOMPLETE` et `COMPLETE`. Une
+erreur HTTP entierement parseable est representee par `COMPLETE` avec un
+`error-code` non nul (`400`, `413`, etc.). Les tests suivent ce contrat et
+verifient aussi qu'une requete valide termine avec le code `0`.
+
 `make verbose` affiche les champs parses, le body avec les caracteres speciaux
 echappes et le nombre d'octets encore conserves dans le buffer.
 
