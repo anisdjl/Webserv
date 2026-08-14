@@ -99,7 +99,7 @@ void feedInChunks(HttpRequest &request, const std::string &raw,
 		std::string::size_type count = chunkSize;
 		if (count > raw.size() - offset)
 			count = raw.size() - offset;
-		request.ft_parse_http_request(raw.substr(offset, count));
+		request.ft_parse_http_request(raw.substr(offset, count), 100000);
 		offset += count;
 	}
 }
@@ -268,7 +268,7 @@ bool testPipelinedRequests(std::string &reason, bool verbose)
 		"GET /one HTTP/1.1\r\nHost: localhost\r\n\r\n"
 		"GET /two HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
-	request.ft_parse_http_request(raw);
+	request.ft_parse_http_request(raw, 100000);
 	if (verbose)
 		printRequest(request, 1);
 	if (!expect(request.getState() == COMPLETE, "la premiere requete n'est pas COMPLETE", reason)
@@ -278,7 +278,7 @@ bool testPipelinedRequests(std::string &reason, bool verbose)
 		return false;
 
 	request.resetRequest();
-	request.ft_parse_http_request("");
+	request.ft_parse_http_request("", 100000);
 	if (verbose)
 		printRequest(request, 2);
 	return expect(request.getState() == COMPLETE, "la seconde requete n'est pas COMPLETE", reason)
@@ -370,7 +370,7 @@ int inspectRaw(const std::string &raw, std::string::size_type chunkSize)
 				sawError = true;
 			printRequest(request, ++requestNumber);
 			request.resetRequest();
-			request.ft_parse_http_request("");
+			request.ft_parse_http_request("", 100000);
 			continue;
 		}
 		if (offset < raw.size())
@@ -378,7 +378,7 @@ int inspectRaw(const std::string &raw, std::string::size_type chunkSize)
 			std::string::size_type count = chunkSize;
 			if (count > raw.size() - offset)
 				count = raw.size() - offset;
-			request.ft_parse_http_request(raw.substr(offset, count));
+			request.ft_parse_http_request(raw.substr(offset, count), 100000);
 			offset += count;
 		}
 	}
