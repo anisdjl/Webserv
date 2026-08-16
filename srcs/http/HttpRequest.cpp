@@ -236,11 +236,10 @@ bool HttpRequest::_ft_parse_with_chunked(std::string &flags, size_t &max_body_si
 
 bool HttpRequest::_ft_parse_body(size_t &max_body_size)
 {
-	std::map<std::string , std::string>::iterator chunked_it = this->_header.find("Transfer-Encoding");
-	std::map<std::string , std::string>::iterator length_it = this->_header.find("Content-Length");
+	std::map<std::string , std::string>::iterator chunked_it = this->_header.find("transfer-encoding");
+	std::map<std::string , std::string>::iterator length_it = this->_header.find("content-length");
 
-	if((chunked_it != this->_header.end() && length_it != this->_header.end()) 
-	|| (chunked_it == this->_header.end() && length_it == this->_header.end()))
+	if (chunked_it == this->_header.end() && length_it == this->_header.end())
 	{
 		this->_state = COMPLETE;
 		this->setError(400);
