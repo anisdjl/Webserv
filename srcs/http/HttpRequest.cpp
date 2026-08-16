@@ -77,10 +77,11 @@ bool 	HttpRequest::_ft_parse_first_line()
 	return (true);
 }
 
-std::string HttpRequest::_ft_tolower(const std::string& src)
+std::string HttpRequest::_ft_tolower(const std::string& src) const
 {
 	std::string dest = src;
 	int i = 0;
+
 	while (dest[i])
 	{
 		dest[i] = std::tolower(dest[i]);
@@ -135,7 +136,7 @@ bool HttpRequest::_ft_parse_header()
 	{	
 		if(pos == 0)
 		{
-			if (this->_header.find("Host") == this->_header.end())
+			if (this->_header.find("host") == this->_header.end())
 			{
 				this->setError(400);
 				this->_state = COMPLETE;
