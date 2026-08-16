@@ -55,6 +55,12 @@ bool 	HttpRequest::_ft_parse_request_line(size_t &pos)
 		this->_state = COMPLETE;
 		return (true);	
 	}
+	size_t pos_2 = this->_path.find('?');
+	if (pos_2 != std::string::npos)
+	{
+		this->_query_string = this->_path.substr(pos_2 + 1);
+		this->_path = this->_path.substr(0, pos_2);
+	}
 	this->_buffer.erase(0, pos + 2);
 	return (false);
 }
@@ -239,7 +245,7 @@ bool HttpRequest::_ft_parse_body(size_t &max_body_size)
 	std::map<std::string , std::string>::iterator chunked_it = this->_header.find("transfer-encoding");
 	std::map<std::string , std::string>::iterator length_it = this->_header.find("content-length");
 
-	if (chunked_it == this->_header.end() && length_it == this->_header.end())
+	if (chunked_it != this->_header.end() && length_it != this->_header.end())
 	{
 		this->_state = COMPLETE;
 		this->setError(400);
