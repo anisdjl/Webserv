@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:03:14 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/07 16:08:12 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/17 16:24:21 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,18 +30,14 @@ class Connection : public Socket
 		{
 			this->_http_response = response;
 		};
-		HttpRequest& getHttpRequest() const
+		 HttpRequest& getHttpRequest() 
 		{
 			return (this->_http_request);
 		};
-		HttpResponse& getHttpResponse() const
+		 HttpResponse& getHttpResponse() 
 		{
 			return (this->_http_response);
 		};
-		void setHttpResponse(HttpResponse& response);
-        HttpRequest& getHttpRequest() const;
-		HttpResponse& getHttpResponse() const;
-        
         Connection() : Socket(), _http_request(HttpRequest()), _http_response(HttpResponse())
 		{
 			this->_type = CONNECTION;

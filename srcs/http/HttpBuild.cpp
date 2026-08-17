@@ -32,6 +32,7 @@ void			HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
     else
 		this->_buildErrorResponse(501, servConf, location); // not found
 	_response = _buildStringResponse();
+	this->_state = BUILT;
 }
 
 // for (size_t i = 0; i < location->getMethods().size(); i++)

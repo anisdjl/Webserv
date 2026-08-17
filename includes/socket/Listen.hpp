@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:03:12 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/07 16:47:40 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/17 16:23:14 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,7 @@ class Listen : public Socket
 		{};
         Listen(const Listen& src):
 		Socket(src){};
-        ~Listen():
-		Socket(){};
+        ~Listen(){};
         Listen& operator=(const Listen& src	) 
 		{
 			if (this != &src)
@@ -33,6 +32,7 @@ class Listen : public Socket
 				this->_server_index = src._server_index;
 				this->_type = src._type;
 			}
+			return (*this);
 		};
 };
 #endif

@@ -7,14 +7,6 @@ class LocationConfig;
 class ServerConfig;
 class HttpRequest;
 
-
-enum Socket_type
-{
-    LISTENER,
-    CONNECTION,
-    CGI
-};
-
 class Config
 {
 	private:

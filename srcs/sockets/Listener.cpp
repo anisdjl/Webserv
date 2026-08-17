@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:36:31 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/08 18:15:11 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/17 16:26:55 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,13 +44,15 @@ bool ft_listener(std::string listener, int &socketfd)
 
 bool ft_construct_listener(std::map <int, Socket *> &map_socket, Config *config, int const &epollfd)
 {
-	Listen *temp_socket = new Listen();
+	Listen *temp_socket;
 	struct epoll_event temp;
-	int i = 0; 
+	size_t i = 0; 
 
-	std::memset(&temp, 0, sizeof(temp));
+	
 	while(i < config->getServer().size())
 	{
+			temp_socket = new Listen();
+			std::memset(&temp, 0, sizeof(temp));
 		if(ft_listener(config->getServer()[i].getListen(), temp_socket->getFd()))
 			return (true);
 		temp_socket->setServerIndex(i);

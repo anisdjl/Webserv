@@ -209,7 +209,7 @@ bool HttpRequest::_ft_parse_chunk(size_t &pos, size_t &max_body_size)
 	if (this->_buffer.length() < chunk_size)
 		return (true);
 	this->_body += this->_buffer.substr(pos + 2, chunk_size);
-	this->_buffer.erase(0, pos + 2 + chunk_size);
+	this->_buffer.erase(0, pos + 2 + chunk_size + 2);
 	if (this->_body.length() > max_body_size)
 	{
 		this->_state = COMPLETE;
