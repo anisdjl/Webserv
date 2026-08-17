@@ -110,7 +110,7 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
 	if (event.events & (EPOLLHUP | EPOLLERR))
 	{
 		if (target.getType() == CGI)
-			ft_cgi_hup(map_socket, target, config, epollfd);
+			ft_cgi_hup(map_socket, target, config, epollfd); // cette fonction sert a ferme les pipes et tout nettoye et preparer la reponse finale
 		else
 			ft_close_socket(map_socket, target.getFd(), epollfd);
 		return (false);
@@ -122,7 +122,7 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
 		if(target.getType() == CONNECTION)
 			return (ft_parse_request(map_socket, dynamic_cast<Connection &>(target), config, epollfd));
 		if(target.getType() == CGI)
-			return (ft_cgi_in(map_socket, target, config));
+			return (ft_cgi_in(map_socket, target, config)); // pour gerer le cas ou le client ecrit du html donc on doit le stocker dans le buffer, je ne sais pasencore quel buffer ni comment 
 		}
 	if (event.events & (EPOLLOUT))
 	{
