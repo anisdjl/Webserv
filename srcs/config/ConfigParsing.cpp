@@ -149,7 +149,7 @@ void	fsm(Config *config, std::vector<std::string> *tokens)
 	{
 		if ((*tokens)[index] != "server")
 		{
-			std::cout << "index actuel " << index << " token actuel " << (*tokens)[index] << " token d'avant " << (*tokens)[index -1] << " token d'apres " << (*tokens)[index + 1] << std::endl;	
+			std::cout << "index actuel " << index << " token actuel " << (*tokens)[index] << " token d'avant " << (index > 0 ? (*tokens)[index -1] : std::string("none")) << " token d'apres " << (index + 1 < (*tokens).size() ? (*tokens)[index + 1] : std::string("none")) << std::endl;	
 			throw std::runtime_error ("Error: wrong configuration file format 1");
 		}
 		ServerConfig					*serverconf = new ServerConfig;
