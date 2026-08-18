@@ -163,7 +163,7 @@ ssize_t HttpRequest::_ft_verif_length(std::string &length, size_t &max_body_size
 	char *end;
 	size_t content_length = std::strtoul(length.c_str(), &end, 10);
 
-	if (length.empty() || *end != '\0' )
+	if ( *end != '\0' ) //length.empty() ||
 	{
 		this->setError(400);
 		this->_state = COMPLETE;
@@ -187,7 +187,6 @@ bool HttpRequest::_ft_parse_with_length(std::string &length, size_t &max_body_si
 		return (true);
 	this->_body += this->_buffer.substr(0,len);
 	this->_buffer.erase(0, len);
-	this->_state = COMPLETE;
 	return (false);
 }
 

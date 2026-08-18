@@ -15,12 +15,17 @@ void			HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
 		return ;
 	}
 	if (request.getMethod() != "GET" && request.getMethod() != "POST" && request.getMethod() != "DELETE")
-		return _buildErrorResponse(501, servConf, NULL);
+	{
+		this->_buildErrorResponse(501, servConf, NULL);
+		_response = _buildStringResponse();
+		return ;
+	}
     LocationConfig *location = servConf.matchLocation(request.getPath());
 	if (location && !this->_isMethodAllowed(request.getMethod(), location)) // check droit
 	{
 		this->_buildErrorResponse(405, servConf, location);
 		_response = _buildStringResponse();
+
 		return ;
 	}
     if (request.getMethod() == "GET")
@@ -32,7 +37,6 @@ void			HttpResponse::buildResponse(HttpRequest& request, ServerConfig &servConf)
     else
 		this->_buildErrorResponse(501, servConf, location); // not found
 	_response = _buildStringResponse();
-	this->_state = BUILT;
 }
 
 // for (size_t i = 0; i < location->getMethods().size(); i++)
@@ -51,6 +55,7 @@ std::string		HttpResponse::_buildStringResponse()
     ss << "\r\n";
     ss << this->_body;
 	// /r pour la norme http
+	this->_state = BUILT;
     return (ss.str());
 }
 
