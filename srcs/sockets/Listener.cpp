@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:36:31 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/17 17:01:32 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/18 15:03:20 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,18 +25,18 @@ bool ft_listener(std::string listener, int &socketfd)
 	hints.ai_protocol = 0;
 	if (getaddrinfo(NULL,  listener.c_str(), &hints, &info))
 	{
-		std::cerr << "Error while opening socket listener." <<  std::endl;
+		std::cerr << "Error while opening socket listener 1." <<  std::endl;
 		return (true);
 	}
 	if (ft_open_socket(info, socketfd))
 	{
-		std::cerr << "Error while opening sockets listener." <<  std::endl;
+		std::cerr << "Error while opening sockets listener 2." <<  std::endl;
 		return (true);
 	}
 	if (listen(socketfd, SOMAXCONN) == -1)
 	{
 		close(socketfd);
-		std::cerr << "Error while listening sockets listener." <<  std::endl;
+		std::cerr << "Error while listening sockets listener 3." <<  std::endl;
 		return (true);
 	}
 	return(false);

@@ -62,6 +62,7 @@ Config	*lexer(std::string filename)
 
 	tokens = lexe_config(filename);
 	fsm(config, tokens);
+	delete tokens;
 	return (config);
 }
 

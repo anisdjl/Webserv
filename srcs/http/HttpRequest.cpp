@@ -35,7 +35,7 @@ bool HttpRequest::_ft_skip_line()
 
 	if(this->_buffer.length() >= 4)
 	{
-		temp = this->_buffer.substr(0, 3);
+		temp = this->_buffer.substr(0, 4);
 		if (temp == "\r\n\r\n")
 			this->_buffer.erase(0, 3);
 		return (false);
@@ -229,7 +229,7 @@ bool HttpRequest::_ft_parse_with_chunked(std::string &flags, size_t &max_body_si
 		this->setError(400);
 		return(true) ;
 	}
-	if ((pos = this->_buffer.find("\r\n0\r\n")) == std::string::npos)
+	if ((pos = this->_buffer.find("0\r\n")) == std::string::npos || (pos > 0 && std::isdigit(this->_buffer[pos - 1])))
 		return (true);
 	while((pos = this->_buffer.find("\r\n")) != std::string::npos)
 	{

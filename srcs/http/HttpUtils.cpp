@@ -74,6 +74,7 @@ std::string	HttpResponse::_findContentType(std::string path)
 bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *location)
 {
 	std::vector<std::string> methods = location->getMethods();
+
 	for (std::vector<std::string>::const_iterator it = methods.begin(); it != methods.end(); ++it)
 	{
 		if (*it == methode)
@@ -81,7 +82,6 @@ bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *locatio
 	}
 	return (false);
 }
-
 
 
 std::string HttpResponse::_clearPathGarbage(std::string &path)

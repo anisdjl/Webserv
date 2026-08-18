@@ -26,6 +26,6 @@ int main(int argc, char **argv)
         return (1);
     }
     if (ft_webserv(config))
-        return (/*ft_free_config (config),*/ 1);
-    return (/*ft_free_config (config),*/ 0);
+        return (delete config, 1);
+    return (delete config, 0);
 }
