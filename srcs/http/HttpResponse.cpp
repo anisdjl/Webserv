@@ -82,71 +82,187 @@ void HttpResponse::resetResponse()
 	manque cas avec cgi
 */
 
-void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+static std::string	capitalize(std::string string)
 {
-    int fd;
-    int pipe_in[2]; // sends the body to the child
-    int pipe_out[2]; // recives the result from the child
-    int    save_fd_out = dup(STDOUT_FILENO);
-    int save_fd_in = dup(STDIN_FILENO);
+	for (size_t i = 0; i < string.size(); ++i)
+		string[i] = std::toupper(string[i]);
+	return (string);
+}
 
+static std::string makeHeaderEnv(std::string key, std::string value)
+{
+	std::string	header;
 
-    if (pipe(pipe_in) == -1)
-        throw std::runtime_error("Error: couldn't open pipes");
-    if (pipe(pipe_out) == -1)
-        throw std::runtime_error("Error: couldn't open pipes");
+	for (size_t i = 0; i < key.size(); ++i)
+	{
+		if (key[i] == '-')
+			key[i] = '_';
+		else
+			key[i] = std::toupper(key[i]);
+	}
 
+	header = key + "=" + value;
+	return (header);
+}
 
-    dup2(pipe_out[1], STDOUT_FILENO); // on exrit dedans
-    close(pipe_out[1]);
-    
-    dup2(pipe_in[0], STDIN_FILENO); // on lit depuis
+static char	*fillEnv(std::string string)
+{
+	char *env = new char[string.size() + 1];
+	size_t i = 0;
+	for (; i < string.size(); ++i)
+		env[i] = string[i];
+	env[i] = '\0';
+	return (env);
+}	
 
-    write(0, req.getBody().c_str(), req.getBody().size());
-    fd = fork();
-    if (fd == 0) // on est dans le child et donc on doit rcupe
+static void	display(char **env)
+{
+	int i = 0;
+	while(env[i])
+	{
+		std::cout << env[i] << std::endl;
+		i++;
+	}
+	return ;
+}
+
+void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd)
+{
+	int fd;
+	int pipe_in[2];
+	int pipe_out[2];
+
+	// je cree un objet cgi que je vis append a la map socket, dans cet objet je vais mettre les deuix bouts du pipe 
+	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
+		throw std::runtime_error("Error: couldn't open pipes"); }
+
+	fd = fork();
+
+	write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
+
+    if (fd == 0)
     {
-        dup2(pipe_out[0], STDIN_FILENO); // on lit depuis
-        close(pipe_out[0]); close(pipe_out[1]);
+		dup2(pipe_out[0], STDIN_FILENO);
+		close(pipe_out[0]); close(pipe_out[1]);
 
-        dup2(pipe_in[1], STDOUT_FILENO); // on ecrit dedans
-        close(pipe_in[1]);
+		dup2(pipe_in[1], STDOUT_FILENO);
+		close(pipe_in[1]); close(pipe_in[0]);
 
-        char **env = getEnv(req, servConf, location); // la methode de la requete + ses headers
-        char *path = getPath(req, servConf, location); // le path vers l'interpreter
-        char **argv = getArgv(req, servConf, location); // pythons3 + le root de la location + le chemin du script 
+		char **env = getEnv(req, servConf, location);
+		char *path = getPath(req, servConf, location);
+		char **argv = getArgv(req, servConf, location, path); 
 
-        // je dois me mettre dans le dossier du fichier a executer
-        // je dois recup l'env
-        // je dois join le path
-        // je dois faire le tab de arg
+		if (env == NULL)
+			return (req.setError(0));
+		if (path == NULL)
+		// check if anything is null et set une erreur en fonction et ensuite mettre l'etat a pas de chance
+		execve(path, argv, env);
+		delete path;
+		for (size_t i = 0; env[i] != NULL; ++i)
+			delete [] env[i];
+		delete [] env;
+		for (size_t i = 0; argv[i] != NULL; ++i)
+			delete [] argv[i];
+		delete [] argv;
+		exit(1);
+	}
 
+	struct epoll_event tmp1;
+	tmp1.events = EPOLLIN;
+	tmp1.data.fd = pipe_in[0];
 
-        execve(path, argv, env); // path is the path to the interpreter / argv is the command to execute, so path + file / env is all the informations of request
-    }
-    close(pipe_in[1]);
-    close(pipe_in[0]);
-    close(pipe_out[0]);
-    dup2(STDOUT_FILENO, save_fd_out);
+	struct epoll_event tmp2;
+	tmp2.events = EPOLLOUT;
+	tmp2.data.fd = pipe_out[1];
+
+	// mettre en non bloquant
+	fcntl(pipe_out[1], F_SETFL, O_NONBLOCK);
+	fcntl(pipe_in[0], F_SETFL, O_NONBLOCK);
+	epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe_in[0], &tmp1); epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe_out[1], &tmp2);
+	// register in epoll
+  
+	// je pense pas les fermer ici mais plus dans cgi_in
+	// close(pipe_out[1]);
+    // close(pipe_in[0]);
 }
 
 char	**getEnv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location)
 {
-	char	**env;
+	(void)servconf; (void)location;
 
+	size_t	size_of_env = req.getHeader().size() + 2;
+	char	**env = new char*[size_of_env];
+	std::string capital = capitalize(req.getMethod());
+	std::string	method = "REQUEST_METHOD=" + capital;
+
+	env[0] = fillEnv(method);
+	size_t	i = 1;
+	for (std::map<std::string, std::string>::const_iterator it = req.getHeader().begin(); it != req.getHeader().end(); ++it)
+	{
+		std::string header = makeHeaderEnv(it->first, it->second);
+		env[i] = fillEnv(header);
+		i++;
+	}
+	env[i] = NULL;
+	display(env);
 	return (env);
 }
 
-char	*getPath(HttpRequest &req, ServerConfig &servconf, LocationConfig *location)
+char	*getPath(HttpRequest &req, ServerConfig &servconf, LocationConfig *location) // ici je vais aussi recevoir la map des sockets, le epollfd, et un objet cgi pour pouvoir les neregistrer
 {
+	(void)servconf;
+	const char	*filename = req.getPath().c_str();
+	
+	if (access(filename, F_OK | R_OK) != 0)
+	{
+		std::cout << "fichier inaccessible" << std::endl;
+		return (NULL);
+		// return (_buildError(403, servconf, location));
+		// je dois return null je pense
+	}
+
+	std::string extension;
+	size_t pos_ex = req.getPath().rfind(".");
+	if (pos_ex != std::string::npos)
+		extension = req.getPath().substr(pos_ex);
+	else
+		throw std::out_of_range("Error: no extension found for the cgi"); // pas sur de faire ca sinon ca va couper le server je pense qu'on renverra une erreur correcte
+
+	std::cout << "extension " << extension << std::endl;
 	char	*path;
-	// je dois checker si le path est dispo dans les cgi_pass sinon code d'erreur 
+	std::string pathstr;
+
+	for (std::map<std::string, std::string>::iterator it = (*location).getCgis().begin(); it != (*location).getCgis().end(); ++it)
+	{
+		if (it->first == extension)
+		{
+			pathstr = it->second.c_str();
+			break;
+		}
+	}
+	path = fillEnv(pathstr);
+
+	std::cout << "the final path " << path << std::endl;
 	return (path);
 }
 
-char	**getArgv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location)
+char	**getArgv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location, char *path)
 {
-	char **argv;
+	char **argv = new char*[3];
+	(void)servconf; (void)req;
+	
+	std::string pathstr = path;
+	size_t	pos = pathstr.find_last_of("/");
 
+	if (pos != std::string::npos)
+		argv[0] = fillEnv(pathstr.substr(pos));
+	else
+		throw std::out_of_range("Error: no extension found for the cgi"); // pas sur de faire ca sinon ca va couper le server je pense qu'on renverra une erreur correcte
+
+	std::string	fullPath = location->getPath() + pathstr;
+	argv[1] = fillEnv(fullPath);
+	argv[2] = NULL;
+	std::cout << "full path " << fullPath << std::endl;
+	
 	return (argv);
 }
