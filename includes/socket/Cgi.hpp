@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:02:41 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/07 16:50:11 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/18 12:50:29 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class Cgi : public Socket
 {
     private :
             int 	   		_parent_index;
+			int 			_other_fd;
     public:
         int getParentIndex() const
 		{

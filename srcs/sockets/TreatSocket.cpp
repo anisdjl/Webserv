@@ -31,6 +31,7 @@ bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, C
 	{
 		if(target.getHttpResponse().getState() == NOT_BUILT)
 		{	
+			// target.getHttpResponse().buildResponse(target, config->getServer()[target.getServerIndex()], map_socket, epollfd);
 			target.getHttpResponse().buildResponse(target.getHttpRequest(), config->getServer()[target.getServerIndex()]);
 		}
 		if (target.getHttpResponse().getState() == BUILT)
