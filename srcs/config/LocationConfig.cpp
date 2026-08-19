@@ -1,6 +1,6 @@
 #include "../../includes/config/Config.hpp"
 
-LocationConfig::LocationConfig(void) : _path(""), _root(""), _autoindex(false), _upload_store("")
+LocationConfig::LocationConfig(void) : _path(""), _root(""), _autoindex(false), _upload_store(""), _autoindexfound(false)
 {
 	_methods.push_back("GET");
 }
@@ -49,9 +49,12 @@ void	LocationConfig::setMethods(const std::string &method)
 	_methods.push_back(method);
 }
 
-void	LocationConfig::setAutoIndex(bool autoindex) 
+void	LocationConfig::setAutoIndex(std::string &autoindex) 
 {
-	this->_autoindex = autoindex;
+	if (autoindex == "on")
+		_autoindex = true;
+	else if (autoindex == "off")
+		_autoindex = false;
 }
 
 void	LocationConfig::setUpload(const std::string &upload)

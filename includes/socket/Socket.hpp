@@ -6,7 +6,7 @@
 /*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:39:24 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/18 12:40:19 by adjelili         ###   ########.fr       */
+/*   Updated: 2026/08/19 15:19:40 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ class Socket
 	public :
 
 		
-		virtual ~Socket();
+		virtual ~Socket(){};
 		int &getFd()
 		{
 			return (this->_fd);

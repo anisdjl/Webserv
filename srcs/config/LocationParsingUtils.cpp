@@ -140,6 +140,7 @@ void	parse_autoindex(Config *config, std::vector<std::string> *tokens, size_t *i
 	if ((*tokens)[*index] != "on" && (*tokens)[*index] != "off")
 		throw std::runtime_error("Value error autoindex value must be 'on' or 'off'");
 
+	(*locconfig).setAutoIndexfound(true);
 	(*locconfig).setAutoIndex((*tokens)[*index]);
 	(*index) += 2;
 }
@@ -210,4 +211,9 @@ void	parse_cgi(Config *config, std::vector<std::string> *tokens, size_t *index, 
 		throw std::runtime_error("Syntax error the extension name in the cgi direvtive must begin with a '.'");
 	(*locconf).setCgis((*tokens)[*index], (*tokens)[*index + 1]);
 	(*index) += 3;
+}
+
+void	LocationConfig::setAutoIndexfound(bool found)
+{
+	_autoindexfound = found;
 }

@@ -6,8 +6,7 @@
 enum RequestState
 {
 	INCOMPLETE,
-	COMPLETE,
-	ERROR
+	COMPLETE
 };
 
 enum avancementState
@@ -62,16 +61,17 @@ class HttpRequest
 		int										_error;
 
 		
+		std::string								_ft_tolower(const std::string& src) const;
 		bool 									_ft_parse_first_line();
 		bool									_ft_parse_header();
 		bool									_ft_parse_body(size_t &max_body_size);
 		bool									_ft_skip_line();
 		bool									_ft_parse_request_line(size_t &pos);
 		bool									_ft_parse_line_header(size_t &pos);
-		int 									_ft_parse_chunk(size_t &pos, std::string &new_body);
-		void									_ft_check_flags_header(size_t &max_body_size);
-		void									_ft_verif_length(std::string &length, size_t &max_body_size);
-		void									_ft_unchunked(std::string &flags);
+		bool									_ft_parse_chunk(size_t &pos, size_t &max_body_size);
+		ssize_t									_ft_verif_length(std::string &length, size_t &max_body_size);
+		bool									_ft_parse_with_length(std::string &length, size_t &max_body_size);
+		bool									_ft_parse_with_chunked(std::string &flags, size_t &max_body_size);
 };
 
 /*

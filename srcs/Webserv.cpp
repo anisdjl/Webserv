@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/30 23:23:13 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/08 18:21:16 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/17 15:54:40 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,7 @@ bool ft_webserv(Config *config)
 				return (ft_close_all_sockets(map_socket, epollfd), true);
 			i++;
 		}
+		
 	}
 	ft_close_all_sockets(map_socket, epollfd);
 	return (false);

@@ -2,9 +2,13 @@
 
 ServerConfig::ServerConfig(void)
 {
-	_listen = "80";
+	_listen_init = false;
+	_autoindexfound  = false;
+	_listen.push_back("80");
 	_host = "0.0.0.0";
 	_client_max_body_size = 1000000;
+	_autoindexfound = false;
+	_root = "";
 }
 
 ServerConfig::~ServerConfig(void)
@@ -16,6 +20,7 @@ ServerConfig	&ServerConfig::operator=(const ServerConfig &src)
 {
 	if (this != &src)
 	{
+		_listen_init = src._listen_init;
 		_listen = src._listen;
 		_host = src._host;
 		_server_name = src._server_name;
@@ -33,7 +38,12 @@ ServerConfig::ServerConfig(const ServerConfig &src)
 
 void	ServerConfig::setListen(std::string &listen)
 {
-	_listen = listen;
+	if (this->_listen_init == false)
+	{
+		this->_listen.clear();
+		this->_listen_init = true;
+	}
+	this->_listen.push_back(listen);
 }
 
 void	ServerConfig::setHost(std::string &host)
@@ -66,7 +76,7 @@ void	ServerConfig::setLocations(LocationConfig *locconfig)
 void	ServerConfig::displayServConf(void)
 {
 	std::cout << "=== server config ===\n" << 
-	"listen: " << (*this)._listen << 
+	"listen: " << (*this)._listen[0] << 
 	" host: " << (*this)._host << std::endl;
 
 	std::cout << "server name : ";
@@ -103,3 +113,20 @@ LocationConfig*   ServerConfig::matchLocation(const std::string& path)
 	return (match);
 }
 // si rien donnée location / sinon NULL
+void	ServerConfig::setAutoindex(std::string &autoindex)
+{
+	if (autoindex == "on")
+		_autoindex = true;
+	else if (autoindex == "off")
+		_autoindex = false;
+}
+
+void	ServerConfig::setRoot(std::string &root)
+{
+	_root = root;
+}
+
+void	ServerConfig::setAutoIndexfound(bool found)
+{
+	_autoindexfound = found;
+}

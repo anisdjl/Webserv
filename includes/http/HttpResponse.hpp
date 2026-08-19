@@ -12,6 +12,9 @@
 #include <dirent.h>
 #include <ctime>
 
+class Connection;
+class Socket;
+
 enum ResponseState
 {
 	NOT_BUILT,
@@ -27,7 +30,7 @@ class HttpResponse
 		ResponseState						getState();
 		void								setState(ResponseState state);
 		void                                resetResponse();
-        void                                buildResponse(HttpRequest& request, ServerConfig &servConf);
+		void								buildResponse(Connection &target, ServerConfig &servConf,std::map<int, Socket *> &map_socket, int const &epollfd);
         /*	debug	*/
         std::string							getResponse() const;
         std::string							getBody() const;

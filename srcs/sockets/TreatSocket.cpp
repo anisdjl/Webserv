@@ -12,7 +12,7 @@
 
 #include "../../includes/socket/Socket.hpp"
 #include "../../includes/socket/Connection.hpp"
-#include "../../includes/socket/Cgi.hpp"
+// #include "../../includes/socket/Cgi.hpp"
 
 bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, Config *config, const int &epollfd)
 {
@@ -25,13 +25,14 @@ bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, C
 		bytes_read = recv(target.getFd(), buffer, BUFFER_SIZE, 0);
 		if (bytes_read < 1)
 			return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
-		target.getHttpRequest().ft_parse_http_request(std::string(buffer));
+		target.getHttpRequest().ft_parse_http_request(std::string(buffer), config->getServer()[target.getServerIndex()].getClientMaxBodySize());
 	}
 	if (target.getHttpRequest().getState() == COMPLETE)
 	{
 		if(target.getHttpResponse().getState() == NOT_BUILT)
 		{	
-			target.getHttpResponse().buildResponse(target.getHttpRequest(), config->getServer()[target.getServerIndex()]);
+			target.getHttpResponse().buildResponse(target, config->getServer()[target.getServerIndex()], map_socket, epollfd);
+			// target.getHttpResponse().buildResponse(target.getHttpRequest(), config->getServer()[target.getServerIndex()]);
 		}
 		if (target.getHttpResponse().getState() == BUILT)
 		{	
@@ -46,7 +47,7 @@ bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, C
 	return (false);
 }
 
-bool ft_send_request(std::map<int, Socket *> &map_socket, Connection &target, Config *config, const int &epollfd)
+bool ft_send_request(std::map<int, Socket *> &map_socket, Connection &target, const int &epollfd)
 { 
 	int temp_sent = 0;
 	struct epoll_event temp;
