@@ -1,4 +1,4 @@
-#include "../../includes/http/HttpResponse.hpp"
+#include "../../../includes/http/HttpResponse.hpp"
 
 HttpResponse::HttpResponse() : _state(NOT_BUILT),  _status_code(200), _status_message("OK"), _bytes_sent(0), _headers(), _body("") {}
 

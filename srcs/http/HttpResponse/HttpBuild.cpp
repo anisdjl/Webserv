@@ -1,5 +1,5 @@
-#include "../../includes/http/HttpResponse.hpp"
-#include "../../includes/socket/Connection.hpp"
+#include "../../../includes/http/HttpResponse.hpp"
+#include "../../../includes/socket/Connection.hpp"
 
 void			HttpResponse::buildResponse(Connection &target, ServerConfig &servConf,std::map<int, Socket *> &map_socket, int const &epollfd)
 {

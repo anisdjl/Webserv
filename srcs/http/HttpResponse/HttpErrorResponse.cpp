@@ -1,4 +1,4 @@
-#include "../../includes/http/HttpResponse.hpp"
+#include "../../../includes/http/HttpResponse.hpp"
 
 void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location)
 {

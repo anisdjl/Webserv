@@ -8,14 +8,18 @@ OBJ_DIR := .obj
 SRCS := \
 	main.cpp \
 	srcs/Webserv.cpp \
-	srcs/http/HttpRequest.cpp \
-	srcs/http/HttpResponse.cpp \
-	srcs/http/HttpBuild.cpp \
-	srcs/http/HttpGetReponse.cpp \
-	srcs/http/HttpsPostReponse.cpp \
-	srcs/http/HttpDeleteResponse.cpp \
-	srcs/http/HttpErrorResponse.cpp \
-	srcs/http/HttpUtils.cpp \
+	srcs/http/HttpRequest/HttpRequest.cpp \
+	srcs/http/HttpRequest/HttpRequestBody.cpp \
+	srcs/http/HttpRequest/HttpRequestHeader.cpp \
+	srcs/http/HttpRequest/HttpRequestLine.cpp \
+	srcs/http/HttpRequest/HttpRequestUtils.cpp \
+	srcs/http/HttpResponse/HttpResponse.cpp \
+	srcs/http/HttpResponse/HttpBuild.cpp \
+	srcs/http/HttpResponse/HttpGetReponse.cpp \
+	srcs/http/HttpResponse/HttpsPostReponse.cpp \
+	srcs/http/HttpResponse/HttpDeleteResponse.cpp \
+	srcs/http/HttpResponse/HttpErrorResponse.cpp \
+	srcs/http/HttpResponse/HttpUtils.cpp \
 	srcs/config/Config.cpp \
 	srcs/config/ConfigCheck.cpp \
 	srcs/config/ConfigParsing.cpp \
