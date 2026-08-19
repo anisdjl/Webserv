@@ -6,14 +6,14 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:36:31 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/18 15:03:20 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/19 11:05:53 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/socket/Socket.hpp"
 #include "../../includes/socket/Listen.hpp"
 
-bool ft_listener(std::string listener, int &socketfd)
+bool ft_listener(std::string host, std::string listener, int &socketfd)
 {
 	struct addrinfo *info;
 	struct addrinfo hints;
@@ -23,7 +23,7 @@ bool ft_listener(std::string listener, int &socketfd)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 	hints.ai_protocol = 0;
-	if (getaddrinfo(NULL,  listener.c_str(), &hints, &info))
+	if (getaddrinfo(host.c_str(),  listener.c_str(), &hints, &info))
 	{
 		std::cerr << "Error while opening socket listener 1." <<  std::endl;
 		return (true);
@@ -53,7 +53,7 @@ bool ft_construct_listener(std::map <int, Socket *> &map_socket, Config *config,
 	{
 			temp_socket = new Listen();
 			std::memset(&temp, 0, sizeof(temp));
-		if(ft_listener(config->getServer()[i].getListen(), temp_socket->getFd()))
+		if(ft_listener(config->getServer()[i].getHost(), config->getServer()[i].getListen(), temp_socket->getFd()))
 			return (true);
 		temp_socket->setServerIndex(i);
 		map_socket.insert(std::make_pair(temp_socket->getFd(), temp_socket));
