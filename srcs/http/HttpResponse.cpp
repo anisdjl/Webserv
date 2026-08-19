@@ -1,4 +1,6 @@
 #include "../../includes/http/HttpResponse.hpp"
+#include "../../includes/socket/Cgi.hpp"
+#include "../../includes/socket/Connection.hpp"
 
 HttpResponse::HttpResponse() : _status_code(200), _status_message("OK"), _bytes_sent(0), _headers(), _body("") {}
 
@@ -60,28 +62,6 @@ void HttpResponse::resetResponse()
 	this->_bytes_sent = 0;
 }
 
-/*
-	Location
-	location->root // possible
-
-	ServConf
-	getErrorCodePage
-	findErrorPage
-	matchLocation
-
-	il faut add la verife avant le build
-
-	parser :
-	400
-	413
-
-	Traiter les chemins absolues ?
-	manque un / sur le debut ? get
-	traiter les doubles /
-	root vide partout
-	manque cas avec cgi
-*/
-
 static std::string	capitalize(std::string string)
 {
 	for (size_t i = 0; i < string.size(); ++i)
@@ -126,13 +106,15 @@ static void	display(char **env)
 	return ;
 }
 
-void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd)
+void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
 {
 	int fd;
 	int pipe_in[2];
 	int pipe_out[2];
+	
 
-	// je cree un objet cgi que je vis append a la map socket, dans cet objet je vais mettre les deuix bouts du pipe 
+	Cgi	*new_cgi = new Cgi;
+
 	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
 		throw std::runtime_error("Error: couldn't open pipes"); }
 
@@ -140,6 +122,7 @@ void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *loca
 
 	write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
 
+	new_cgi->setBeginExec();
     if (fd == 0)
     {
 		dup2(pipe_out[0], STDIN_FILENO);
@@ -152,9 +135,9 @@ void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *loca
 		char *path = getPath(req, servConf, location);
 		char **argv = getArgv(req, servConf, location, path); 
 
-		if (env == NULL)
-			return (req.setError(0));
-		if (path == NULL)
+		// if (env == NULL)
+		// 	return (req.setError(0));
+		// if (path == NULL)
 		// check if anything is null et set une erreur en fonction et ensuite mettre l'etat a pas de chance
 		execve(path, argv, env);
 		delete path;
@@ -166,7 +149,7 @@ void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *loca
 		delete [] argv;
 		exit(1);
 	}
-
+	
 	struct epoll_event tmp1;
 	tmp1.events = EPOLLIN;
 	tmp1.data.fd = pipe_in[0];
@@ -175,15 +158,24 @@ void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *loca
 	tmp2.events = EPOLLOUT;
 	tmp2.data.fd = pipe_out[1];
 
-	// mettre en non bloquant
 	fcntl(pipe_out[1], F_SETFL, O_NONBLOCK);
 	fcntl(pipe_in[0], F_SETFL, O_NONBLOCK);
 	epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe_in[0], &tmp1); epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe_out[1], &tmp2);
-	// register in epoll
-  
-	// je pense pas les fermer ici mais plus dans cgi_in
-	// close(pipe_out[1]);
-    // close(pipe_in[0]);
+
+	new_cgi->setParentIndex(target.getFd());
+	new_cgi->setType(CGI);
+	new_cgi->setFd(fd);
+	if (target.getHttpRequest().getBody().size() > 0)
+		new_cgi->setPipeOut(pipe_out[0]);
+	else
+	{
+		int fd_negative = -1;
+		new_cgi->setPipeOut(fd_negative);
+		close(pipe_out[1]);
+	}
+	new_cgi->setPipeIn(pipe_in[0]);
+	new_cgi->setEpoll(epollfd);
+	map_socket[pipe_in[0]] = new_cgi;
 }
 
 char	**getEnv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location)
