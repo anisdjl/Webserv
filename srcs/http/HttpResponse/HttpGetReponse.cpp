@@ -77,6 +77,8 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 	this->_status_code = 200;
 	this->_status_message = "OK";
 
+	// creation de cookie
+
 	// if cgi => fonction vers cgiBuild
 
 	std::ifstream			infile(req_path.c_str(), std::ios::binary | std::ios::in | std::ios::ate);

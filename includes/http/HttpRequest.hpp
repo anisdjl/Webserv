@@ -56,7 +56,8 @@ class HttpRequest
 		std::string								_query_string; // les parametres possible
 		std::string								_version; // ex : HTTP/1.1
 		std::map<std::string, std::string>		_header; // donc host, user_agent, content-type, content-length, cookie
-		std::string 							_body; 
+		std::string 							_body;
+		std::string								_cookie;
 		int										_error;
 
 		std::string								_ft_tolower(const std::string& src) const;

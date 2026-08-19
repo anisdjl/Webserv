@@ -30,7 +30,6 @@ void			HttpResponse::buildResponse(Connection &target, ServerConfig &servConf,st
 	{
 		this->_buildErrorResponse(405, servConf, location);
 		_response = _buildStringResponse();
-
 		return ;
 	}
     if (request.getMethod() == "GET")

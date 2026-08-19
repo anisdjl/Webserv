@@ -62,12 +62,4 @@ class HttpResponse
         void								_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 };
 
-/*
-    les fonctions necessaire devant traité:
-        - get
-        - post
-        - delete
-        - error : https://http.cat/
-*/
-
 #endif
