@@ -29,7 +29,7 @@ class HttpRequest
 		std::string                         	getBody() const {return (this->_body);}
 		int										getErrorCode() const {return (this->_error);}
 		std::string								getHeader(std::string key) const;
-		std::map<std::string, std::string>		getHeader(void);
+		std::map<std::string, std::string>		getHeader(void) { return (_header); };
 		RequestState							getState() const {return (this->_state);}
 		avancementState							getAvancement() const {return (this->_avancement);}
 		std::string								getBuffer() const {return (this->_buffer);}

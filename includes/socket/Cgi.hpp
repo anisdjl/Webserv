@@ -6,7 +6,7 @@
 /*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:02:41 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/19 15:21:55 by adjelili         ###   ########.fr       */
+/*   Updated: 2026/08/19 16:00:09 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Cgi : public Socket
 		int				_child_fd;
 		int				_epollfd;
 		time_t 			_timestamp;
+		HttpResponse	_httpresponse;
 
     public:
 		void	setParentIndex(int &index) { this->_parent_index = index; };
@@ -33,7 +34,9 @@ class Cgi : public Socket
 		void	setFd(int &fd) { _child_fd = fd; };
 		void	setEpoll(int &epoll) { _epollfd = epoll; };
 		void	setBeginExec() { std::time(&_timestamp); };
-
+		void	setResponseString(std::string string) { _httpresponse.addString(string); };
+		
+		std::string	getResult(void) { return (_httpresponse.getResult()); };
 		time_t	getTime(void) { return (_timestamp); };
 		int		getParentIndex() const { return (this->_parent_index); };
 		int		getPipeIn(void) { return (_pipe_in); };
@@ -60,6 +63,8 @@ class Cgi : public Socket
 		};
 };
 
-ft_cgi_hup
+bool	ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
+void	ft_cgi_hup(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
+bool	ft_cgi_out(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
 
 #endif

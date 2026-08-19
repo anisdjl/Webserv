@@ -1,6 +1,5 @@
-#include "../../includes/http/HttpResponse.hpp"
-#include "../../includes/socket/Cgi.hpp"
-#include "../../includes/socket/Connection.hpp"
+#include "../../../includes/socket/Cgi.hpp"
+#include "../../../includes/socket/Connection.hpp"
 #include "../../../includes/http/HttpResponse.hpp"
 
 HttpResponse::HttpResponse() : _state(NOT_BUILT),  _status_code(200), _status_message("OK"), _bytes_sent(0), _headers(), _body("") {}
@@ -149,15 +148,19 @@ void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *loca
 			delete [] argv[i];
 		delete [] argv;
 		exit(1);
+		// est ce que je dois throw si execve foire
 	}
+
+	// pipe_out[0]
+	// pipe_in[1]
 	
 	struct epoll_event tmp1;
 	tmp1.events = EPOLLIN;
-	tmp1.data.fd = pipe_in[0];
+	tmp1.data.fd = pipe_in[1];
 
 	struct epoll_event tmp2;
 	tmp2.events = EPOLLOUT;
-	tmp2.data.fd = pipe_out[1];
+	tmp2.data.fd = pipe_out[0];
 
 	fcntl(pipe_out[1], F_SETFL, O_NONBLOCK);
 	fcntl(pipe_in[0], F_SETFL, O_NONBLOCK);

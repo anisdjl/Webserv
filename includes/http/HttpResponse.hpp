@@ -40,6 +40,10 @@ class HttpResponse
         unsigned int                        get_bytes_sent() const;
         void                                setResponse(const std::string& response);
         void                                setBody(const std::string& body);
+		/* do not touch */
+		void								addString(std::string string) { _cgiresponse += string; };
+		std::string							getResult(void) { return (_cgiresponse); };
+
 	private:
 		ResponseState						_state;
         int									_status_code;
@@ -52,6 +56,9 @@ class HttpResponse
 		std::string                         _extensionFinder(HttpRequest &req);
 		std::string							_clearPathGarbage(std::string &path);
 		std::string                         _buildStringResponse();
+		/*  // do not touch   */
+		std::string							_cgiresponse;
+		/*                    */
         void                                _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd);
         void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
@@ -61,6 +68,11 @@ class HttpResponse
         void								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 };
+
+
+char	**getEnv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location);
+char	*getPath(HttpRequest &req, ServerConfig &servconf, LocationConfig *location);
+char	**getArgv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location, char *path);
 
 /*
     les fonctions necessaire devant traité:
