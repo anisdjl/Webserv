@@ -6,7 +6,7 @@
 /*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:02:41 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/19 15:19:27 by adjelili         ###   ########.fr       */
+/*   Updated: 2026/08/19 15:21:55 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,5 +59,7 @@ class Cgi : public Socket
 			return (*this);
 		};
 };
+
+ft_cgi_hup
 
 #endif
