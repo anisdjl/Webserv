@@ -1,42 +1,60 @@
-CXX = c++
-CXXFLAGS = -Wall -Werror -Wextra -std=c++98
-NAME = webserv
+NAME := webserv
 
-SRC = main.cpp \
-	  srcs/http/HttpRequest.cpp \
-	  srcs/http/HttpResponse.cpp \
-	  srcs/http/HttpUtils.cpp \
-	  srcs/http/HttpErrorResponse.cpp \
-	  srcs/http/HttpDeleteResponse.cpp \
-	  srcs/config/Config.cpp \
-      srcs/config/ServerConfig.cpp \
-      srcs/config/LocationConfig.cpp
+CXX := c++
+CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -g
 
-OBJ = $(SRC:.cpp=.o)
+OBJ_DIR := .obj
 
-GREEN   := \033[0;32m
-YELLOW  := \033[0;33m
-CYAN    := \033[1;36m
-RESET   := \033[0m
+SRCS := \
+	main.cpp \
+	srcs/Webserv.cpp \
+	srcs/http/HttpRequest/HttpRequest.cpp \
+	srcs/http/HttpRequest/HttpRequestBody.cpp \
+	srcs/http/HttpRequest/HttpRequestHeader.cpp \
+	srcs/http/HttpRequest/HttpRequestLine.cpp \
+	srcs/http/HttpRequest/HttpRequestUtils.cpp \
+	srcs/http/HttpResponse/HttpResponse.cpp \
+	srcs/http/HttpResponse/HttpBuild.cpp \
+	srcs/http/HttpResponse/HttpGetReponse.cpp \
+	srcs/http/HttpResponse/HttpsPostReponse.cpp \
+	srcs/http/HttpResponse/HttpDeleteResponse.cpp \
+	srcs/http/HttpResponse/HttpErrorResponse.cpp \
+	srcs/http/HttpResponse/HttpUtils.cpp \
+	srcs/config/Config.cpp \
+	srcs/config/ConfigCheck.cpp \
+	srcs/config/ConfigParsing.cpp \
+	srcs/config/LocationConfig.cpp \
+	srcs/config/LocationParsingUtils.cpp \
+	srcs/config/ServerConfig.cpp \
+	srcs/config/ServerParsingUtils.cpp \
+	srcs/sockets/CloseSockets.cpp \
+	srcs/sockets/Listener.cpp \
+	srcs/sockets/TreatSocket.cpp
+
+OBJS := $(addprefix $(OBJ_DIR)/,$(SRCS:.cpp=.o))
+DEPS := $(OBJS:.o=.d)
+
+.PHONY: all clean fclean re
 
 all: $(NAME)
 
-$(NAME): $(OBJ)
-	@printf "\n$(GREEN)[Compilation] Compilation principale ...$(RESET)\n"
-	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
+$(NAME): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $@
 
-$(ODIR)/%.o: %.cpp
+$(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	@printf "\n$(YELLOW)[Nettoyage] Nettoyage fichiers objets ...$(RESET)\n"
-	rm -rf $(OBJ)
+	rm -rf $(OBJ_DIR)
 
 fclean: clean
-	@printf "\n$(YELLOW)[Nettoyage] Nettoyage global ...$(RESET)\n"
 	rm -f $(NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+help:
+	@echo "make             compile webserv sans CGI"
+	@echo "make clean       supprime les objets"
+	@echo "make fclean      supprime les objets et webserv"
+	@echo "make re          recompile entierement"
