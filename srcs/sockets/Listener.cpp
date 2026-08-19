@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:36:31 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/19 11:47:02 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/19 11:50:50 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ bool ft_construct_listener(std::map <int, Socket *> &map_socket, Config *config,
 	struct epoll_event temp;
 	size_t i = 0; 
 
-	
 	while(i < config->getServer().size())
 	{
 		size_t j = 0;
