@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:36:31 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/19 11:05:53 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/19 11:47:02 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,16 +51,21 @@ bool ft_construct_listener(std::map <int, Socket *> &map_socket, Config *config,
 	
 	while(i < config->getServer().size())
 	{
+		size_t j = 0;
+		while(j < config->getServer()[i].getListen().size())
+		{
 			temp_socket = new Listen();
 			std::memset(&temp, 0, sizeof(temp));
-		if(ft_listener(config->getServer()[i].getHost(), config->getServer()[i].getListen(), temp_socket->getFd()))
-			return (true);
-		temp_socket->setServerIndex(i);
-		map_socket.insert(std::make_pair(temp_socket->getFd(), temp_socket));
-		temp.data.fd = temp_socket->getFd();
-		temp.events = EPOLLIN;
-		if (epoll_ctl(epollfd, EPOLL_CTL_ADD, temp_socket->getFd(), &temp) == -1)
-			return (true);
+			if(ft_listener(config->getServer()[i].getHost(), config->getServer()[i].getListen()[j], temp_socket->getFd()))
+				return (true);
+					temp_socket->setServerIndex(i);
+			map_socket.insert(std::make_pair(temp_socket->getFd(), temp_socket));
+			temp.data.fd = temp_socket->getFd();
+			temp.events = EPOLLIN;
+			if (epoll_ctl(epollfd, EPOLL_CTL_ADD, temp_socket->getFd(), &temp) == -1)
+				return (true);
+			j++;
+		}
 		i++;
 	}
 	return (false);

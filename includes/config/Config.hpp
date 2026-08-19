@@ -79,7 +79,7 @@ class	ServerConfig
 {
     private:
 		std::string                     _root;
-        std::string                     _listen;
+        std::vector<std::string>        _listen;
         std::string                     _host;
         std::vector<std::string>        _index; // NEED TO IMPLEMENT IT FOR EVAN
 		bool							_autoindex;
@@ -89,6 +89,7 @@ class	ServerConfig
         std::map<int, std::string>      _error_page;
         std::vector<LocationConfig>     _locations;
 		bool							_autoindexfound;
+		bool							_listen_init;
 
 	public:
 		ServerConfig(void);
@@ -107,7 +108,7 @@ class	ServerConfig
 		void	setAutoIndexfound(bool found);
 
 		
-		std::string						getListen(void) { return _listen; };
+		std::vector<std::string>		&getListen(void) { return _listen; };
 		std::string						getHost(void) { return _host; };
 		std::string						getRoot(void) { return _root; };
 		std::string						getUploadStore(void) { return _upload_store; }
