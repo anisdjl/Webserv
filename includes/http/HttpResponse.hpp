@@ -29,6 +29,7 @@ class HttpResponse
         ~HttpResponse();
 		ResponseState						getState();
 		void								setState(ResponseState state);
+        bool								getisDone();
 		void                                resetResponse();
 		void								buildResponse(Connection &target, ServerConfig &servConf,std::map<int, Socket *> &map_socket, int const &epollfd);
         /*	debug	*/
@@ -40,6 +41,7 @@ class HttpResponse
         unsigned int                        get_bytes_sent() const;
         void                                setResponse(const std::string& response);
         void                                setBody(const std::string& body);
+        void                                setisDone(bool state);
 	private:
 		ResponseState						_state;
         int									_status_code;
@@ -48,12 +50,15 @@ class HttpResponse
         std::map<std::string, std::string>	_headers;
         std::string							_body;
 		std::string							_response;
+        bool                                _isDone;
+		bool								_cgiStartChecker(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         std::string                         _findContentType(std::string path);
 		std::string                         _extensionFinder(HttpRequest &req);
 		std::string							_clearPathGarbage(std::string &path);
 		std::string                         _buildStringResponse();
         // void                                _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket);
         void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        void                                _buildCookie(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
         void								_buildRedirResponse(std::string new_path);

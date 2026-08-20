@@ -72,15 +72,19 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 	}
 	if (access(req_path.c_str(), F_OK) == -1)
 		return (_buildErrorResponse(404, servConf, location));
+
+	// if (_cgiStartChecker(req, servConf, location))
+	// {
+	// }
+
 	if (access(req_path.c_str(), R_OK) == -1)
 		return (_buildErrorResponse(403, servConf, location));
 	this->_status_code = 200;
 	this->_status_message = "OK";
-
-	// creation de cookie
-
-	// if cgi => fonction vers cgiBuild
-
+	if (req.getCookie().empty()) // creation  du cookie
+	{
+		_buildCookie(req, servConf, location);
+	}
 	std::ifstream			infile(req_path.c_str(), std::ios::binary | std::ios::in | std::ios::ate);
 	if (!infile.is_open())
 		return (_buildErrorResponse(500, servConf, location));

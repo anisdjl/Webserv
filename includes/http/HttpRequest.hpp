@@ -32,6 +32,7 @@ class HttpRequest
 		RequestState							getState() const {return (this->_state);}
 		avancementState							getAvancement() const {return (this->_avancement);}
 		std::string								getBuffer() const {return (this->_buffer);}
+		std::string								getCookie()const {return (this->_cookie);};
 
 		void									setMethod(std::string method){this->_method = method;};
 		void 									setPath(std::string path){this->_path = path;}

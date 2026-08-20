@@ -84,7 +84,7 @@ bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *locatio
 }
 
 
-std::string HttpResponse::_clearPathGarbage(std::string &path)
+std::string	HttpResponse::_clearPathGarbage(std::string &path)
 {
 	std::string	clean_path;
 	for (int i = 0; i < path.size(); i++)
@@ -95,4 +95,16 @@ std::string HttpResponse::_clearPathGarbage(std::string &path)
 			clean_path += path[i];
 	}
 	return (clean_path);
+}
+
+bool		HttpResponse::_cgiStartChecker(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+{
+	if (!location || location->getCgis().empty())
+		return false;
+	std::string file_name = req.getPath();
+	// autre securité a ajouter ?
+	std::string extension = file_name.substr(file_name.find_last_of("."));
+	if (location->getCgis().find(extension) != location->getCgis().end())
+		return true;
+	return false;
 }
