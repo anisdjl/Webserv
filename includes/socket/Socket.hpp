@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:39:24 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/18 14:25:13 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/20 12:50:37 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,19 +31,32 @@ class Socket
 		int         	_fd;
     	int         	_server_index;
     	Socket_type 	_type;
+		std::time_t		_start;
 		
-		Socket() : _fd(-1), _server_index(-1), _type(LISTENER) {};
+		Socket() : _fd(-1), _server_index(-1), _type(LISTENER), _start(-1) {};
 		Socket(int fd, int server_index, Socket_type type)
-		: _fd(fd), _server_index(server_index), _type(type) 
+		: _fd(fd), _server_index(server_index), _type(type)  ,_start(-1)
 		{};
 		Socket(const Socket& src) 
-		: _fd(src._fd), _server_index(src._server_index), _type(src._type) 
+		: _fd(src._fd), _server_index(src._server_index), _type(src._type), _start(src._start)
 		{};
 		
 	public :
 
 		
 		virtual ~Socket(){};
+		void setStartTime(std::time_t start)
+		{
+			this->_start = start;
+		};
+		void setStartTime()
+		{
+			this->_start = std::time(NULL);
+		};
+		time_t getStartTime() const
+		{
+			return (this->_start);
+		};
 		int &getFd()
 		{
 			return (this->_fd);
@@ -79,6 +92,7 @@ class Socket
 				this->_fd = src._fd;
 				this->_server_index = src._server_index;
 				this->_type = src._type;
+				// this->_start = src._start;
 			}
 			return (*this);
 		};

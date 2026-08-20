@@ -119,7 +119,6 @@ class	ServerConfig
 		std::vector<LocationConfig>&	getLocations(void) { return _locations; };
 		bool							getAutoindex(void) { return _autoindex; };
 		bool							getAutoindexDefine(void) { return _autoindexfound; };
-
 		void	displayServConf(void);
         //=== func ===
         LocationConfig*								matchLocation(const std::string& path);

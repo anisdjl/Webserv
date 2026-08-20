@@ -90,13 +90,18 @@ std::string HttpResponse::_clearPathGarbage(std::string &path)
 	return ("");
 }
 
-bool HttpResponse::_isCgiRequest(std::string path) const
+bool HttpResponse::_isCgiRequest(std::string path, LocationConfig *location) const
 {
 	size_t	pos = path.find('.');
 	if (pos == std::string::npos || pos == 0)
 		return (false);
 	std::string extension = path.substr(pos + 1);
-	if (extension == "py" || extension == "php")
-		return (true);
+	if (location->getCgis().empty())
+		return (false);
+	for (std::map<std::string, std::string>::iterator it = location->getCgis().begin(); it != location->getCgis().end(); ++it)
+	{
+		if (it->first == extension)
+			return (true);
+	}
 	return (false);
 }

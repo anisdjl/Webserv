@@ -4,7 +4,7 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 {
 	// check size
 	// if cgi ?
-	if(_isCgiRequest(req.getPath()))
+	if(_isCgiRequest(req.getPath(), location))
 	{
 		// _cgiBuild(req, servConf, location, socket);
 		return ;

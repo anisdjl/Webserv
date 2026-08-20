@@ -74,9 +74,9 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 	this->_status_message = "OK";
 
 	// if cgi => fonction vers cgiBuild
-	if (_isCgiRequest(req_path))
+	if (_isCgiRequest(req_path, location))
 	{
-		// _cgiBuild(req, servConf, location, socket);
+		// if (_cgiBuild(req, servConf, location, socket);
 		return ;
 	}
 	std::ifstream			infile(req_path.c_str(), std::ios::binary | std::ios::in | std::ios::ate);
