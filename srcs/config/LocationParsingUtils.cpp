@@ -227,13 +227,12 @@ void	parse_cookie(Config *config, std::vector<std::string> *tokens, size_t *inde
 		throw std::runtime_error("Syntax error incomplete configuration");
 
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
-		throw std::runtime_error("Syntax error in autindex directive");
+		throw std::runtime_error("Syntax error in cookies directive");
 	
 	if ((*tokens)[*index] != "on" && (*tokens)[*index] != "off")
-		throw std::runtime_error("Value error autoindex value must be 'on' or 'off'");
+		throw std::runtime_error("Value error cookies value must be 'on' or 'off'");
 
-	(*locconfig).setAutoIndexfound(true);
-	(*locconfig).setAutoIndex((*tokens)[*index]);
+	(*locconfig).setCookies((*tokens)[*index]);
 	(*index) += 2;
 }
 
