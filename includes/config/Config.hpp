@@ -40,6 +40,7 @@ class LocationConfig
         std::string                     		_upload_store;
 		std::map<int, std::string>				_return;
 		bool									_autoindexfound;
+		bool									_cookies;
 
     public:
         LocationConfig();
@@ -58,6 +59,7 @@ class LocationConfig
 		std::map<int, std::string>			getReturn(void) const { return _return; };
 		long                            	getClientMaxBodySize(void) const { return _client_max_body_size; };
 
+		void	setCookies(std::string found) { if (found == "on") _cookies = true; else _cookies = false; };
 		void    setPath(const std::string &path);
         void    setRoot(const std::string &root);
         void    setIndex(const std::string &index);
