@@ -59,7 +59,7 @@ class HttpResponse
 		/*  // do not touch   */
 		std::string							_cgiresponse;
 		/*                    */
-        void                                _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd);
+       	void								_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
         void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);

@@ -106,12 +106,17 @@ static void	display(char **env)
 	return ;
 }
 
-void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
+void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
 {
 	int fd;
 	int pipe_in[2];
 	int pipe_out[2];
 	
+
+	if (access(req.getPath().c_str(), F_OK) != 0)
+		return (_buildErrorResponse(404, servConf, location));
+	if (access(req.getPath().c_str(), R_OK | X_OK) != 0)
+		return (_buildErrorResponse(403, servConf, location));
 
 	Cgi	*new_cgi = new Cgi;
 
@@ -119,9 +124,23 @@ void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *loca
 		throw std::runtime_error("Error: couldn't open pipes"); }
 
 	fd = fork();
+	if (fd < 0)
+	{
+		close (pipe_in[0]); close(pipe_in[1]); close(pipe_out[0]); close(pipe_out[1]);
+		return (_buildErrorResponse(500, servConf, location));
+	}
 
 	write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
 
+	char **env = getEnv(req, servConf, location);
+	char *path = getPath(req, servConf, location);
+	char **argv = getArgv(req, servConf, location, path); 
+
+	if (!path)
+		return (_buildErrorResponse(403, servConf, location));
+	if (!env || !env[0])
+		return (_buildErrorResponse(500, servConf, location));
+	
 	new_cgi->setBeginExec();
     if (fd == 0)
     {
@@ -131,14 +150,6 @@ void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *loca
 		dup2(pipe_in[1], STDOUT_FILENO);
 		close(pipe_in[1]); close(pipe_in[0]);
 
-		char **env = getEnv(req, servConf, location);
-		char *path = getPath(req, servConf, location);
-		char **argv = getArgv(req, servConf, location, path); 
-
-		// if (env == NULL)
-		// 	return (req.setError(0));
-		// if (path == NULL)
-		// check if anything is null et set une erreur en fonction et ensuite mettre l'etat a pas de chance
 		execve(path, argv, env);
 		delete path;
 		for (size_t i = 0; env[i] != NULL; ++i)
@@ -147,8 +158,7 @@ void    _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *loca
 		for (size_t i = 0; argv[i] != NULL; ++i)
 			delete [] argv[i];
 		delete [] argv;
-		exit(1);
-		// est ce que je dois throw si execve foire
+		exit();
 	}
 
 	// pipe_out[0]
