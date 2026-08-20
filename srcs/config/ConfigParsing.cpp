@@ -115,6 +115,11 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 			parse_autoindex_server(config, tokens, index, servconf);
 			continue;
 		}
+		if ((*tokens)[*index] == "session_cookie")
+		{
+			parse_cookie_server(config, tokens, index, servconf);
+			continue;
+		}
 		if ((*tokens)[*index] == "}")
 		{
 			// si on est ici c'est qu'on a fini le server actuel

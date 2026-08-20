@@ -155,4 +155,23 @@ void	parse_autoindex_server(Config *config, std::vector<std::string> *tokens, si
 	(*index) += 2;
 }
 
+void	parse_cookie_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf)
+{
+	(*index)++;
+	(void)config;
+
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
+
+	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
+		throw std::runtime_error("Syntax error in cookies directive");
+	
+	if ((*tokens)[*index] != "on" && (*tokens)[*index] != "off")
+		throw std::runtime_error("Value error cookies value must be 'on' or 'off'");
+
+	(*servconf).setCookies((*tokens)[*index]);
+	(*index) += 2;
+}
+
+
 // il me reste les 3 parties a parser, mettre les elements par defaut dans le constructeur si besoin

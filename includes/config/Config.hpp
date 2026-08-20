@@ -92,6 +92,7 @@ class	ServerConfig
         std::vector<LocationConfig>     _locations;
 		bool							_autoindexfound;
 		bool							_listen_init;
+		bool							_cookies;
 
 	public:
 		ServerConfig(void);
@@ -108,6 +109,7 @@ class	ServerConfig
 		void	setErrorpage(int code, std::string &path); // je mets void pour le moment mais c'est pas bon//il faut set a 400 le code si faux
 		void	setRoot(std::string &root);
 		void	setAutoIndexfound(bool found);
+		void	setCookies(std::string found) { if (found == "on") _cookies = true; else _cookies = false; };
 
 		
 		std::vector<std::string>		&getListen(void) { return _listen; };
@@ -156,6 +158,7 @@ void						parse_autoindex_server	(Config *config, std::vector<std::string> *toke
 void						parse_root_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
 void						parse_autoindex_server	(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
 void						parse_root_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
-
+void						parse_cookie(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
+void						parse_cookie_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
 
 #endif
