@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:27:45 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/20 15:13:38 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/20 15:32:49 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 		epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeIn(), NULL);
 		epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeOut(), NULL);
 	
-		std::cout << target.getResult() << std::endl;
+		std::cout << parent.getHttpResponse().getResponse() << std::endl;
 
 		delete target;
 		map_socket.erase(target.getPipeIn());
