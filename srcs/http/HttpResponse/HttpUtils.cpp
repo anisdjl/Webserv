@@ -89,3 +89,14 @@ std::string HttpResponse::_clearPathGarbage(std::string &path)
 	(void)path;
 	return ("");
 }
+
+bool HttpResponse::_isCgiRequest(std::string path) const
+{
+	size_t	pos = path.find('.');
+	if (pos == std::string::npos || pos == 0)
+		return (false);
+	std::string extension = path.substr(pos + 1);
+	if (extension == "py" || extension == "php")
+		return (true);
+	return (false);
+}
