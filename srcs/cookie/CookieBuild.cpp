@@ -2,5 +2,5 @@
 
 void    HttpResponse::_buildCookie(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
-	
+        
 }

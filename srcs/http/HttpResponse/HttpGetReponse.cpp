@@ -14,6 +14,8 @@ void	HttpResponse::_buildRedirResponse(std::string new_path)
 
 void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
+	if (this->_isDone)
+    	return;
 	std::string	root;
 	if (location && !location->getRoot().empty())
 		root = location->getRoot();
@@ -71,34 +73,34 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 			return (_buildErrorResponse(403, servConf, location));
 	}
 	if (access(req_path.c_str(), F_OK) == -1)
-		return (_buildErrorResponse(404, servConf, location));
-
-	// if (_cgiStartChecker(req, servConf, location))
-	// {
-	// }
-
+		return (_buildErrorResponse(404, servConf, location));	
 	if (access(req_path.c_str(), R_OK) == -1)
 		return (_buildErrorResponse(403, servConf, location));
+	if (req.getCookie().empty()) // creation  du cookie
+		_buildCookie(req, servConf, location);
+
+	if (_cgiStartChecker(req, servConf, location) && !this->_isDone)
+		return _cgiBuild();
+	else if (!this->_isDone)
+	{
+		std::ifstream			infile(req_path.c_str(), std::ios::binary | std::ios::in | std::ios::ate);
+		if (!infile.is_open())
+			return (_buildErrorResponse(500, servConf, location));
+		std::ifstream::pos_type	size;
+		if (infile)
+		{
+			size = infile.tellg();
+			if (size > 0)
+			{
+				this->_body.resize(size);
+				infile.seekg(0, std::ios::beg);
+				infile.read(&this->_body[0], size);
+			}
+		}
+		this->_isDone = true;
+	}
 	this->_status_code = 200;
 	this->_status_message = "OK";
-	if (req.getCookie().empty()) // creation  du cookie
-	{
-		_buildCookie(req, servConf, location);
-	}
-	std::ifstream			infile(req_path.c_str(), std::ios::binary | std::ios::in | std::ios::ate);
-	if (!infile.is_open())
-		return (_buildErrorResponse(500, servConf, location));
-	std::ifstream::pos_type	size;
-	if (infile)
-	{
-    	size = infile.tellg();
-		if (size > 0)
-		{
-			this->_body.resize(size);
-			infile.seekg(0, std::ios::beg);
-			infile.read(&this->_body[0], size);
-		}
-	}
 	std::ostringstream oss;
 	oss << this->_body.size();
 	this->_headers.insert(std::make_pair("Server", "WeebServ"));

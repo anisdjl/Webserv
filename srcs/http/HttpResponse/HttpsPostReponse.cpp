@@ -2,9 +2,10 @@
 
 void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
-	// check size
-	// if cgi ?
-	
+	if (this->_isDone)
+    	return;
+	if (_cgiStartChecker(req, servConf, location) && !this->_isDone) //
+		return _cgiBuild();
 	std::string upload_path;
 	if (location && !location->getUploadStore().empty())
 		upload_path = location->getUploadStore();
@@ -63,16 +64,3 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 	this->_headers.insert(std::make_pair("Content-Length", oss.str()));
 	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
 }
-/*
-	std::string req_path = root + req.getPath();
-	struct stat s;
-	const char *path = req_path.c_str();
-	if (stat(path, &s) != 0 )
-		return (_buildErrorResponse(404, servConf, location));
-	if (!S_ISDIR(s.st_mode))
-		return (_buildErrorResponse(403, servConf, location));
-*/
-	// if (location && req.getBody().size() > static_cast<size_t>(location->getClientMaxBodySize())) // NE DOIS JAMAIS etre negatif
-	// 	return (_buildErrorResponse(413, servConf, location));
-	// else if (req.getBody().size() > static_cast<size_t>(servConf.getClientMaxBodySize()))
-	// 	return (_buildErrorResponse(413, servConf, location));
