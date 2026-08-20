@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:02:41 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/20 15:30:00 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/20 15:30:45 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,7 @@ class Cgi : public Socket
 		void	setFd(int &fd) { _child_fd = fd; };
 		void	setEpoll(int &epoll) { _epollfd = epoll; };
 		void	setBeginExec() { std::time(&_timestamp); };
-		void	setResponseString(std::string string) { _httpresponse.addString(string); };
-		
-		std::string	getResult(void) { return (_httpresponse.getResult()); };
+
 		time_t	getTime(void) { return (_timestamp); };
 		int		getParentIndex() const { return (this->_parent_index); };
 		int		getPipeIn(void) { return (_pipe_in); };
