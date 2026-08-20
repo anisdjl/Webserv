@@ -27,12 +27,15 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 		upload_path.erase(upload_path.begin());
 	if (upload_path[upload_path.size() - 1] != '/')
 		upload_path += "/";
+		
 	std::string	create_uri = upload_path;
 	upload_path = root + upload_path;
 	upload_path = _clearPathGarbage(upload_path);
+
 	std::string file_name;
 	std::string already_exist;
 	std::string extension = _extensionFinder(req);
+
 	if (access(upload_path.c_str(), W_OK | F_OK)) // verif folder
 		return (_buildErrorResponse(500, servConf, location));
 	do
@@ -43,6 +46,7 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 		already_exist = upload_path + file_name + extension;
 	}
 	while (access(already_exist.c_str(), F_OK) == 0);
+
 	upload_path = upload_path + file_name + extension;
 	create_uri = create_uri + file_name + extension;
     std::ofstream	outfile(upload_path.c_str() ,std::ios::binary | std::ios::out);
@@ -50,9 +54,11 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 		return (_buildErrorResponse(500, servConf, location));
 	outfile.write(req.getBody().c_str(), req.getBody().size());
 	outfile.close();
+
 	this->_status_code = 201;
 	this->_status_message = "Created";
 	this->_body = "File uploaded successfully" ;
+
 	std::ostringstream oss;
 	oss << this->_body.size();
 	this->_headers.insert(std::make_pair("Server", "WeebServ"));

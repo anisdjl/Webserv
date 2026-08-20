@@ -58,6 +58,7 @@ class LocationConfig
 		std::string							getUploadStore(void) { return _upload_store; };
 		std::map<int, std::string>			getReturn(void) const { return _return; };
 		long                            	getClientMaxBodySize(void) const { return _client_max_body_size; };
+		bool								getCookies(void) {return this->_cookies;};
 
 		void	setCookies(std::string found) { if (found == "on") _cookies = true; else _cookies = false; };
 		void    setPath(const std::string &path);
@@ -123,6 +124,7 @@ class	ServerConfig
 		std::vector<LocationConfig>&	getLocations(void) { return _locations; };
 		bool							getAutoindex(void) { return _autoindex; };
 		bool							getAutoindexDefine(void) { return _autoindexfound; };
+		bool							getCookies(void) {return this->_cookies;};
 
 		void	displayServConf(void);
         //=== func ===
