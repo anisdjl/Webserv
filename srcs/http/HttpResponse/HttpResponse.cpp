@@ -197,7 +197,10 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 	new_cgi->setType(CGI);
 	new_cgi->setFd(fd);
 	if (target.getHttpRequest().getBody().size() > 0)
+	{
 		new_cgi->setPipeOut(pipe_out[0]);
+		map_socket[pipe_out[1]] = new_cgi;
+	}
 	else
 	{
 		int fd_negative = -1;

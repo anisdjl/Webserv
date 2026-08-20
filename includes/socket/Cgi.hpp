@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:02:41 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/20 14:51:50 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/20 15:30:00 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ class Cgi : public Socket
 		int				_child_fd;
 		int				_epollfd;
 		time_t 			_timestamp;
-		HttpResponse	_httpresponse;
 
     public:
 		void	setParentIndex(int &index) { this->_parent_index = index; };
