@@ -114,9 +114,17 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 	
 
 	if (access(req.getPath().c_str(), F_OK) != 0)
-		return (_buildErrorResponse(404, servConf, location));
+	{
+		_buildErrorResponse(404, servConf, location);
+		_response = _buildStringResponse();
+		return ;
+	}
 	if (access(req.getPath().c_str(), R_OK | X_OK) != 0)
-		return (_buildErrorResponse(403, servConf, location));
+	{
+		_buildErrorResponse(403, servConf, location);
+		_response = _buildStringResponse();
+		return ;
+	}
 
 	Cgi	*new_cgi = new Cgi;
 
@@ -127,7 +135,9 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 	if (fd < 0)
 	{
 		close (pipe_in[0]); close(pipe_in[1]); close(pipe_out[0]); close(pipe_out[1]);
-		return (_buildErrorResponse(500, servConf, location));
+		_buildErrorResponse(500, servConf, location);
+		_response = _buildStringResponse();
+		return;
 	}
 
 	write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
@@ -137,10 +147,17 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 	char **argv = getArgv(req, servConf, location, path); 
 
 	if (!path)
-		return (_buildErrorResponse(403, servConf, location));
+	{
+		_buildErrorResponse(403, servConf, location);
+		_response = _buildStringResponse();
+		return ;
+	}
 	if (!env || !env[0])
-		return (_buildErrorResponse(500, servConf, location));
-	
+	{
+		_buildErrorResponse(500, servConf, location);
+		_response = _buildStringResponse();
+		return ;
+	}
 	new_cgi->setBeginExec();
     if (fd == 0)
     {

@@ -40,6 +40,7 @@ class HttpResponse
         unsigned int                        get_bytes_sent() const;
         void                                setResponse(const std::string& response);
         void                                setBody(const std::string& body);
+		void								addBody(std::string string) { _body.append(string); };
 		/* do not touch */
 		void								addString(std::string string) { _cgiresponse += string; };
 		std::string							getResult(void) { return (_cgiresponse); };
@@ -59,7 +60,7 @@ class HttpResponse
 		/*  // do not touch   */
 		std::string							_cgiresponse;
 		/*                    */
-       	void								_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
+       	void								_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd, Connection &target, std::map<int, Socket *> &map_socket);
         void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:27:45 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/20 14:42:47 by adjelili         ###   ########.fr       */
+/*   Updated: 2026/08/20 15:13:38 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,7 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 
 	if (bytes_read > 0)
 	{
-		// utiliser le parent pour remplir la reponse
-		target.setResponseString(buffer); // pour le moment on laisse ca comme ca
+		parent.getHttpResponse().addBody(buffer);
 		return (false);
 	}
 	
@@ -46,29 +45,20 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 		struct epoll_event event2;
 		event2.data.fd = target.getParentIndex();
 		event2.events = EPOLLOUT;
+
 		waitpid(target.getFd(), &status, WNOHANG); // ici je dois checker le code d'erreur et build error response(500, config, location)
 		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-		{
 			parent.getHttpRequest().setError(500);
-			parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, target.getEpoll());
-			if (parent.getHttpResponse().getState() == BUILT)
-				epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event2);
-				
-		}
+		parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, target.getEpoll());
+		if (parent.getHttpResponse().getState() == BUILT)
+			epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event2);
 		epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeIn(), NULL);
 		epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeOut(), NULL);
-		
+	
 		std::cout << target.getResult() << std::endl;
 
-		// appeler build response
-
-		struct epoll_event event;
-		event.data.fd = target.getParentIndex();
-		event.events = EPOLLOUT;
-		epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event);
-		// retirer le pipe de map socket
-		// sendresponse(); // renvoyer la reponse demander a evan
-		// remettre en epollout
+		delete target;
+		map_socket.erase(target.getPipeIn());
 	}
 	return (false);
 }
