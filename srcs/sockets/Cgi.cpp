@@ -6,7 +6,7 @@
 /*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:27:45 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/20 16:07:05 by adjelili         ###   ########.fr       */
+/*   Updated: 2026/08/20 18:28:23 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,17 +17,59 @@
 
 bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 {
-	time_t	actual_time = std::time(nullptr);
-	
-	
-	double diff = std::difftime(actual_time, target.getTime());
+	time_t	actual_time = std::time(NULL);
+	std::map<int, Socket*>::iterator it = map_socket.find(target.getParentIndex());
+	if (it == map_socket.end())
+		return (true);
+	int	pipe_read = target.getPipeIn();
+	int	pipe_write = target.getPipeOut();
+	int	child_fd = target.getChildFd();
+	int fd_client = target.getParentIndex();
+	int	epollfd = target.getEpoll();
+
+	time_t	now = std::time(NULL);
+
+	double	diff = std::difftime(now, target.getTime());
+	if (diff > TIMEOUT)
+	{
+		if (pipe_read != -1)
+		{
+			epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_read, NULL);
+			close(pipe_read);
+			map_socket.erase(pipe_read);
+		}
+		if (pipe_write != -1)
+		{
+			epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_write, NULL);
+			close(pipe_write);
+			map_socket.erase(pipe_write);
+		}
+
+		if (it != map_socket.end() && it->second != NULL)
+		{
+			Connection &parent = dynamic_cast<Connection &>(*(it->second));
+
+			parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, epollfd);
+
+			if (parent.getHttpResponse().getState() == BUILT)
+			{
+				struct epoll_event temp;
+				std::memset(&temp, 0, sizeof(temp));
+				temp.data.fd = parent.getFd();
+				temp.events  = EPOLLOUT;
+				epoll_ctl(epollfd, EPOLL_CTL_MOD, parent.getFd(), &temp);
+			}		
+		}		
+		
+		
+		
+		delete &target;
+		return (true);
+	}
 
 	char	buffer[BUFFER_SIZE + 1];
 	int		bytes_read = 0 ;
 
-	std::map<int, Socket *>::iterator it = map_socket.find(target.getParentIndex());
-	if (it == map_socket.end())
-		return (true);
 	Connection &parent = dynamic_cast<Connection &>(*(it->second));
 
 	std::memset(buffer, 0, BUFFER_SIZE +1);
@@ -49,23 +91,28 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 		event2.data.fd = target.getParentIndex();
 		event2.events = EPOLLOUT;
 
-		waitpid(target.getFd(), &status, WNOHANG);
+		waitpid(target.getChildFd(), &status, WNOHANG);
 		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
 			parent.getHttpRequest().setError(500);
 
 		parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, target.getEpoll());
 		if (parent.getHttpResponse().getState() == BUILT)
 			epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event2);
-
-		epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeIn(), NULL);
-		epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeOut(), NULL);
+		
+		if (pipe_read != -1)
+		{
+			epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_read, NULL);
+			close(pipe_read);
+			map_socket.erase(pipe_read);
+		}
+		if (pipe_write != -1)
+		{
+			epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_write, NULL);
+			close(pipe_write);
+			map_socket.erase(pipe_write);
+		}
 	
-		std::cout << parent.getHttpResponse().getResponse() << std::endl;
-
-		delete [] &target;
-		// delete le cgi de la heap
-		map_socket.erase(target.getPipeIn());
-		map_socket.erase(target.getPipeOut());
+		delete &target;
 	}
 	return (false);
 }
@@ -74,28 +121,58 @@ bool ft_cgi_out(std::map<int, Socket> &map_socket, Cgi &target, Config *config)
 {
 	(void)map_socket; (void)target, (void)config;
 	
-	
+
 	// ecrire petit a petit et suivre ce qui a ete ecris ou pas encore
 	// une fois tout ecrit, on ferme direct pour envoyer le signal EOF au script
+	
+
+
+	epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeIn(), NULL);
+	close(target.getPipeIn());
+	map_socket.erase(target.getPipeIn());
 	// on supprime le pipe de epoll
 	// on le retire de map socket mais techniquement je ne peux pas pcq je l'enregistre avec 
 	return (false);
 }
 
-void	ft_cgi_hup(std::map<int, Socket> &map_socket, Cgi &target, Config *config) // ici c'est quand il y a unb soucis on doit tout liberer et fermer
-{
-	(void)map_socket; (void)target, (void)config;
-	// close le socket du cgi
-	// Socket &parent = map_socket.find(target.getParentIndex())->second;
-	// ft_close_socket(map_socket, target.getFd(), epollfd);
-	// parent.getHttpResponse().buildResponse(parent.getHttpRequest(), config->getServer()[parent.getServerIndex()]);
-	// if (parent.getHttpResponse().getState() == BUILT)
-	// {	
-	// 	struct epoll_event temp;
-	// 	std::memset(&temp, 0, sizeof(temp));
-	// 	temp.data.fd = parent.getFd();
-	// 	temp.events  = EPOLLOUT;
-	// 	if (epoll_ctl(epollfd, EPOLL_CTL_MOD, parent.getFd(), &temp) == -1)
-	// 		return (true);
-	// }
+void	ft_cgi_hup(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
+{	
+	int	pipe_in  = target.getPipeIn();
+	int	pipe_out = target.getPipeOut();
+	int	epoll_fd = target.getEpoll();
+	pid_t	pid    = target.getChildFd();
+
+	int status;
+	waitpid(pid, &status, WNOHANG);
+
+	if (pipe_in != -1)
+	{
+		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, pipe_in, NULL);
+		close(pipe_in);
+		map_socket.erase(pipe_in);
+	}
+	if (pipe_out != -1)
+	{
+		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, pipe_out, NULL);
+		close(pipe_out);
+		map_socket.erase(pipe_out);
+	}
+
+	std::map<int, Socket*>::iterator it = map_socket.find(target.getParentIndex());
+	if (it != map_socket.end() && it->second != NULL)
+	{
+		Connection &parent = dynamic_cast<Connection &>(*(it->second));
+
+		parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, epoll_fd);
+
+		if (parent.getHttpResponse().getState() == BUILT)
+		{
+			struct epoll_event temp;
+			std::memset(&temp, 0, sizeof(temp));
+			temp.data.fd = parent.getFd();
+			temp.events  = EPOLLOUT;
+			epoll_ctl(epoll_fd, EPOLL_CTL_MOD, parent.getFd(), &temp);
+		}
+	}
+	delete &target;
 }

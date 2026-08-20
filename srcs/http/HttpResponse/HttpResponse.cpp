@@ -131,6 +131,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
 		throw std::runtime_error("Error: couldn't open pipes"); }
 
+	write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
 	fd = fork();
 	if (fd < 0)
 	{
@@ -139,8 +140,6 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 		_response = _buildStringResponse();
 		return;
 	}
-
-	write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
 
 	char **env = getEnv(req, servConf, location);
 	char *path = getPath(req, servConf, location);
