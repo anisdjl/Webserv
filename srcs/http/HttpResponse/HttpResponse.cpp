@@ -158,7 +158,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 		for (size_t i = 0; argv[i] != NULL; ++i)
 			delete [] argv[i];
 		delete [] argv;
-		exit();
+		exit(1);
 	}
 
 	// pipe_out[0]

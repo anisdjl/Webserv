@@ -6,7 +6,7 @@
 /*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:27:45 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/19 17:57:50 by adjelili         ###   ########.fr       */
+/*   Updated: 2026/08/20 14:42:47 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,13 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 	// rajouter le check pour le temps
 	
 	char	buffer[BUFFER_SIZE + 1];
-	int	bytes_read = 0 ;
-	
+	int		bytes_read = 0 ;
+
 	std::map<int, Socket *>::iterator it = map_socket.find(target.getParentIndex());
 	if (it == map_socket.end())
 		return (true);
 	Connection &parent = dynamic_cast<Connection &>(*(it->second));
-	(void)parent;
-	(void)config;
+
 	std::memset(buffer, 0, BUFFER_SIZE +1);
 	bytes_read = read(target.getPipeIn(), buffer, BUFFER_SIZE);
 
@@ -44,8 +43,18 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 	if (bytes_read == 0) // c'est qu'on a recu toute la reponse
 	{
 		int	status;
-
-		waitpid(target.getFd(), &status, WNOHANG);
+		struct epoll_event event2;
+		event2.data.fd = target.getParentIndex();
+		event2.events = EPOLLOUT;
+		waitpid(target.getFd(), &status, WNOHANG); // ici je dois checker le code d'erreur et build error response(500, config, location)
+		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+		{
+			parent.getHttpRequest().setError(500);
+			parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, target.getEpoll());
+			if (parent.getHttpResponse().getState() == BUILT)
+				epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event2);
+				
+		}
 		epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeIn(), NULL);
 		epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeOut(), NULL);
 		
@@ -56,7 +65,6 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 		struct epoll_event event;
 		event.data.fd = target.getParentIndex();
 		event.events = EPOLLOUT;
-		
 		epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event);
 		// retirer le pipe de map socket
 		// sendresponse(); // renvoyer la reponse demander a evan
