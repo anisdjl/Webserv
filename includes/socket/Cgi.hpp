@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:02:41 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/20 15:30:45 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/20 16:04:31 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class Cgi : public Socket
 		void	setPipeOut(int &pipe) { _pipe_out = pipe; };
 		void	setFd(int &fd) { _child_fd = fd; };
 		void	setEpoll(int &epoll) { _epollfd = epoll; };
-		void	setBeginExec() { std::time(&_timestamp); };
+		void	setBeginExec() { _timestamp = std::time(nullptr); };
 
 		time_t	getTime(void) { return (_timestamp); };
 		int		getParentIndex() const { return (this->_parent_index); };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:27:45 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/20 15:32:49 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/20 16:07:05 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,11 @@
 
 bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 {
-	// rajouter le check pour le temps
+	time_t	actual_time = std::time(nullptr);
 	
+	
+	double diff = std::difftime(actual_time, target.getTime());
+
 	char	buffer[BUFFER_SIZE + 1];
 	int		bytes_read = 0 ;
 
@@ -39,26 +42,30 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 		return (false);
 	}
 	
-	if (bytes_read == 0) // c'est qu'on a recu toute la reponse
+	if (bytes_read == 0)
 	{
 		int	status;
 		struct epoll_event event2;
 		event2.data.fd = target.getParentIndex();
 		event2.events = EPOLLOUT;
 
-		waitpid(target.getFd(), &status, WNOHANG); // ici je dois checker le code d'erreur et build error response(500, config, location)
+		waitpid(target.getFd(), &status, WNOHANG);
 		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
 			parent.getHttpRequest().setError(500);
+
 		parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, target.getEpoll());
 		if (parent.getHttpResponse().getState() == BUILT)
 			epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event2);
+
 		epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeIn(), NULL);
 		epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeOut(), NULL);
 	
 		std::cout << parent.getHttpResponse().getResponse() << std::endl;
 
-		delete target;
+		delete [] &target;
+		// delete le cgi de la heap
 		map_socket.erase(target.getPipeIn());
+		map_socket.erase(target.getPipeOut());
 	}
 	return (false);
 }

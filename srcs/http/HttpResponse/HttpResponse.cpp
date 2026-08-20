@@ -177,9 +177,6 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 		delete [] argv;
 		exit(1);
 	}
-
-	// pipe_out[0]
-	// pipe_in[1]
 	
 	struct epoll_event tmp1;
 	tmp1.events = EPOLLIN;
