@@ -126,7 +126,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 		return ;
 	}
 
-	Cgi	*new_cgi = new Cgi;
+	Cgi	*new_cgi = new Cgi; // je cree un nouveau cgi
 
 	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
 		throw std::runtime_error("Error: couldn't open pipes"); }

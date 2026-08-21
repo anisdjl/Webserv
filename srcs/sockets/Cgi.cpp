@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
+/*   By: anis <anis@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:27:45 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/20 18:28:23 by adjelili         ###   ########.fr       */
+/*   Updated: 2026/08/21 15:51:46 by anis             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,7 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 				temp.events  = EPOLLOUT;
 				epoll_ctl(epollfd, EPOLL_CTL_MOD, parent.getFd(), &temp);
 			}		
-		}		
-		
-		
-		
+		}
 		delete &target;
 		return (true);
 	}
@@ -126,12 +123,12 @@ bool ft_cgi_out(std::map<int, Socket> &map_socket, Cgi &target, Config *config)
 	// une fois tout ecrit, on ferme direct pour envoyer le signal EOF au script
 	
 
-
-	epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeIn(), NULL);
-	close(target.getPipeIn());
-	map_socket.erase(target.getPipeIn());
-	// on supprime le pipe de epoll
-	// on le retire de map socket mais techniquement je ne peux pas pcq je l'enregistre avec 
+	std::cout << "ca marche pas ici" << std::endl;
+	// epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeIn(), NULL);
+	// close(target.getPipeIn());
+	// map_socket.erase(target.getPipeIn());
+	// // on supprime le pipe de epoll
+	// // on le retire de map socket mais techniquement je ne peux pas pcq je l'enregistre avec 
 	return (false);
 }
 
