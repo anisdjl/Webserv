@@ -6,7 +6,7 @@
 /*   By: anis <anis@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:27:45 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/21 15:51:46 by anis             ###   ########.fr       */
+/*   Updated: 2026/08/21 15:54:07 by anis             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,21 +15,21 @@
 #include "../../includes/socket/Cgi.hpp"
 #include "../../includes/socket/Connection.hpp"
 
-bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
+bool ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 {
-	time_t	actual_time = std::time(NULL);
-	std::map<int, Socket*>::iterator it = map_socket.find(target.getParentIndex());
+	time_t actual_time = std::time(NULL);
+	std::map<int, Socket *>::iterator it = map_socket.find(target.getParentIndex());
 	if (it == map_socket.end())
 		return (true);
-	int	pipe_read = target.getPipeIn();
-	int	pipe_write = target.getPipeOut();
-	int	child_fd = target.getChildFd();
+	int pipe_read = target.getPipeIn();
+	int pipe_write = target.getPipeOut();
+	int child_fd = target.getChildFd();
 	int fd_client = target.getParentIndex();
-	int	epollfd = target.getEpoll();
+	int epollfd = target.getEpoll();
 
-	time_t	now = std::time(NULL);
+	time_t now = std::time(NULL);
 
-	double	diff = std::difftime(now, target.getTime());
+	double diff = std::difftime(now, target.getTime());
 	if (diff > TIMEOUT)
 	{
 		if (pipe_read != -1)
@@ -56,20 +56,20 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 				struct epoll_event temp;
 				std::memset(&temp, 0, sizeof(temp));
 				temp.data.fd = parent.getFd();
-				temp.events  = EPOLLOUT;
+				temp.events = EPOLLOUT;
 				epoll_ctl(epollfd, EPOLL_CTL_MOD, parent.getFd(), &temp);
-			}		
+			}
 		}
 		delete &target;
 		return (true);
 	}
 
-	char	buffer[BUFFER_SIZE + 1];
-	int		bytes_read = 0 ;
+	char buffer[BUFFER_SIZE + 1];
+	int bytes_read = 0;
 
 	Connection &parent = dynamic_cast<Connection &>(*(it->second));
 
-	std::memset(buffer, 0, BUFFER_SIZE +1);
+	std::memset(buffer, 0, BUFFER_SIZE + 1);
 	bytes_read = read(target.getPipeIn(), buffer, BUFFER_SIZE);
 
 	if (bytes_read == -1)
@@ -80,10 +80,10 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 		parent.getHttpResponse().addBody(buffer);
 		return (false);
 	}
-	
+
 	if (bytes_read == 0)
 	{
-		int	status;
+		int status;
 		struct epoll_event event2;
 		event2.data.fd = target.getParentIndex();
 		event2.events = EPOLLOUT;
@@ -95,7 +95,7 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 		parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, target.getEpoll());
 		if (parent.getHttpResponse().getState() == BUILT)
 			epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event2);
-		
+
 		if (pipe_read != -1)
 		{
 			epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_read, NULL);
@@ -108,7 +108,7 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 			close(pipe_write);
 			map_socket.erase(pipe_write);
 		}
-	
+
 		delete &target;
 	}
 	return (false);
@@ -116,28 +116,27 @@ bool ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 
 bool ft_cgi_out(std::map<int, Socket> &map_socket, Cgi &target, Config *config)
 {
-	(void)map_socket; (void)target, (void)config;
-	
+	(void)map_socket;
+	(void)target, (void)config;
 
 	// ecrire petit a petit et suivre ce qui a ete ecris ou pas encore
 	// une fois tout ecrit, on ferme direct pour envoyer le signal EOF au script
-	
 
 	std::cout << "ca marche pas ici" << std::endl;
 	// epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeIn(), NULL);
 	// close(target.getPipeIn());
 	// map_socket.erase(target.getPipeIn());
 	// // on supprime le pipe de epoll
-	// // on le retire de map socket mais techniquement je ne peux pas pcq je l'enregistre avec 
+	// // on le retire de map socket mais techniquement je ne peux pas pcq je l'enregistre avec
 	return (false);
 }
 
-void	ft_cgi_hup(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
-{	
-	int	pipe_in  = target.getPipeIn();
-	int	pipe_out = target.getPipeOut();
-	int	epoll_fd = target.getEpoll();
-	pid_t	pid    = target.getChildFd();
+void ft_cgi_hup(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
+{
+	int pipe_in = target.getPipeIn();
+	int pipe_out = target.getPipeOut();
+	int epoll_fd = target.getEpoll();
+	pid_t pid = target.getChildFd();
 
 	int status;
 	waitpid(pid, &status, WNOHANG);
@@ -155,7 +154,7 @@ void	ft_cgi_hup(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 		map_socket.erase(pipe_out);
 	}
 
-	std::map<int, Socket*>::iterator it = map_socket.find(target.getParentIndex());
+	std::map<int, Socket *>::iterator it = map_socket.find(target.getParentIndex());
 	if (it != map_socket.end() && it->second != NULL)
 	{
 		Connection &parent = dynamic_cast<Connection &>(*(it->second));
@@ -167,7 +166,7 @@ void	ft_cgi_hup(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 			struct epoll_event temp;
 			std::memset(&temp, 0, sizeof(temp));
 			temp.data.fd = parent.getFd();
-			temp.events  = EPOLLOUT;
+			temp.events = EPOLLOUT;
 			epoll_ctl(epoll_fd, EPOLL_CTL_MOD, parent.getFd(), &temp);
 		}
 	}
