@@ -29,6 +29,7 @@ class HttpResponse
         ~HttpResponse();
 		ResponseState						getState();
 		void								setState(ResponseState state);
+        bool								getisDone();
 		void                                resetResponse();
 		void								buildResponse(Connection &target, ServerConfig &servConf,std::map<int, Socket *> &map_socket, int const &epollfd);
         /*	debug	*/
@@ -45,6 +46,7 @@ class HttpResponse
 		void								addString(std::string string) { _cgiresponse += string; };
 		std::string							getResult(void) { return (_cgiresponse); };
 
+        void                                setisDone(bool state);
 	private:
 		ResponseState						_state;
         int									_status_code;
@@ -53,6 +55,9 @@ class HttpResponse
         std::map<std::string, std::string>	_headers;
         std::string							_body;
 		std::string							_response;
+        bool                                _isDone;
+        std::map<std::string, std::string>	_header_cookie;
+		bool								_cgiStartChecker(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         std::string                         _findContentType(std::string path);
 		std::string                         _extensionFinder(HttpRequest &req);
 		std::string							_clearPathGarbage(std::string &path);
@@ -62,8 +67,10 @@ class HttpResponse
 		/*                    */
        	void								_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd, Connection &target, std::map<int, Socket *> &map_socket);
         void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        void                                _buildCookie(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
+		bool								_isCgiRequest(std::string path, LocationConfig *location) const;
         void								_buildRedirResponse(std::string new_path);
         void								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);

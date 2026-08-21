@@ -4,7 +4,7 @@ ServerConfig::ServerConfig(void)
 {
 	_listen_init = false;
 	_autoindexfound  = false;
-	_listen.push_back("80");
+	_listen.push_back("8080");
 	_host = "0.0.0.0";
 	_client_max_body_size = 1000000;
 	_autoindexfound = false;

@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/30 23:23:13 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/17 15:54:40 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/21 13:28:35 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,24 @@ bool ft_open_socket(struct addrinfo *info, int &socketfd)
 	return(false);
 }
 
+void ft_timeout_sockets(std::map<int, Socket *> &map_socket, int epollfd)
+{
+	std::time_t end = std::time(NULL);
+ 
+	for (std::map<int, Socket *>::iterator it = map_socket.begin(); it != map_socket.end(); ++it)
+	{
+		Socket *socket = it->second;
+		double elapsed = std::difftime(end, socket->getStartTime());
+		if (socket->getStartTime() != -1 && elapsed > TIMEOUT)
+		{
+			if (socket->getType() == CONNECTION)
+				ft_close_socket(map_socket, socket->getFd(), epollfd);
+			// else if (socket->getType() == CGI)
+				// ft_cgi_hup(map_socket, *socket, NULL, epollfd);
+		}
+	}
+}
+
 bool ft_webserv(Config *config)
 {
 	std::map <int, Socket *> map_socket;
@@ -82,7 +100,7 @@ bool ft_webserv(Config *config)
 				return (ft_close_all_sockets(map_socket, epollfd), true);
 			i++;
 		}
-		
+		ft_timeout_sockets(map_socket, epollfd);
 	}
 	ft_close_all_sockets(map_socket, epollfd);
 	return (false);

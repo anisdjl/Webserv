@@ -8,17 +8,17 @@ HttpResponse::~HttpResponse(){};
 
 std::string		HttpResponse::getResponse() const
 {
-	return (this->_response);
+	return this->_response;
 }
 
 std::string		HttpResponse::getBody() const
 {
-	return (this->_body);
+	return this->_body;
 }
 
 int         	HttpResponse::getStatusCode() const
 {
-	return (this->_status_code);
+	return this->_status_code;
 }
 
 ResponseState	HttpResponse::getState()
@@ -49,6 +49,16 @@ void			HttpResponse::setResponse(const std::string& response)
 void			HttpResponse::setBody(const std::string& body)
 {
 	this->_body = body;
+}
+
+void			HttpResponse::setisDone(bool state)
+{
+	this->_isDone = state;
+}
+
+bool			HttpResponse::getisDone()
+{
+	return this->_isDone;
 }
 
 void HttpResponse::resetResponse()

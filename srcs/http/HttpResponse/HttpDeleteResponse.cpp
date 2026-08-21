@@ -10,7 +10,7 @@ void	HttpResponse::_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf
 	if (root.empty())
 		return (_buildErrorResponse(500, servConf, location));
 	std::string req_path = root + req.getPath();
-
+	req_path = _clearPathGarbage(req_path);
 	if (access(req_path.c_str(), F_OK) == -1)
 		return (_buildErrorResponse(404, servConf, location));
 	struct stat s;
@@ -18,7 +18,6 @@ void	HttpResponse::_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf
 		return (_buildErrorResponse(403, servConf, location));
 	if (access(req_path.c_str(), W_OK) == -1)
 		return (_buildErrorResponse(403, servConf, location));
-	
 	if (std::remove(req_path.c_str()) != 0) // ou unlink
 		return (_buildErrorResponse(500, servConf, location));
 	this->_status_code = 200;

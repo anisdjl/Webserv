@@ -40,6 +40,7 @@ class LocationConfig
         std::string                     		_upload_store;
 		std::map<int, std::string>				_return;
 		bool									_autoindexfound;
+		bool									_cookies;
 
     public:
         LocationConfig();
@@ -57,7 +58,9 @@ class LocationConfig
 		std::string							getUploadStore(void) { return _upload_store; };
 		std::map<int, std::string>			getReturn(void) const { return _return; };
 		long                            	getClientMaxBodySize(void) const { return _client_max_body_size; };
+		bool								getCookies(void) {return this->_cookies;};
 
+		void	setCookies(std::string found) { if (found == "on") _cookies = true; else _cookies = false; };
 		void    setPath(const std::string &path);
         void    setRoot(const std::string &root);
         void    setIndex(const std::string &index);
@@ -90,6 +93,7 @@ class	ServerConfig
         std::vector<LocationConfig>     _locations;
 		bool							_autoindexfound;
 		bool							_listen_init;
+		bool							_cookies;
 
 	public:
 		ServerConfig(void);
@@ -106,6 +110,7 @@ class	ServerConfig
 		void	setErrorpage(int code, std::string &path); // je mets void pour le moment mais c'est pas bon//il faut set a 400 le code si faux
 		void	setRoot(std::string &root);
 		void	setAutoIndexfound(bool found);
+		void	setCookies(std::string found) { if (found == "on") _cookies = true; else _cookies = false; };
 
 		
 		std::vector<std::string>		&getListen(void) { return _listen; };
@@ -119,7 +124,6 @@ class	ServerConfig
 		std::vector<LocationConfig>&	getLocations(void) { return _locations; };
 		bool							getAutoindex(void) { return _autoindex; };
 		bool							getAutoindexDefine(void) { return _autoindexfound; };
-
 		void	displayServConf(void);
         //=== func ===
         LocationConfig*								matchLocation(const std::string& path);
@@ -154,6 +158,7 @@ void						parse_autoindex_server	(Config *config, std::vector<std::string> *toke
 void						parse_root_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
 void						parse_autoindex_server	(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
 void						parse_root_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
-
+void						parse_cookie(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
+void						parse_cookie_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
 
 #endif

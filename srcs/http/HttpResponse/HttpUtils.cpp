@@ -59,6 +59,7 @@ std::string	HttpResponse::_findContentType(std::string path)
 	else if (extension == "webp")
 		return ("image/webp");
 	else if (extension == "avif")
+	
 		return ("image/avif");
 	else if (extension == "gif")
 			return ("image/gif");
@@ -83,9 +84,31 @@ bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *locatio
 	return (false);
 }
 
-
-std::string HttpResponse::_clearPathGarbage(std::string &path)
+std::string	HttpResponse::_clearPathGarbage(std::string &path)
 {
-	(void)path;
-	return ("");
+	std::string	clean_path;
+	for (int i = 0; i < path.size(); i++)
+	{
+		if (path[i] == '/' && i > 0 && path[i - 1] == '/')
+			continue;
+		else
+			clean_path += path[i];
+	}
+	return (clean_path);
+}
+
+bool HttpResponse::_isCgiRequest(std::string path, LocationConfig *location) const
+{
+	size_t	pos = path.find('.');
+	if (pos == std::string::npos || pos == 0)
+		return (false);
+	std::string extension = path.substr(pos + 1);
+	if (location->getCgis().empty())
+		return (false);
+	for (std::map<std::string, std::string>::iterator it = location->getCgis().begin(); it != location->getCgis().end(); ++it)
+	{
+		if (it->first == extension)
+			return (true);
+	}
+	return (false);
 }

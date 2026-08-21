@@ -30,7 +30,6 @@ void			HttpResponse::buildResponse(Connection &target, ServerConfig &servConf,st
 	{
 		this->_buildErrorResponse(405, servConf, location);
 		_response = _buildStringResponse();
-
 		return ;
 	}
     if (request.getMethod() == "GET")
@@ -59,7 +58,6 @@ std::string		HttpResponse::_buildStringResponse()
     }
     ss << "\r\n";
     ss << this->_body;
-	// /r pour la norme http
 	this->_state = BUILT;
     return (ss.str());
 }

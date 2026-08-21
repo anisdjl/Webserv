@@ -51,6 +51,11 @@ void	parse_location(Config *config, std::vector<std::string> *tokens, size_t *in
 			parse_cgi(config, tokens, index, locconfig, servconf);
 			continue;
 		}
+		if ((*tokens)[*index] == "session_cookie")
+		{
+			parse_cookie(config, tokens, index, locconfig, servconf);
+			continue;
+		}
 		if ((*tokens)[*index] == "}")
 		{
 			(*index)++;
@@ -212,6 +217,25 @@ void	parse_cgi(Config *config, std::vector<std::string> *tokens, size_t *index, 
 	(*locconf).setCgis((*tokens)[*index], (*tokens)[*index + 1]);
 	(*index) += 3;
 }
+
+void	parse_cookie(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf)
+{
+(	*index)++;
+	(void)config; (void)servconf;
+
+	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+		throw std::runtime_error("Syntax error incomplete configuration");
+
+	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
+		throw std::runtime_error("Syntax error in cookies directive");
+	
+	if ((*tokens)[*index] != "on" && (*tokens)[*index] != "off")
+		throw std::runtime_error("Value error cookies value must be 'on' or 'off'");
+
+	(*locconfig).setCookies((*tokens)[*index]);
+	(*index) += 2;
+}
+
 
 void	LocationConfig::setAutoIndexfound(bool found)
 {
