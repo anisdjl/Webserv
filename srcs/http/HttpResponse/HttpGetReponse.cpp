@@ -77,11 +77,14 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 	if (access(req_path.c_str(), R_OK) == -1)
 		return (_buildErrorResponse(403, servConf, location));
 
-	if (req.getCookie().empty()) // creation  du cookie
+	if (req.getCookies().empty()) // creation  du cookie
 		_buildCookie(req, servConf, location);
 
-	if (_cgiStartChecker(req, servConf, location) && !this->_isDone)
-		return _cgiBuild();
+	if (_isCgiRequest(req_path, location))
+	{
+		// if (_cgiBuild(req, servConf, location, socket);
+		return ;
+	}
 	else if (!this->_isDone)
 	{
 		std::ifstream			infile(req_path.c_str(), std::ios::binary | std::ios::in | std::ios::ate);
@@ -102,6 +105,7 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 	}
 	this->_status_code = 200;
 	this->_status_message = "OK";
+
 	std::ostringstream oss;
 	oss << this->_body.size();
 	this->_headers.insert(std::make_pair("Server", "WeebServ"));

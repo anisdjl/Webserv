@@ -4,8 +4,11 @@ void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, 
 {
 	if (this->_isDone)
     	return;
-	if (_cgiStartChecker(req, servConf, location) && !this->_isDone) //
-		return _cgiBuild();
+	if(_isCgiRequest(req.getPath(), location))
+	{
+		// _cgiBuild(req, servConf, location, socket);
+		return ;
+	}
 	std::string upload_path;
 	if (location && !location->getUploadStore().empty())
 		upload_path = location->getUploadStore();

@@ -12,7 +12,7 @@
 
 #include "../../includes/socket/Socket.hpp"
 #include "../../includes/socket/Connection.hpp"
-// #include "../../includes/socket/Cgi.hpp"
+#include "../../includes/socket/Cgi.hpp"
 
 bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, Config *config, const int &epollfd)
 {
@@ -32,7 +32,6 @@ bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, C
 		if(target.getHttpResponse().getState() == NOT_BUILT)
 		{	
 			target.getHttpResponse().buildResponse(target, config->getServer()[target.getServerIndex()], map_socket, epollfd);
-			// target.getHttpResponse().buildResponse(target.getHttpRequest(), config->getServer()[target.getServerIndex()]);
 		}
 		if (target.getHttpResponse().getState() == BUILT)
 		{	
@@ -134,5 +133,9 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
 	}
 	if (event.events & (EPOLLRDHUP) && (target.getType() == CONNECTION) && (dynamic_cast<Connection &>(target).getHttpRequest().getState() == INCOMPLETE))
 			return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
+	if (target.getType() != LISTENER)
+		target.setStartTime();
+	// if (target.getType() == CGI)
+	// 	map_socket.find(dynamic_cast<Cgi &>(target).getParentIndex())->second->setStartTime();
 	return (false);
 }

@@ -59,6 +59,7 @@ std::string	HttpResponse::_findContentType(std::string path)
 	else if (extension == "webp")
 		return ("image/webp");
 	else if (extension == "avif")
+	
 		return ("image/avif");
 	else if (extension == "gif")
 			return ("image/gif");
@@ -96,14 +97,18 @@ std::string	HttpResponse::_clearPathGarbage(std::string &path)
 	return (clean_path);
 }
 
-bool		HttpResponse::_cgiStartChecker(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+bool HttpResponse::_isCgiRequest(std::string path, LocationConfig *location) const
 {
-	if (!location || location->getCgis().empty())
-		return false;
-	std::string file_name = req.getPath();
-	// autre securité a ajouter ?
-	std::string extension = file_name.substr(file_name.find_last_of("."));
-	if (location->getCgis().find(extension) != location->getCgis().end())
-		return true;
-	return false;
+	size_t	pos = path.find('.');
+	if (pos == std::string::npos || pos == 0)
+		return (false);
+	std::string extension = path.substr(pos + 1);
+	if (location->getCgis().empty())
+		return (false);
+	for (std::map<std::string, std::string>::iterator it = location->getCgis().begin(); it != location->getCgis().end(); ++it)
+	{
+		if (it->first == extension)
+			return (true);
+	}
+	return (false);
 }

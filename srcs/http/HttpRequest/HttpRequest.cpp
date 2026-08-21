@@ -23,6 +23,7 @@ void 	HttpRequest::resetRequest()
 	this->_version.clear();
 	this->_header.clear();
 	this->_body.clear();
+	this->_cookies.clear();
 	this->_error = 0;
 	this->_state = INCOMPLETE;
 	this->_avancement = NOT_STARTED;

@@ -38,6 +38,30 @@ bool HttpRequest::_ft_parse_line_header(size_t &pos)
 	return (false);
 }
 
+void HttpRequest::_ft_parse_cookies()
+{
+	std::map<std::string, std::string>::iterator it = this->_header.find("cookie");
+
+	if (it != this->_header.end())
+	{
+		std::string cookies_str = it->second;
+		std::istringstream iss(cookies_str);
+		std::string cookie;
+
+		while (std::getline(iss, cookie, ';'))
+		{
+			size_t pos = cookie.find('=');
+			if (pos != std::string::npos)
+			{
+				std::string key = cookie.substr(0, pos);
+				std::string value = cookie.substr(pos + 1);
+				this->_cookies.insert(std::make_pair(key, value));
+			}
+		}
+	}
+}
+	
+
 bool HttpRequest::_ft_parse_header()
 {
 	size_t pos;
@@ -59,5 +83,6 @@ bool HttpRequest::_ft_parse_header()
 		if (this->_ft_parse_line_header(pos))
 			return (true);
 	}
+	this->_ft_parse_cookies();
 	return (true);
 }

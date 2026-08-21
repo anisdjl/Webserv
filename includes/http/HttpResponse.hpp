@@ -62,6 +62,7 @@ class HttpResponse
         void                                _buildCookie(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
+		bool								_isCgiRequest(std::string path, LocationConfig *location) const;
         void								_buildRedirResponse(std::string new_path);
         void								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
