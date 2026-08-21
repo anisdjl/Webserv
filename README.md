@@ -102,7 +102,8 @@ The actual port and document root depend on the configuration file selected at s
 
 ## Technical choices
 
-- **`epoll`:** provides event-driven monitoring of client sockets on Linux and avoids creating one blocking execution path per connection, we use epoll as  I/O Multiplexing because epoll is the standard used nowadays, he handle better a large number of connection in comparison  of other i/o Multiplexing like poll or other.
+- **epoll:** epoll provides event-driven monitoring of client sockets on Linux and avoids creating one blocking execution path per connection, we use epoll as  I/O Multiplexing because epoll is the standard used nowadays, he handle better a large number of connection in comparison  of other i/o Multiplexing like poll etc.
+
 - **Configuration:** We choose to inspire our configuration of the nginx configuration, our parsing configuration follow the fail-fast principle : The configuration must be fully parsed and validated before the server starts, this prevents the server from running with an invalid configuration.
 
 ## Project structure
@@ -118,10 +119,11 @@ The actual port and document root depend on the configuration file selected at s
 ## Resources
 
 - [RFC 9110 - HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110): HTTP methods, status codes and general semantics.
+-[How to use epoll? A complete example in C]( https://web.archive.org/web/20160303233233/https://banu.com/blog/2/how-to-use-epoll-a-complete-example-in-c/) : epoll tutorial.
 - [RFC 9112 - HTTP/1.1](https://www.rfc-editor.org/rfc/rfc9112): HTTP/1.1 message syntax and connection rules.
 - [MDN HTTP overview](https://developer.mozilla.org/en-US/docs/Web/HTTP): practical explanations of HTTP requests, responses and methods.
 - [Beej's Guide to Network Programming](https://beej.us/guide/bgnet/): socket programming concepts and examples.
-- [`epoll(7)` Linux manual page](https://man7.org/linux/man-pages/man7/epoll.7.html): event notification and scalable I/O.
+- [`epoll(7)` Linux manual page](https://man7.org/linux/man-pages/man7/epoll.7.html): Epoll man.
 - [RFC 3875 - CGI](https://www.rfc-editor.org/rfc/rfc3875): CGI protocol and environment conventions.
 - [42 Webserv subject](https://cdn.intra.42.fr/pdf/pdf/96055/en.subject.pdf): project requirements and constraints.
 
