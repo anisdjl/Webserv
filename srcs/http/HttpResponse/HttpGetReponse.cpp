@@ -76,6 +76,7 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 		return (_buildErrorResponse(404, servConf, location));	
 	if (access(req_path.c_str(), R_OK) == -1)
 		return (_buildErrorResponse(403, servConf, location));
+
 	if (req.getCookie().empty()) // creation  du cookie
 		_buildCookie(req, servConf, location);
 

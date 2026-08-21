@@ -51,7 +51,7 @@ class HttpResponse
         std::string							_body;
 		std::string							_response;
         bool                                _isDone;
-        std::vector<std::string>			_header_cookie;
+        std::map<std::string, std::string>	_header_cookie;
 		bool								_cgiStartChecker(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         std::string                         _findContentType(std::string path);
 		std::string                         _extensionFinder(HttpRequest &req);

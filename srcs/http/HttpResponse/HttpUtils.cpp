@@ -83,7 +83,6 @@ bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *locatio
 	return (false);
 }
 
-
 std::string	HttpResponse::_clearPathGarbage(std::string &path)
 {
 	std::string	clean_path;

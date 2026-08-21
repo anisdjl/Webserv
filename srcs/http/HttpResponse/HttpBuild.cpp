@@ -58,7 +58,6 @@ std::string		HttpResponse::_buildStringResponse()
     }
     ss << "\r\n";
     ss << this->_body;
-	// /r pour la norme http
 	this->_state = BUILT;
     return (ss.str());
 }
