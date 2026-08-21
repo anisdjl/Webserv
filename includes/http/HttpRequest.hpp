@@ -32,6 +32,7 @@ class HttpRequest
 		RequestState							getState() const {return (this->_state);}
 		avancementState							getAvancement() const {return (this->_avancement);}
 		std::string								getBuffer() const {return (this->_buffer);}
+		std::map<std::string, std::string>		getCookies() const {return (this->_cookies);}
 
 		void									setMethod(std::string method){this->_method = method;};
 		void 									setPath(std::string path){this->_path = path;}
@@ -43,7 +44,7 @@ class HttpRequest
 		void									setState(RequestState state){this->_state = state;};
 		void 									setAvancement(avancementState state){this->_avancement = state;}
 		void 									setBuffer(std::string buffer){this->_buffer = buffer;}
-
+		void 									setCookies(std::map<std::string, std::string> cookies){this->_cookies = cookies;}
 		void 									ft_parse_http_request(const std::string& buffer, size_t max_body_size);
 		void 									resetRequest();
 		void 									addToBuffer(const std::string& data) { this->_buffer += data; }
@@ -56,9 +57,10 @@ class HttpRequest
 		std::string								_query_string; // les parametres possible
 		std::string								_version; // ex : HTTP/1.1
 		std::map<std::string, std::string>		_header; // donc host, user_agent, content-type, content-length, cookie
-		std::string 							_body; 
+		std::map<std::string, std::string>		_cookies;
+		std::string 							_body;
 		int										_error;
-
+		
 		std::string								_ft_tolower(const std::string& src) const;
 		bool 									_ft_parse_first_line();
 		bool									_ft_parse_header();
@@ -67,6 +69,7 @@ class HttpRequest
 		bool									_ft_parse_request_line(size_t &pos);
 		bool									_ft_parse_line_header(size_t &pos);
 		bool									_ft_parse_chunk(size_t &pos, size_t &max_body_size);
+		void									_ft_parse_cookies();
 		ssize_t									_ft_verif_length(std::string &length, size_t &max_body_size);
 		bool									_ft_parse_with_length(std::string &length, size_t &max_body_size);
 		bool									_ft_parse_with_chunked(std::string &flags, size_t &max_body_size);
