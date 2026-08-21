@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/30 23:23:13 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/20 12:51:14 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/21 13:28:35 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,8 @@ void ft_timeout_sockets(std::map<int, Socket *> &map_socket, int epollfd)
 	for (std::map<int, Socket *>::iterator it = map_socket.begin(); it != map_socket.end(); ++it)
 	{
 		Socket *socket = it->second;
-		if (socket->getStartTime() != -1 && (end - socket->getStartTime()) > 60)
+		double elapsed = std::difftime(end, socket->getStartTime());
+		if (socket->getStartTime() != -1 && elapsed > TIMEOUT)
 		{
 			if (socket->getType() == CONNECTION)
 				ft_close_socket(map_socket, socket->getFd(), epollfd);
