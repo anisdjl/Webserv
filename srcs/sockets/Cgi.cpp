@@ -6,7 +6,7 @@
 /*   By: anis <anis@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:27:45 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/21 15:54:07 by anis             ###   ########.fr       */
+/*   Updated: 2026/08/21 18:44:33 by anis             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,17 @@
 #include "../../includes/socket/Cgi.hpp"
 #include "../../includes/socket/Connection.hpp"
 
-bool ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
+bool	ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 {
-	time_t actual_time = std::time(NULL);
 	std::map<int, Socket *>::iterator it = map_socket.find(target.getParentIndex());
 	if (it == map_socket.end())
 		return (true);
+
+	std::cout << "je suis ici" << std::endl;
 	int pipe_read = target.getPipeIn();
 	int pipe_write = target.getPipeOut();
-	int child_fd = target.getChildFd();
-	int fd_client = target.getParentIndex();
+	// int child_fd = target.getChildFd();
+	// int fd_client = target.getParentIndex();
 	int epollfd = target.getEpoll();
 
 	time_t now = std::time(NULL);
@@ -87,7 +88,7 @@ bool ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 		struct epoll_event event2;
 		event2.data.fd = target.getParentIndex();
 		event2.events = EPOLLOUT;
-
+		std::cout << parent.getHttpResponse().getBody();
 		waitpid(target.getChildFd(), &status, WNOHANG);
 		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
 			parent.getHttpRequest().setError(500);
@@ -114,7 +115,7 @@ bool ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 	return (false);
 }
 
-bool ft_cgi_out(std::map<int, Socket> &map_socket, Cgi &target, Config *config)
+bool	ft_cgi_out(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 {
 	(void)map_socket;
 	(void)target, (void)config;
@@ -131,7 +132,7 @@ bool ft_cgi_out(std::map<int, Socket> &map_socket, Cgi &target, Config *config)
 	return (false);
 }
 
-void ft_cgi_hup(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
+void	ft_cgi_hup(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 {
 	int pipe_in = target.getPipeIn();
 	int pipe_out = target.getPipeOut();

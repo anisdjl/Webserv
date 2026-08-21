@@ -12,10 +12,11 @@ void	HttpResponse::_buildRedirResponse(std::string new_path)
 	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
 }
 
-void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, std::map<int, Socket *> &map_socket, const int &epollfd, Connection &target)
 {
 	if (this->_isDone)
     	return;
+
 	std::string	root;
 	if (location && !location->getRoot().empty())
 		root = location->getRoot();
@@ -28,6 +29,7 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 	/* chemin ou dossier vide ? */
 	struct stat s;
 	const char *path = req_path.c_str();
+
 	if (stat(path, &s) == 0 && S_ISDIR(s.st_mode))
 	{
 		/* cas 301 */
@@ -76,13 +78,9 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 		return (_buildErrorResponse(404, servConf, location));	
 	if (access(req_path.c_str(), R_OK) == -1)
 		return (_buildErrorResponse(403, servConf, location));
-
-	if (req.getCookies().empty()) // creation  du cookie
-		_buildCookie(req, servConf, location);
-
-	if (_isCgiRequest(req_path, location))
+	if (_isCgiRequest(req.getPath(), location) && !this->_isDone)
 	{
-		// if (_cgiBuild(req, servConf, location, socket);
+		_cgiBuild(req, servConf, location, epollfd, target, map_socket);
 		return ;
 	}
 	else if (!this->_isDone)

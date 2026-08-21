@@ -109,6 +109,7 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
 	
 	if (event.events & (EPOLLHUP | EPOLLERR))
 	{
+		std::cout << target.getType() << std::endl;
 		if (target.getType() == CGI)
 			ft_cgi_hup(map_socket, dynamic_cast<Cgi &>(target), config);
 		else
@@ -117,6 +118,7 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
 	}
 	if (event.events & (EPOLLIN))
 	{
+		std::cout << target.getType() << std::endl;
 		if(target.getType() == LISTENER)
 			return (ft_create_connection(map_socket, target, epollfd), false);
 		if(target.getType() == CONNECTION)
@@ -126,6 +128,7 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
 		}
 	if (event.events & (EPOLLOUT))
 	{
+		std::cout << target.getType() << std::endl;
 		if(target.getType() == CONNECTION)
 				return (ft_send_request(map_socket,	 dynamic_cast<Connection &>(target), epollfd));
 		if(target.getType() == CGI)
@@ -135,7 +138,7 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
 			return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
 	if (target.getType() != LISTENER)
 		target.setStartTime();
-	// if (target.getType() == CGI)
-	// 	map_socket.find(dynamic_cast<Cgi &>(target).getParentIndex())->second->setStartTime();
+	if (target.getType() == CGI)
+		map_socket.find(dynamic_cast<Cgi &>(target).getParentIndex())->second->setStartTime();
 	return (false);
 }

@@ -87,7 +87,7 @@ bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *locatio
 std::string	HttpResponse::_clearPathGarbage(std::string &path)
 {
 	std::string	clean_path;
-	for (int i = 0; i < path.size(); i++)
+	for (size_t i = 0; i < path.size(); i++)
 	{
 		if (path[i] == '/' && i > 0 && path[i - 1] == '/')
 			continue;
@@ -102,9 +102,10 @@ bool HttpResponse::_isCgiRequest(std::string path, LocationConfig *location) con
 	size_t	pos = path.find('.');
 	if (pos == std::string::npos || pos == 0)
 		return (false);
-	std::string extension = path.substr(pos + 1);
+	std::string extension = path.substr(pos);
 	if (location->getCgis().empty())
 		return (false);
+	
 	for (std::map<std::string, std::string>::iterator it = location->getCgis().begin(); it != location->getCgis().end(); ++it)
 	{
 		if (it->first == extension)

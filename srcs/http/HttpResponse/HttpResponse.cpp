@@ -70,6 +70,7 @@ void HttpResponse::resetResponse()
 	this->_state = NOT_BUILT;
 	this->_response.clear();
 	this->_bytes_sent = 0;
+	this->_isDone = false;
 }
 
 static std::string	capitalize(std::string string)
@@ -116,12 +117,11 @@ static void	display(char **env)
 	return ;
 }
 
-void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
+void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, const int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
 {
 	int fd;
 	int pipe_in[2];
 	int pipe_out[2];
-	
 
 	if (access(req.getPath().c_str(), F_OK) != 0)
 	{
@@ -136,12 +136,12 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 		return ;
 	}
 
-	Cgi	*new_cgi = new Cgi; // je cree un nouveau cgi
+	Cgi	*new_cgi = new Cgi;
 
 	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
 		throw std::runtime_error("Error: couldn't open pipes"); }
 
-	write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
+	//write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
 	fd = fork();
 	if (fd < 0)
 	{
@@ -202,9 +202,10 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 	new_cgi->setParentIndex(target.getFd());
 	new_cgi->setType(CGI);
 	new_cgi->setFd(fd);
+
 	if (target.getHttpRequest().getBody().size() > 0)
 	{
-		new_cgi->setPipeOut(pipe_out[0]);
+		new_cgi->setPipeOut(pipe_out[1]);
 		map_socket[pipe_out[1]] = new_cgi;
 	}
 	else
@@ -216,6 +217,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 	new_cgi->setPipeIn(pipe_in[0]);
 	new_cgi->setEpoll(epollfd);
 	map_socket[pipe_in[0]] = new_cgi;
+	this->_isDone = true;
 }
 
 char	**getEnv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location)

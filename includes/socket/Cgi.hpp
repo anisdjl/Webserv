@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
+/*   By: anis <anis@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:02:41 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/20 17:17:45 by adjelili         ###   ########.fr       */
+/*   Updated: 2026/08/21 17:27:42 by anis             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Cgi : public Socket
 		void	setPipeIn(int &pipe) { _pipe_in = pipe; };
 		void	setPipeOut(int &pipe) { _pipe_out = pipe; };
 		void	setFd(int &fd) { _child_fd = fd; };
-		void	setEpoll(int &epoll) { _epollfd = epoll; };
+		void	setEpoll(const int &epoll) { _epollfd = epoll; };
 		void	setBeginExec() { _timestamp = std::time(NULL); };
 
 		time_t	getTime(void) { return (_timestamp); };
@@ -62,6 +62,7 @@ class Cgi : public Socket
 
 bool	ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
 void	ft_cgi_hup(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
-bool	ft_cgi_out(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
+bool 	ft_cgi_out(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
+
 
 #endif

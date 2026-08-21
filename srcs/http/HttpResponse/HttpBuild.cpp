@@ -5,8 +5,6 @@ void			HttpResponse::buildResponse(Connection &target, ServerConfig &servConf,st
 {
 	HttpRequest &request = target.getHttpRequest();
 
-	(void)map_socket;
-	(void)epollfd;
    	if (request.getErrorCode() != 0)
     {
         this->_buildErrorResponse(request.getErrorCode(), servConf, NULL);
@@ -33,7 +31,7 @@ void			HttpResponse::buildResponse(Connection &target, ServerConfig &servConf,st
 		return ;
 	}
     if (request.getMethod() == "GET")
-        this->_buildGetResponse(request, servConf, location);
+        this->_buildGetResponse(request, servConf, location, map_socket, epollfd, target);
     else if (request.getMethod() == "POST")
         this->_buildPostResponse(request, servConf, location);
     else if (request.getMethod() == "DELETE")
