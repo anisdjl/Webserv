@@ -59,7 +59,7 @@ std::string	HttpResponse::_findContentType(std::string path)
 	else if (extension == "webp")
 		return ("image/webp");
 	else if (extension == "avif")
-	
+
 		return ("image/avif");
 	else if (extension == "gif")
 			return ("image/gif");
@@ -87,7 +87,7 @@ bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *locatio
 std::string	HttpResponse::_clearPathGarbage(std::string &path)
 {
 	std::string	clean_path;
-	for (int i = 0; i < path.size(); i++)
+	for (size_t i = 0; i < path.size(); i++)
 	{
 		if (path[i] == '/' && i > 0 && path[i - 1] == '/')
 			continue;
