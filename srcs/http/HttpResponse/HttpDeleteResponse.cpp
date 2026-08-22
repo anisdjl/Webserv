@@ -1,6 +1,6 @@
 #include "../../../includes/http/HttpResponse.hpp"
 
-void	HttpResponse::_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+void	HttpResponse::_buildDeleteResponse(HttpRequest& req,const ServerConfig &servConf, const LocationConfig *location)
 {
 	std::string root;
 	if (location && !location->getRoot().empty())

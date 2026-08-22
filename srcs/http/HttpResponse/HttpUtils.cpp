@@ -71,7 +71,7 @@ std::string	HttpResponse::_findContentType(std::string path)
 	return ("application/octet-stream");
 }
 
-bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *location)
+bool	HttpResponse::_isMethodAllowed(std::string methode,const LocationConfig *location)
 {
 	std::vector<std::string> methods = location->getMethods();
 
@@ -90,7 +90,7 @@ std::string HttpResponse::_clearPathGarbage(std::string &path)
 	return ("");
 }
 
-bool HttpResponse::_isCgiRequest(std::string path, LocationConfig *location) const
+bool HttpResponse::_isCgiRequest(std::string path, const LocationConfig *location) const
 {
 	size_t	pos = path.find('.');
 	if (pos == std::string::npos || pos == 0)

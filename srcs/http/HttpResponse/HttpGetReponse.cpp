@@ -12,7 +12,7 @@ void	HttpResponse::_buildRedirResponse(std::string new_path)
 	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
 }
 
-void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+void	HttpResponse::_buildGetResponse(HttpRequest& req,const ServerConfig &servConf,const LocationConfig *location)
 {
 	std::string	root;
 	if (location && !location->getRoot().empty())

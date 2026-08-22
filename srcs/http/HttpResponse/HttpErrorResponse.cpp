@@ -1,6 +1,6 @@
 #include "../../../includes/http/HttpResponse.hpp"
 
-void	HttpResponse::_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location)
+void	HttpResponse::_buildErrorResponse(int error_code,const ServerConfig &servConf,const LocationConfig *location)
 {
 	this->_status_code = error_code;
 	switch (error_code)

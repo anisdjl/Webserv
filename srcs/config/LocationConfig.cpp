@@ -16,6 +16,7 @@ LocationConfig	&LocationConfig::operator=(const LocationConfig &src)
 		_index = src._index;
 		_methods = src._methods;
 		_autoindex = src._autoindex;
+		_autoindexfound = src._autoindexfound;
 		_cgis = src._cgis;
 		_client_max_body_size = src._client_max_body_size;
 		_upload_store = src._upload_store;

@@ -1,6 +1,6 @@
 #include "../../../includes/http/HttpResponse.hpp"
 
-void	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+void	HttpResponse::_buildPostResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location)
 {
 	// check size
 	// if cgi ?
