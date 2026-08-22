@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/30 23:23:13 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/21 13:28:35 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/22 11:47:28 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,13 @@ bool ft_open_socket(struct addrinfo *info, int &socketfd)
 		{
 			temp = temp->ai_next;
 			continue ;
+		}
+		int activate = 1;
+        if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &activate, sizeof(activate)) == -1)
+		{
+			close(socketfd);
+			temp = temp->ai_next;
+			continue ;    
 		}
 		if (bind(socketfd, temp->ai_addr, temp->ai_addrlen) == 0)
 			break ;
