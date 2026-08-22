@@ -102,7 +102,7 @@ static char	*fillEnv(std::string string)
 // 	return ;
 // }
 
-void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, const int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
+void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location, const int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
 {
 	int pid;
 	int pipe_in[2];
@@ -220,7 +220,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 	this->_isDone = true;
 }
 
-char	**getEnv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location)
+char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location)
 {
 	(void)servconf; (void)location;
 
@@ -247,7 +247,7 @@ char	**getEnv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location
 	return (env);
 }
 
-char	*getPath(HttpRequest &req, ServerConfig &servconf, LocationConfig *location) // ici je vais aussi recevoir la map des sockets, le epollfd, et un objet cgi pour pouvoir les neregistrer
+char	*getPath(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location) // ici je vais aussi recevoir la map des sockets, le epollfd, et un objet cgi pour pouvoir les neregistrer
 {
 	(void)servconf;
 	std::string filename = location->getRoot() + req.getPath();
@@ -272,7 +272,7 @@ char	*getPath(HttpRequest &req, ServerConfig &servconf, LocationConfig *location
 	char	*path;
 	std::string pathstr;
 
-	for (std::map<std::string, std::string>::iterator it = (*location).getCgis().begin(); it != (*location).getCgis().end(); ++it)
+	for (std::map<std::string, std::string>::const_iterator it = (*location).getCgis().begin(); it != (*location).getCgis().end(); ++it)
 	{
 		if (it->first == extension)
 		{
@@ -289,7 +289,7 @@ char	*getPath(HttpRequest &req, ServerConfig &servconf, LocationConfig *location
 	return (path);
 }
 
-char	**getArgv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location, char *path)
+char	**getArgv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location, char *path)
 {
 	char **argv = new char*[3];
 	(void)servconf; (void)req;

@@ -1,13 +1,14 @@
 #include "../../../includes/http/HttpResponse.hpp"
 
-bool	HttpResponse::_buildPostResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location)
+bool	HttpResponse::_buildPostResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location,  const int &epollfd, std::map<int, Socket *> map_socket, Connection &target)
 {
 	if (this->_isDone) // invalid read size
     	return false;
-	if(_isCgiRequest(req.getPath(), location))
+	if (_isCgiRequest(req.getPath(), location) && !this->_isDone)
 	{
-		// _cgiBuild(req, servConf, location, socket);
-		return true;
+		// std::cout << "j'ai passe les tests" << std::endl;
+		_cgiBuild(req, servConf, location, epollfd, target, map_socket);
+		return (true);
 	}
 	std::string upload_path;
 	if (location && !location->getUploadStore().empty())
@@ -39,7 +40,6 @@ bool	HttpResponse::_buildPostResponse(HttpRequest& req, const ServerConfig &serv
 	std::string file_name;
 	std::string already_exist;
 	std::string extension = _extensionFinder(req);
-
 
 	if (access(upload_path.c_str(), W_OK | F_OK) != 0)
 		return (_buildErrorResponse(500, servConf, location), false);

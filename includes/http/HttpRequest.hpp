@@ -28,6 +28,7 @@ class HttpRequest
 		const std::string                         	&getVersion() const {return (this->_version);}
 		const std::string                         	&getBody() const {return (this->_body);}
 		const int									&getErrorCode() const {return (this->_error);}
+		const std::map<std::string, std::string>			&getHeader() const {return this->_header; };
 		const std::string							&getHeader(std::string key) const;
 		const RequestState							&getState() const {return (this->_state);}
 		const avancementState						&getAvancement() const {return (this->_avancement);}

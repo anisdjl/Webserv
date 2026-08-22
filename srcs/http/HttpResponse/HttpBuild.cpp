@@ -34,12 +34,12 @@ void			HttpResponse::buildResponse(Connection &target,const ServerConfig &servCo
 	}
 	if (request.getMethod() == "GET")
 	{
-	    if (this->_buildGetResponse(request, servConf, location))
+	    if (this->_buildGetResponse(request, servConf, location, epollfd, map_socket, target))
 	        return; // Cas CGI en cours
 	}
 	else if (request.getMethod() == "POST")
 	{
-	    if (this->_buildPostResponse(request, servConf, location))
+	    if (this->_buildPostResponse(request, servConf, location, epollfd, map_socket, target))
 	        return; // Cas CGI en cours
 	}
 	else if (request.getMethod() == "DELETE")
