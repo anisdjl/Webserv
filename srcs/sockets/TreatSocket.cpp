@@ -104,9 +104,9 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
 {
 	std::map<int, Socket *>::iterator it = map_socket.find(event.data.fd);
 	if (it == map_socket.end())
-    		return false;
+    	return false;
 	Socket &target = *(it->second);
-	
+
 	if (event.events & (EPOLLHUP | EPOLLERR))
 	{
 		std::cout << target.getType() << std::endl;

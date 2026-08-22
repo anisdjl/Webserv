@@ -119,31 +119,34 @@ static void	display(char **env)
 
 void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, const int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
 {
-	int fd;
+	int pid;
 	int pipe_in[2];
 	int pipe_out[2];
 
-	if (access(req.getPath().c_str(), F_OK) != 0)
-	{
-		_buildErrorResponse(404, servConf, location);
-		_response = _buildStringResponse();
-		return ;
-	}
-	if (access(req.getPath().c_str(), R_OK | X_OK) != 0)
-	{
-		_buildErrorResponse(403, servConf, location);
-		_response = _buildStringResponse();
-		return ;
-	}
+	std::cout << "je suis dans cgi build" << std::endl;
+	std::cout << req.getPath() << std::endl;
+	// if (access(req.getPath().c_str(), F_OK) != 0)
+	// {
+	// 	std::cout << "je suis dans cgi build 2" << std::endl;
+	// 	_buildErrorResponse(404, servConf, location);
+	// 	_response = _buildStringResponse();
+	// 	return ;
+	// }
+	// if (access(req.getPath().c_str(), R_OK | X_OK) != 0)
+	// {
+	// 	_buildErrorResponse(403, servConf, location);
+	// 	_response = _buildStringResponse();
+	// 	return ;
+	// }
 
 	Cgi	*new_cgi = new Cgi;
 
 	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
 		throw std::runtime_error("Error: couldn't open pipes"); }
 
-	//write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
-	fd = fork();
-	if (fd < 0)
+	write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
+	pid = fork();
+	if (pid < 0)
 	{
 		close (pipe_in[0]); close(pipe_in[1]); close(pipe_out[0]); close(pipe_out[1]);
 		_buildErrorResponse(500, servConf, location);
@@ -151,8 +154,15 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 		return;
 	}
 
+	std::cout << "je suis avant getenv" << std::endl;
+
 	char **env = getEnv(req, servConf, location);
+	std::cout << "je suis avant get path" << std::endl;
+
 	char *path = getPath(req, servConf, location);
+	std::cout << path << std::endl;
+	std::cout << "je suis avant get path" << std::endl;
+
 	char **argv = getArgv(req, servConf, location, path); 
 
 	if (!path)
@@ -168,7 +178,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 		return ;
 	}
 	new_cgi->setBeginExec();
-    if (fd == 0)
+    if (pid == 0)
     {
 		dup2(pipe_out[0], STDIN_FILENO);
 		close(pipe_out[0]); close(pipe_out[1]);
@@ -176,7 +186,9 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 		dup2(pipe_in[1], STDOUT_FILENO);
 		close(pipe_in[1]); close(pipe_in[0]);
 
+		std::cout << "je suis ici avant l'exec" << std::endl;
 		execve(path, argv, env);
+		std::cout << "execve a foire" << std::endl;
 		delete path;
 		for (size_t i = 0; env[i] != NULL; ++i)
 			delete [] env[i];
@@ -189,31 +201,31 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 	
 	struct epoll_event tmp1;
 	tmp1.events = EPOLLIN;
-	tmp1.data.fd = pipe_in[1];
+	tmp1.data.fd = pipe_in[0];
 
 	struct epoll_event tmp2;
 	tmp2.events = EPOLLOUT;
-	tmp2.data.fd = pipe_out[0];
+	tmp2.data.fd = pipe_out[1];
 
 	fcntl(pipe_out[1], F_SETFL, O_NONBLOCK);
 	fcntl(pipe_in[0], F_SETFL, O_NONBLOCK);
 	epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe_in[0], &tmp1); epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe_out[1], &tmp2);
 
 	new_cgi->setParentIndex(target.getFd());
-	new_cgi->setType(CGI);
-	new_cgi->setFd(fd);
+	// new_cgi->setType(CGI);
+	new_cgi->setFd(pid);
 
-	if (target.getHttpRequest().getBody().size() > 0)
-	{
+	//if (target.getHttpRequest().getBody().size() > 0)
+	//{
 		new_cgi->setPipeOut(pipe_out[1]);
 		map_socket[pipe_out[1]] = new_cgi;
-	}
-	else
-	{
-		int fd_negative = -1;
-		new_cgi->setPipeOut(fd_negative);
-		close(pipe_out[1]);
-	}
+	//}
+	// else
+	// {
+	// 	int fd_negative = -1;
+	// 	new_cgi->setPipeOut(fd_negative);
+	// 	close(pipe_out[1]);
+	// }
 	new_cgi->setPipeIn(pipe_in[0]);
 	new_cgi->setEpoll(epollfd);
 	map_socket[pipe_in[0]] = new_cgi;
