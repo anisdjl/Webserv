@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/30 23:23:13 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/22 12:27:05 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/22 15:18:32 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ bool ft_open_socket(struct addrinfo *info, int &socketfd)
 	return(false);
 }
 
-void ft_timeout_sockets(std::map<int, Socket *> &map_socket, int epollfd)
+void ft_timeout_sockets(std::map<int, Socket *> &map_socket,const int &epollfd)
 {
 	std::time_t end = std::time(NULL);
  
