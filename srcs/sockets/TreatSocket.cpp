@@ -103,39 +103,40 @@ void ft_create_connection(std::map<int, Socket *> &map_socket, Socket &target , 
 bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &event, Config *config, const int &epollfd)
 {
 	std::map<int, Socket *>::iterator it = map_socket.find(event.data.fd);
-		if (it == map_socket.end())
-    		return false;
+	if (it == map_socket.end())
+    	return false;
 	Socket &target = *(it->second);
-	
-	if (event.events & (EPOLLHUP | EPOLLERR))
-	{
-		// if (target.getType() == CGI)
-		// 	ft_cgi_hup(map_socket, target, config, epollfd);
-		// else
-			ft_close_socket(map_socket, target.getFd(), epollfd);
-		return (false);
-	}
+
+	// std::cout << event.events << std::endl;
 	if (event.events & (EPOLLIN))
 	{
 		if(target.getType() == LISTENER)
 			return (ft_create_connection(map_socket, target, epollfd), false);
 		if(target.getType() == CONNECTION)
 			return (ft_parse_request(map_socket, dynamic_cast<Connection &>(target), config, epollfd));
-		// if(target.getType() == CGI)
-			// return (ft_cgi_in(map_socket, target, config));
-		}
+		if(target.getType() == CGI)
+			return (ft_cgi_in(map_socket, dynamic_cast<Cgi &>(target), config));
+	}
+	if (event.events & (EPOLLHUP | EPOLLERR))
+	{
+		if (target.getType() == CGI)
+			ft_cgi_hup(map_socket, dynamic_cast<Cgi &>(target), config);
+		else
+			ft_close_socket(map_socket, target.getFd(), epollfd);
+		return (false);
+	}
 	if (event.events & (EPOLLOUT))
 	{
 		if(target.getType() == CONNECTION)
 				return (ft_send_request(map_socket,	 dynamic_cast<Connection &>(target), epollfd));
-		// if(target.getType() == CGI)
-				// return (ft_cgi_out(map_socket, target, config));
+		if(target.getType() == CGI)
+				return (ft_cgi_out(map_socket, dynamic_cast<Cgi &>(target), config));
 	}
 	if (event.events & (EPOLLRDHUP) && (target.getType() == CONNECTION) && (dynamic_cast<Connection &>(target).getHttpRequest().getState() == INCOMPLETE))
 			return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
 	if (target.getType() != LISTENER)
 		target.setStartTime();
-	// if (target.getType() == CGI)
-	// 	map_socket.find(dynamic_cast<Cgi &>(target).getParentIndex())->second->setStartTime();
+	if (target.getType() == CGI)
+		map_socket.find(dynamic_cast<Cgi &>(target).getParentIndex())->second->setStartTime();
 	return (false);
 }

@@ -59,7 +59,6 @@ std::string	HttpResponse::_findContentType(std::string path)
 	else if (extension == "webp")
 		return ("image/webp");
 	else if (extension == "avif")
-
 		return ("image/avif");
 	else if (extension == "gif")
 			return ("image/gif");
@@ -102,7 +101,7 @@ bool HttpResponse::_isCgiRequest(std::string path, const LocationConfig *locatio
 	size_t	pos = path.find('.');
 	if (pos == std::string::npos || pos == 0)
 		return (false);
-	std::string extension = path.substr(pos + 1);
+	std::string extension = path.substr(pos);
 	if (location->getCgis().empty())
 		return (false);
 	for (std::map<std::string, std::string>::const_iterator it = location->getCgis().begin(); it != location->getCgis().end(); ++it)

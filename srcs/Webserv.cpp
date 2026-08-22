@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Webserv.cpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/07/30 23:23:13 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/22 15:18:32 by ymoumene         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../includes/Webserv.hpp"
 #include "../includes/config/Config.hpp"
 #include "../includes/socket/Socket.hpp"

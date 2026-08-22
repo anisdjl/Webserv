@@ -1,8 +1,8 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
-#define BUFFER_SIZE 8192
-#define TIMEOUT 10
+# define BUFFER_SIZE 8192
+# define TIMEOUT 10
 
 # include <iomanip>
 # include <iostream>

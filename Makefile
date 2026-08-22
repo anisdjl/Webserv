@@ -29,7 +29,9 @@ SRCS := \
 	srcs/config/ServerParsingUtils.cpp \
 	srcs/sockets/CloseSockets.cpp \
 	srcs/sockets/Listener.cpp \
-	srcs/sockets/TreatSocket.cpp
+	srcs/sockets/TreatSocket.cpp \
+	srcs/sockets/Cgi.cpp \
+	srcs/cookie/CookieBuild.cpp
 
 OBJS := $(addprefix $(OBJ_DIR)/,$(SRCS:.cpp=.o))
 DEPS := $(OBJS:.o=.d)

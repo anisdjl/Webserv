@@ -22,17 +22,17 @@ class HttpRequest
     public:
         HttpRequest();
     	~HttpRequest();
-		const std::string	                        	&getMethod() const {return (this->_method);}
+		const std::string	                        &getMethod() const {return (this->_method);}
 		const std::string                         	&getPath() const {return (this->_path);}
 		const std::string                         	&getQueryString() const {return (this->_query_string);}
 		const std::string                         	&getVersion() const {return (this->_version);}
 		const std::string                         	&getBody() const {return (this->_body);}
-		const int										&getErrorCode() const {return (this->_error);}
-		const std::string								&getHeader(std::string key) const;
+		const int									&getErrorCode() const {return (this->_error);}
+		const std::string							&getHeader(std::string key) const;
 		const RequestState							&getState() const {return (this->_state);}
-		const avancementState							&getAvancement() const {return (this->_avancement);}
-		const std::string								&getBuffer() const {return (this->_buffer);}
-		const std::map<std::string, std::string>		&getCookies() const {return (this->_cookies);}
+		const avancementState						&getAvancement() const {return (this->_avancement);}
+		const std::string							&getBuffer() const {return (this->_buffer);}
+		const std::map<std::string, std::string>	&getCookies() const {return (this->_cookies);}
 
 		void									setMethod(std::string method){this->_method = method;};
 		void 									setPath(std::string path){this->_path = path;}

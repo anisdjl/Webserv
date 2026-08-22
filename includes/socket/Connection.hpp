@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
+/*   By: anis <anis@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:03:14 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/17 16:24:21 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/22 14:05:46 by anis             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,11 @@ class Connection : public Socket
 		{
 			this->_http_response = response;
 		};
-		 HttpRequest& getHttpRequest() 
+		HttpRequest& getHttpRequest() 
 		{
 			return (this->_http_request);
 		};
-		 HttpResponse& getHttpResponse() 
+		HttpResponse& getHttpResponse() 
 		{
 			return (this->_http_response);
 		};

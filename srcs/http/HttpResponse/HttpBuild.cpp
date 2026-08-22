@@ -4,9 +4,9 @@
 void			HttpResponse::buildResponse(Connection &target,const ServerConfig &servConf,std::map<int, Socket *> &map_socket, int const &epollfd)
 {
 	HttpRequest &request = target.getHttpRequest();
-
-	(void)map_socket;
-	(void)epollfd;
+	std::cout << "version=[" << request.getVersion()
+          << "] state=" << this->_state
+          << " isDone=" << this->_isDone << std::endl;
    	if (request.getErrorCode() != 0)
     {
         this->_buildErrorResponse(request.getErrorCode(), servConf, NULL);
