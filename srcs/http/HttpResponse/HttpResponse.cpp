@@ -106,16 +106,16 @@ static char	*fillEnv(std::string string)
 	return (env);
 }	
 
-static void	display(char **env)
-{
-	int i = 0;
-	while(env[i])
-	{
-		std::cout << env[i] << std::endl;
-		i++;
-	}
-	return ;
-}
+// static void	display(char **env)
+// {
+// 	int i = 0;
+// 	while(env[i])
+// 	{
+// 		std::cout << env[i] << std::endl;
+// 		i++;
+// 	}
+// 	return ;
+// }
 
 void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, const int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
 {
@@ -123,21 +123,28 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 	int pipe_in[2];
 	int pipe_out[2];
 
+	std::string root = location->getRoot();
+	std::string req_path = root + req.getPath();
+	req_path = _clearPathGarbage(req_path);
+
+
 	std::cout << "je suis dans cgi build" << std::endl;
-	std::cout << req.getPath() << std::endl;
-	// if (access(req.getPath().c_str(), F_OK) != 0)
-	// {
-	// 	std::cout << "je suis dans cgi build 2" << std::endl;
-	// 	_buildErrorResponse(404, servConf, location);
-	// 	_response = _buildStringResponse();
-	// 	return ;
-	// }
-	// if (access(req.getPath().c_str(), R_OK | X_OK) != 0)
-	// {
-	// 	_buildErrorResponse(403, servConf, location);
-	// 	_response = _buildStringResponse();
-	// 	return ;
-	// }
+
+
+	// std::cout << req.getPath() << std::endl;
+	if (access(req_path.c_str(), F_OK) != 0)
+	{
+		std::cout << "je suis dans cgi build 2" << std::endl;
+		_buildErrorResponse(404, servConf, location);
+		_response = _buildStringResponse();
+		return ;
+	}
+	if (access(req_path.c_str(), R_OK | X_OK) != 0)
+	{
+		_buildErrorResponse(403, servConf, location);
+		_response = _buildStringResponse();
+		return ;
+	}
 
 	Cgi	*new_cgi = new Cgi;
 
@@ -161,7 +168,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 
 	char *path = getPath(req, servConf, location);
 	std::cout << path << std::endl;
-	std::cout << "je suis avant get path" << std::endl;
+	std::cout << "je suis avant get arg" << std::endl;
 
 	char **argv = getArgv(req, servConf, location, path); 
 
@@ -240,17 +247,20 @@ char	**getEnv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location
 	char	**env = new char*[size_of_env];
 	std::string capital = capitalize(req.getMethod());
 	std::string	method = "REQUEST_METHOD=" + capital;
-
+	std::cout << "je suis dans getenv" << std::endl;
 	env[0] = fillEnv(method);
 	size_t	i = 1;
 	for (std::map<std::string, std::string>::const_iterator it = req.getHeader().begin(); it != req.getHeader().end(); ++it)
 	{
 		std::string header = makeHeaderEnv(it->first, it->second);
+		std::cout << "le header " << header << std::endl;
+		std::cout << i << " tour de boucle" << std::endl;
 		env[i] = fillEnv(header);
 		i++;
 	}
 	env[i] = NULL;
-	display(env);
+	std::cout << "j'ai bien mon env" << std::endl;
+	//display(env);
 	return (env);
 }
 

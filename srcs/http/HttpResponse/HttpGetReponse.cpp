@@ -80,6 +80,20 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 		return (_buildErrorResponse(403, servConf, location));
 	if (_isCgiRequest(req.getPath(), location) && !this->_isDone)
 	{
+		if (access(req_path.c_str(), F_OK) != 0)
+		{
+			std::cout << "je suis dans cgi build 2" << std::endl;
+			_buildErrorResponse(404, servConf, location);
+			_response = _buildStringResponse();
+			return ;
+		}
+		if (access(req_path.c_str(), R_OK | X_OK) != 0)
+		{
+			_buildErrorResponse(403, servConf, location);
+			_response = _buildStringResponse();
+			return ;
+		}
+		std::cout << "j'ai passe les tests" << std::endl;
 		_cgiBuild(req, servConf, location, epollfd, target, map_socket);
 		return ;
 	}
