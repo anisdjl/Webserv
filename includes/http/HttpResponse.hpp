@@ -27,14 +27,14 @@ class HttpResponse
     public:
 		HttpResponse();
         ~HttpResponse();
-		ResponseState						getState();
+		const ResponseState					&getState() const {return (this->_state);}
 		void								setState(ResponseState state);
         bool								getisDone();
 		void                                resetResponse();
-		void								buildResponse(Connection &target, ServerConfig &servConf,std::map<int, Socket *> &map_socket, int const &epollfd);
+		void								buildResponse(Connection &target,const ServerConfig &servConf,std::map<int, Socket *> &map_socket, int const &epollfd);
         /*	debug	*/
-        std::string							getResponse() const;
-        std::string							getBody() const;
+		const std::string					&getResponse() const { return (this->_response); }
+		const std::string					&getBody() const { return (this->_body); }
 		int         						getStatusCode() const;
         /*			*/
         void                                add_bytes_sent(unsigned int bytes);
@@ -57,14 +57,15 @@ class HttpResponse
 		std::string							_clearPathGarbage(std::string &path);
 		std::string                         _buildStringResponse();
         // void                                _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket);
-        void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
-		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
-        bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
-		bool								_isCgiRequest(std::string path, LocationConfig *location) const;
+        void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location);
+		void								_buildErrorResponse(int error_code, const ServerConfig &servConf, const LocationConfig *location);
+        bool								_isMethodAllowed(std::string path, const LocationConfig *servConf);
+		bool								_isCgiRequest(std::string path, const LocationConfig *location) const;
         void								_buildRedirResponse(std::string new_path);
-        bool								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
-        bool								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
-        void								_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+
+        bool								_buildGetResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location);
+        bool								_buildPostResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location);
+        void								_buildDeleteResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location);
 };
 
 #endif

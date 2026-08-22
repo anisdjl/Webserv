@@ -4,24 +4,9 @@ HttpResponse::HttpResponse() : _state(NOT_BUILT),  _status_code(200), _status_me
 
 HttpResponse::~HttpResponse(){};
 
-std::string		HttpResponse::getResponse() const
-{
-	return this->_response;
-}
-
-std::string		HttpResponse::getBody() const
-{
-	return this->_body;
-}
-
 int         	HttpResponse::getStatusCode() const
 {
 	return this->_status_code;
-}
-
-ResponseState	HttpResponse::getState()
-{
-	return this->_state;
 }
 
 void			HttpResponse::setState(ResponseState state)

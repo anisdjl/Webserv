@@ -7,7 +7,8 @@ ServerConfig::ServerConfig(void)
 	_listen.push_back("8080");
 	_host = "0.0.0.0";
 	_client_max_body_size = 1000000;
-	_autoindexfound = false;
+	_autoindex= false;
+	_upload_store = "";
 	_root = "";
 }
 
@@ -98,9 +99,9 @@ void	ServerConfig::displayServConf(void)
 	std::cout << "nb of location " << (*this)._locations.size() << std::endl; 
 }
 
-LocationConfig*   ServerConfig::matchLocation(const std::string& path)
+const LocationConfig*   ServerConfig::matchLocation(const std::string& path) const
 {
-	LocationConfig	*match = NULL;
+	const LocationConfig	*match = NULL;
 	size_t			match_len = 0;
 	for (size_t i = 0; i < _locations.size(); i++)
 	{

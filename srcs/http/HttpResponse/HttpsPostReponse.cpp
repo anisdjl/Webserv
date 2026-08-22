@@ -1,6 +1,6 @@
 #include "../../../includes/http/HttpResponse.hpp"
 
-bool	HttpResponse::_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+bool	HttpResponse::_buildPostResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location)
 {
 	if (this->_isDone) // invalid read size
     	return false;

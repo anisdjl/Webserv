@@ -72,7 +72,7 @@ std::string	HttpResponse::_findContentType(std::string path)
 	return ("application/octet-stream");
 }
 
-bool	HttpResponse::_isMethodAllowed(std::string methode, LocationConfig *location)
+bool	HttpResponse::_isMethodAllowed(std::string methode,const LocationConfig *location)
 {
 	std::vector<std::string> methods = location->getMethods();
 
@@ -97,7 +97,7 @@ std::string	HttpResponse::_clearPathGarbage(std::string &path)
 	return (clean_path);
 }
 
-bool HttpResponse::_isCgiRequest(std::string path, LocationConfig *location) const
+bool HttpResponse::_isCgiRequest(std::string path, const LocationConfig *location) const
 {
 	size_t	pos = path.find('.');
 	if (pos == std::string::npos || pos == 0)
@@ -105,7 +105,7 @@ bool HttpResponse::_isCgiRequest(std::string path, LocationConfig *location) con
 	std::string extension = path.substr(pos + 1);
 	if (location->getCgis().empty())
 		return (false);
-	for (std::map<std::string, std::string>::iterator it = location->getCgis().begin(); it != location->getCgis().end(); ++it)
+	for (std::map<std::string, std::string>::const_iterator it = location->getCgis().begin(); it != location->getCgis().end(); ++it)
 	{
 		if (it->first == extension)
 			return (true);

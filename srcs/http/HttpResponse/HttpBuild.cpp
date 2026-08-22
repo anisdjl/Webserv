@@ -1,7 +1,7 @@
 #include "../../../includes/http/HttpResponse.hpp"
 #include "../../../includes/socket/Connection.hpp"
 
-void			HttpResponse::buildResponse(Connection &target, ServerConfig &servConf,std::map<int, Socket *> &map_socket, int const &epollfd)
+void			HttpResponse::buildResponse(Connection &target,const ServerConfig &servConf,std::map<int, Socket *> &map_socket, int const &epollfd)
 {
 	HttpRequest &request = target.getHttpRequest();
 
@@ -25,7 +25,7 @@ void			HttpResponse::buildResponse(Connection &target, ServerConfig &servConf,st
 		_response = _buildStringResponse();
 		return ;
 	}
-    LocationConfig *location = servConf.matchLocation(request.getPath());
+    const LocationConfig *location = servConf.matchLocation(request.getPath());
 	if (location && !this->_isMethodAllowed(request.getMethod(), location)) // check droit
 	{
 		this->_buildErrorResponse(405, servConf, location);
@@ -60,7 +60,7 @@ std::string		HttpResponse::_buildStringResponse()
     return (ss.str());
 }
 
-void			HttpResponse::_buildAutoIndexResponse(std::string path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+void			HttpResponse::_buildAutoIndexResponse(std::string path, HttpRequest& req, const ServerConfig &servConf,const LocationConfig *location)
 {
 	std::vector<std::string> file;
 
