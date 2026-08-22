@@ -22,17 +22,17 @@ class HttpRequest
     public:
         HttpRequest();
     	~HttpRequest();
-		std::string	                        	getMethod() const {return (this->_method);}
-		std::string                         	getPath() const {return (this->_path);}
-		std::string                         	getQueryString() const {return (this->_query_string);}
-		std::string                         	getVersion() const {return (this->_version);}
-		std::string                         	getBody() const {return (this->_body);}
-		int										getErrorCode() const {return (this->_error);}
-		std::string								getHeader(std::string key) const;
-		RequestState							getState() const {return (this->_state);}
-		avancementState							getAvancement() const {return (this->_avancement);}
-		std::string								getBuffer() const {return (this->_buffer);}
-		std::map<std::string, std::string>		getCookies() const {return (this->_cookies);}
+		const std::string	                        	&getMethod() const {return (this->_method);}
+		const std::string                         	&getPath() const {return (this->_path);}
+		const std::string                         	&getQueryString() const {return (this->_query_string);}
+		const std::string                         	&getVersion() const {return (this->_version);}
+		const std::string                         	&getBody() const {return (this->_body);}
+		const int										&getErrorCode() const {return (this->_error);}
+		const std::string								&getHeader(std::string key) const;
+		const RequestState							&getState() const {return (this->_state);}
+		const avancementState							&getAvancement() const {return (this->_avancement);}
+		const std::string								&getBuffer() const {return (this->_buffer);}
+		const std::map<std::string, std::string>		&getCookies() const {return (this->_cookies);}
 
 		void									setMethod(std::string method){this->_method = method;};
 		void 									setPath(std::string path){this->_path = path;}
