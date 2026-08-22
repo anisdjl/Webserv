@@ -32,14 +32,20 @@ void			HttpResponse::buildResponse(Connection &target, ServerConfig &servConf,st
 		_response = _buildStringResponse();
 		return ;
 	}
-    if (request.getMethod() == "GET" && this->_buildGetResponse(request, servConf, location))
-        return ;
-    else if (request.getMethod() == "POST" && this->_buildPostResponse(request, servConf, location))
-        return ;
-    else if (request.getMethod() == "DELETE")
-        this->_buildDeleteResponse(request, servConf, location);
-    else
-		this->_buildErrorResponse(501, servConf, location);
+	if (request.getMethod() == "GET")
+	{
+	    if (this->_buildGetResponse(request, servConf, location))
+	        return; // Cas CGI en cours
+	}
+	else if (request.getMethod() == "POST")
+	{
+	    if (this->_buildPostResponse(request, servConf, location))
+	        return; // Cas CGI en cours
+	}
+	else if (request.getMethod() == "DELETE")
+	    this->_buildDeleteResponse(request, servConf, location);
+	else
+	    this->_buildErrorResponse(501, servConf, location);
 	_response = _buildStringResponse();
 }
 
