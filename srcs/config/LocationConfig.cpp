@@ -1,6 +1,6 @@
 #include "../../includes/config/Config.hpp"
 
-LocationConfig::LocationConfig(void) : _path(""), _root(""), _autoindex(false), _upload_store(""), _autoindexfound(false)
+LocationConfig::LocationConfig(void) : _path(""), _root(""), _autoindex(false),_cgis(), _client_max_body_size(0), _upload_store(""), _autoindexfound(false)
 {
 	_methods.push_back("GET");
 }
@@ -17,6 +17,7 @@ LocationConfig	&LocationConfig::operator=(const LocationConfig &src)
 		_methods = src._methods;
 		_autoindex = src._autoindex;
 		_cgis = src._cgis;
+		_client_max_body_size = src._client_max_body_size;
 		_upload_store = src._upload_store;
 		_return = src._return;
 	}

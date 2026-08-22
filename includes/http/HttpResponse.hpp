@@ -27,13 +27,13 @@ class HttpResponse
     public:
 		HttpResponse();
         ~HttpResponse();
-		ResponseState						getState();
+		const ResponseState					&getState() const {return (this->_state);}
 		void								setState(ResponseState state);
 		void                                resetResponse();
 		void								buildResponse(Connection &target, ServerConfig &servConf,std::map<int, Socket *> &map_socket, int const &epollfd);
         /*	debug	*/
-        std::string							getResponse() const;
-        std::string							getBody() const;
+		const std::string					&getResponse() const { return (this->_response); }
+		const std::string					&getBody() const { return (this->_body); }
 		int         						getStatusCode() const;
         /*			*/
         void                                add_bytes_sent(unsigned int bytes);
