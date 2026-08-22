@@ -47,16 +47,16 @@ class LocationConfig
         ~LocationConfig();
 		LocationConfig &operator=(const LocationConfig &src);
 
-		const std::string					getPath(void) const{ return _path; };
-		const std::string					getRoot(void) const { return _root; };
-		std::vector<std::string>			getIndex(void) const { return _index; };
-		std::vector<std::string>			getMethods(void) const { return _methods; };
-		bool								getAutoindex(void) const { return _autoindex; };
-		const bool							&getAutoindexDefine(void) const { return _autoindexfound; };
-		std::map<std::string, std::string>	getCgis(void) const { return _cgis; };
-		const std::string					getUploadStore(void) const { return _upload_store; };
-		std::map<int, std::string>			getReturn(void) const { return _return; };
-		long                            	getClientMaxBodySize(void) const { return _client_max_body_size; };
+		const std::string							&getPath(void) const{ return _path; };
+		const std::string							&getRoot(void) const { return _root; };
+		const std::vector<std::string>				&getIndex(void) const { return _index; };
+		const std::vector<std::string>				&getMethods(void) const { return _methods; };
+		const bool									&getAutoindex(void) const { return _autoindex; };
+		const bool									&getAutoindexDefine(void) const { return _autoindexfound; };
+		const std::map<std::string, std::string>	&getCgis(void) const { return _cgis; };
+		const std::string							&getUploadStore(void) const { return _upload_store; };
+		const std::map<int, std::string>			&getReturn(void) const { return _return; };
+		const long                            		&getClientMaxBodySize(void) const { return _client_max_body_size; };
 
 		void    setPath(const std::string &path);
         void    setRoot(const std::string &root);

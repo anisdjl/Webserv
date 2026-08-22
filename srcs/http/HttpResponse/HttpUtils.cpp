@@ -98,7 +98,7 @@ bool HttpResponse::_isCgiRequest(std::string path, const LocationConfig *locatio
 	std::string extension = path.substr(pos + 1);
 	if (location->getCgis().empty())
 		return (false);
-	for (std::map<std::string, std::string>::iterator it = location->getCgis().begin(); it != location->getCgis().end(); ++it)
+	for (std::map<std::string, std::string>::const_iterator it = location->getCgis().begin(); it != location->getCgis().end(); ++it)
 	{
 		if (it->first == extension)
 			return (true);
