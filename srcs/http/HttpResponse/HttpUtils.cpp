@@ -59,7 +59,6 @@ std::string	HttpResponse::_findContentType(std::string path)
 	else if (extension == "webp")
 		return ("image/webp");
 	else if (extension == "avif")
-	
 		return ("image/avif");
 	else if (extension == "gif")
 			return ("image/gif");

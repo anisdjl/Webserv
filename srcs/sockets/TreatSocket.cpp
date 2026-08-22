@@ -107,28 +107,26 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
     	return false;
 	Socket &target = *(it->second);
 
-	if (event.events & (EPOLLHUP | EPOLLERR))
-	{
-		std::cout << target.getType() << std::endl;
-		if (target.getType() == CGI)
-			ft_cgi_hup(map_socket, dynamic_cast<Cgi &>(target), config);
-		else
-			ft_close_socket(map_socket, target.getFd(), epollfd);
-		return (false);
-	}
+	// std::cout << event.events << std::endl;
 	if (event.events & (EPOLLIN))
 	{
-		std::cout << target.getType() << std::endl;
 		if(target.getType() == LISTENER)
 			return (ft_create_connection(map_socket, target, epollfd), false);
 		if(target.getType() == CONNECTION)
 			return (ft_parse_request(map_socket, dynamic_cast<Connection &>(target), config, epollfd));
 		if(target.getType() == CGI)
 			return (ft_cgi_in(map_socket, dynamic_cast<Cgi &>(target), config));
-		}
+	}
+	if (event.events & (EPOLLHUP | EPOLLERR))
+	{
+		if (target.getType() == CGI)
+			ft_cgi_hup(map_socket, dynamic_cast<Cgi &>(target), config);
+		else
+			ft_close_socket(map_socket, target.getFd(), epollfd);
+		return (false);
+	}
 	if (event.events & (EPOLLOUT))
 	{
-		std::cout << target.getType() << std::endl;
 		if(target.getType() == CONNECTION)
 				return (ft_send_request(map_socket,	 dynamic_cast<Connection &>(target), epollfd));
 		if(target.getType() == CGI)

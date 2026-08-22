@@ -54,7 +54,7 @@ class LocationConfig
 		std::vector<std::string>			getMethods(void) const { return _methods; };
 		bool								getAutoindex(void) const { return _autoindex; };
 		bool								getAutoindexDefine(void) { return _autoindexfound; };
-		std::map<std::string, std::string>	getCgis(void) const { return _cgis; };
+		std::map<std::string, std::string>	&getCgis(void) { return _cgis; };
 		std::string							getUploadStore(void) { return _upload_store; };
 		std::map<int, std::string>			getReturn(void) const { return _return; };
 		long                            	getClientMaxBodySize(void) const { return _client_max_body_size; };

@@ -29,6 +29,9 @@ class HttpResponse
         ~HttpResponse();
 		ResponseState						getState();
 		void								setState(ResponseState state);
+		void								setHeader(std::string key, std::string value) {
+			this->_headers.insert(std::make_pair(key, value));
+		}
         bool								getisDone();
 		void                                resetResponse();
 		void								buildResponse(Connection &target, ServerConfig &servConf,std::map<int, Socket *> &map_socket, int const &epollfd);
@@ -47,6 +50,7 @@ class HttpResponse
 		std::string							getResult(void) { return (_cgiresponse); };
 
         void                                setisDone(bool state);
+		std::string                         _findContentType(std::string path);
 	private:
 		ResponseState						_state;
         int									_status_code;
@@ -58,7 +62,7 @@ class HttpResponse
         bool                                _isDone;
         std::map<std::string, std::string>	_header_cookie;
 		bool								_cgiStartChecker(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
-        std::string                         _findContentType(std::string path);
+
 		std::string                         _extensionFinder(HttpRequest &req);
 		std::string							_clearPathGarbage(std::string &path);
 		std::string                         _buildStringResponse();

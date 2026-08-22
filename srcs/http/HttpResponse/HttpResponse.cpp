@@ -123,15 +123,12 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 	int pipe_in[2];
 	int pipe_out[2];
 
+	// std::cout << "dans cgibuild " << std::endl;
 	std::string root = location->getRoot();
 	std::string req_path = root + req.getPath();
 	req_path = _clearPathGarbage(req_path);
 
 
-	std::cout << "je suis dans cgi build" << std::endl;
-
-
-	// std::cout << req.getPath() << std::endl;
 	if (access(req_path.c_str(), F_OK) != 0)
 	{
 		std::cout << "je suis dans cgi build 2" << std::endl;
@@ -148,10 +145,26 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 
 	Cgi	*new_cgi = new Cgi;
 
+	char **env = getEnv(req, servConf, location);
+	char *path = getPath(req, servConf, location);
+	if (!path)
+	{
+		_buildErrorResponse(403, servConf, location);
+		_response = _buildStringResponse();
+		return ;
+	}
+	char **argv = getArgv(req, servConf, location, path);
+	if (!env || !env[0])
+	{
+		_buildErrorResponse(500, servConf, location);
+		_response = _buildStringResponse();
+		return ;
+	}
+
 	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
 		throw std::runtime_error("Error: couldn't open pipes"); }
 
-	write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
+	//write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
 	pid = fork();
 	if (pid < 0)
 	{
@@ -160,30 +173,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 		_response = _buildStringResponse();
 		return;
 	}
-
-	std::cout << "je suis avant getenv" << std::endl;
-
-	char **env = getEnv(req, servConf, location);
-	std::cout << "je suis avant get path" << std::endl;
-
-	char *path = getPath(req, servConf, location);
-	std::cout << path << std::endl;
-	std::cout << "je suis avant get arg" << std::endl;
-
-	char **argv = getArgv(req, servConf, location, path); 
-
-	if (!path)
-	{
-		_buildErrorResponse(403, servConf, location);
-		_response = _buildStringResponse();
-		return ;
-	}
-	if (!env || !env[0])
-	{
-		_buildErrorResponse(500, servConf, location);
-		_response = _buildStringResponse();
-		return ;
-	}
+	
 	new_cgi->setBeginExec();
     if (pid == 0)
     {
@@ -193,9 +183,9 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 		dup2(pipe_in[1], STDOUT_FILENO);
 		close(pipe_in[1]); close(pipe_in[0]);
 
-		std::cout << "je suis ici avant l'exec" << std::endl;
+		// std::cout << "je suis ici avant l'exec" << std::endl;
 		execve(path, argv, env);
-		std::cout << "execve a foire" << std::endl;
+		// std::cout << "execve a foire" << std::endl;
 		delete path;
 		for (size_t i = 0; env[i] != NULL; ++i)
 			delete [] env[i];
@@ -205,7 +195,9 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 		delete [] argv;
 		exit(1);
 	}
-	
+	close(pipe_in[1]);
+	close(pipe_out[0]);
+	std::cout << req.getVersion() <<std::endl;
 	struct epoll_event tmp1;
 	tmp1.events = EPOLLIN;
 	tmp1.data.fd = pipe_in[0];
@@ -216,26 +208,30 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, ServerConfig &servConf, Locati
 
 	fcntl(pipe_out[1], F_SETFL, O_NONBLOCK);
 	fcntl(pipe_in[0], F_SETFL, O_NONBLOCK);
-	epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe_in[0], &tmp1); epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe_out[1], &tmp2);
+	epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe_in[0], &tmp1);
 
 	new_cgi->setParentIndex(target.getFd());
-	// new_cgi->setType(CGI);
+	new_cgi->setType(CGI);
 	new_cgi->setFd(pid);
 
-	//if (target.getHttpRequest().getBody().size() > 0)
-	//{
+	if (target.getHttpRequest().getBody().size() > 0)
+	{
+		std::cout << "je passe ici le body n'est pas vide" << std::endl;
 		new_cgi->setPipeOut(pipe_out[1]);
 		map_socket[pipe_out[1]] = new_cgi;
-	//}
-	// else
-	// {
-	// 	int fd_negative = -1;
-	// 	new_cgi->setPipeOut(fd_negative);
-	// 	close(pipe_out[1]);
-	// }
+		epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe_out[1], &tmp2);
+	}
+	else
+	{
+		std::cout << "je passe ici le body est vide" << std::endl;
+		int fd_negative = -1;
+		new_cgi->setPipeOut(fd_negative);
+		close(pipe_out[1]);
+	}
 	new_cgi->setPipeIn(pipe_in[0]);
 	new_cgi->setEpoll(epollfd);
 	map_socket[pipe_in[0]] = new_cgi;
+	new_cgi->setReqPath(req_path);
 	this->_isDone = true;
 }
 
@@ -247,19 +243,21 @@ char	**getEnv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location
 	char	**env = new char*[size_of_env];
 	std::string capital = capitalize(req.getMethod());
 	std::string	method = "REQUEST_METHOD=" + capital;
-	std::cout << "je suis dans getenv" << std::endl;
+
+	// std::cout << "je suis dans getenv" << std::endl;
+
 	env[0] = fillEnv(method);
 	size_t	i = 1;
 	for (std::map<std::string, std::string>::const_iterator it = req.getHeader().begin(); it != req.getHeader().end(); ++it)
 	{
 		std::string header = makeHeaderEnv(it->first, it->second);
-		std::cout << "le header " << header << std::endl;
-		std::cout << i << " tour de boucle" << std::endl;
+		// std::cout << "le header " << header << std::endl;
+		// std::cout << i << " tour de boucle" << std::endl;
 		env[i] = fillEnv(header);
 		i++;
 	}
 	env[i] = NULL;
-	std::cout << "j'ai bien mon env" << std::endl;
+	// std::cout << "j'ai bien mon env" << std::endl;
 	//display(env);
 	return (env);
 }
@@ -267,9 +265,10 @@ char	**getEnv(HttpRequest &req, ServerConfig &servconf, LocationConfig *location
 char	*getPath(HttpRequest &req, ServerConfig &servconf, LocationConfig *location) // ici je vais aussi recevoir la map des sockets, le epollfd, et un objet cgi pour pouvoir les neregistrer
 {
 	(void)servconf;
-	const char	*filename = req.getPath().c_str();
+	std::string filename = location->getRoot() + req.getPath();
 	
-	if (access(filename, F_OK | R_OK) != 0)
+	// std::cout << "je suis dans getpath" << std::endl;
+	if (access(filename.c_str(), F_OK | R_OK) != 0)
 	{
 		std::cout << "fichier inaccessible" << std::endl;
 		return (NULL);
@@ -284,7 +283,7 @@ char	*getPath(HttpRequest &req, ServerConfig &servconf, LocationConfig *location
 	else
 		throw std::out_of_range("Error: no extension found for the cgi"); // pas sur de faire ca sinon ca va couper le server je pense qu'on renverra une erreur correcte
 
-	std::cout << "extension " << extension << std::endl;
+	// std::cout << "extension " << extension << std::endl;
 	char	*path;
 	std::string pathstr;
 
@@ -296,9 +295,12 @@ char	*getPath(HttpRequest &req, ServerConfig &servconf, LocationConfig *location
 			break;
 		}
 	}
+	if (pathstr.empty())
+		return (NULL);
+	// std::cout << pathstr << std::endl;
 	path = fillEnv(pathstr);
 
-	std::cout << "the final path " << path << std::endl;
+	// std::cout << "the final path " << path << std::endl;
 	return (path);
 }
 
@@ -308,6 +310,7 @@ char	**getArgv(HttpRequest &req, ServerConfig &servconf, LocationConfig *locatio
 	(void)servconf; (void)req;
 	
 	std::string pathstr = path;
+	// std::cout << "je suis dans getargv" << std::endl;
 	size_t	pos = pathstr.find_last_of("/");
 
 	if (pos != std::string::npos)
@@ -315,10 +318,10 @@ char	**getArgv(HttpRequest &req, ServerConfig &servconf, LocationConfig *locatio
 	else
 		throw std::out_of_range("Error: no extension found for the cgi"); // pas sur de faire ca sinon ca va couper le server je pense qu'on renverra une erreur correcte
 
-	std::string	fullPath = location->getPath() + pathstr;
+	std::string	fullPath = location->getRoot() + req.getPath();
 	argv[1] = fillEnv(fullPath);
 	argv[2] = NULL;
-	std::cout << "full path " << fullPath << std::endl;
+	// std::cout << "full path " << fullPath << std::endl;
 	
 	return (argv);
 }

@@ -6,7 +6,7 @@
 /*   By: anis <anis@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:27:45 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/21 18:44:33 by anis             ###   ########.fr       */
+/*   Updated: 2026/08/22 15:33:39 by anis             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ bool	ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 	if (it == map_socket.end())
 		return (true);
 
-	std::cout << "je suis ici" << std::endl;
+	std::cout << "je suis ici dans cgi in" << std::endl;
 	int pipe_read = target.getPipeIn();
 	int pipe_write = target.getPipeOut();
 	// int child_fd = target.getChildFd();
@@ -78,7 +78,9 @@ bool	ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 
 	if (bytes_read > 0)
 	{
+		std::cout << buffer << std::endl;
 		parent.getHttpResponse().addBody(buffer);
+		std::cout << "nb bytes read " << bytes_read << std::endl;
 		return (false);
 	}
 
@@ -88,11 +90,23 @@ bool	ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 		struct epoll_event event2;
 		event2.data.fd = target.getParentIndex();
 		event2.events = EPOLLOUT;
-		std::cout << parent.getHttpResponse().getBody();
-		waitpid(target.getChildFd(), &status, WNOHANG);
-		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-			parent.getHttpRequest().setError(500);
+		std::cout << "je suis pas dans bytes == 0" << std::endl;
+		
+		
+		std::ostringstream oss;
+		oss << parent.getHttpResponse().getBody().size();
+		parent.getHttpResponse().setHeader("Server", "WeebServ");
+		parent.getHttpResponse().setHeader("Content-Type", parent.getHttpResponse()._findContentType(target.getReqPath()));
+		parent.getHttpResponse().setHeader("Content-Length", oss.str());
+		parent.getHttpResponse().setHeader("Connection", "keep-alive");
 
+		std::cout << parent.getHttpResponse().getBody();
+
+		waitpid(target.getChildFd(), &status, WNOHANG);
+		// if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+		// 	parent.getHttpRequest().setError(500);
+
+		std::cout << "je suis pas dans bytes == 0" << std::endl;
 		parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, target.getEpoll());
 		if (parent.getHttpResponse().getState() == BUILT)
 			epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event2);
@@ -109,7 +123,6 @@ bool	ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 			close(pipe_write);
 			map_socket.erase(pipe_write);
 		}
-
 		delete &target;
 	}
 	return (false);

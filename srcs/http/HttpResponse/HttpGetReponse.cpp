@@ -93,7 +93,7 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 			_response = _buildStringResponse();
 			return ;
 		}
-		std::cout << "j'ai passe les tests" << std::endl;
+		// std::cout << "j'ai passe les tests" << std::endl;
 		_cgiBuild(req, servConf, location, epollfd, target, map_socket);
 		return ;
 	}
