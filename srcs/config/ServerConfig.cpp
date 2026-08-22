@@ -21,12 +21,16 @@ ServerConfig	&ServerConfig::operator=(const ServerConfig &src)
 	if (this != &src)
 	{
 		_listen_init = src._listen_init;
+		_autoindex = src._autoindex;
 		_listen = src._listen;
 		_host = src._host;
 		_server_name = src._server_name;
 		_client_max_body_size = src._client_max_body_size;
 		_error_page = src._error_page;
 		_locations = src._locations;
+		_root = src._root;
+        _autoindex = src._autoindex;
+        _autoindexfound = src._autoindexfound;
 	}
 	return (*this);
 }

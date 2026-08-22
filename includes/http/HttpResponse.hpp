@@ -52,20 +52,18 @@ class HttpResponse
 		std::string							_response;
         bool                                _isDone;
         std::map<std::string, std::string>	_header_cookie;
-		bool								_cgiStartChecker(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         std::string                         _findContentType(std::string path);
 		std::string                         _extensionFinder(HttpRequest &req);
 		std::string							_clearPathGarbage(std::string &path);
 		std::string                         _buildStringResponse();
         // void                                _cgiBuild(HttpRequest& req, ServerConfig &servConf, LocationConfig *location, Socket socket);
         void								_buildAutoIndexResponse(std::string req_path, HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
-        void                                _buildCookie(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 		void								_buildErrorResponse(int error_code, ServerConfig &servConf, LocationConfig *location);
         bool								_isMethodAllowed(std::string path, LocationConfig *servConf);
 		bool								_isCgiRequest(std::string path, LocationConfig *location) const;
         void								_buildRedirResponse(std::string new_path);
-        void								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
-        void								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        bool								_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
+        bool								_buildPostResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
         void								_buildDeleteResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 };
 

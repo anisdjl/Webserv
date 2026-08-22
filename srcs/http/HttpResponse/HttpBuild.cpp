@@ -32,18 +32,16 @@ void			HttpResponse::buildResponse(Connection &target, ServerConfig &servConf,st
 		_response = _buildStringResponse();
 		return ;
 	}
-    if (request.getMethod() == "GET")
-        this->_buildGetResponse(request, servConf, location);
-    else if (request.getMethod() == "POST")
-        this->_buildPostResponse(request, servConf, location);
+    if (request.getMethod() == "GET" && this->_buildGetResponse(request, servConf, location))
+        return ;
+    else if (request.getMethod() == "POST" && this->_buildPostResponse(request, servConf, location))
+        return ;
     else if (request.getMethod() == "DELETE")
         this->_buildDeleteResponse(request, servConf, location);
     else
-		this->_buildErrorResponse(501, servConf, location); // not found
+		this->_buildErrorResponse(501, servConf, location);
 	_response = _buildStringResponse();
 }
-
-// for (size_t i = 0; i < location->getMethods().size(); i++)
 
 std::string		HttpResponse::_buildStringResponse()
 {

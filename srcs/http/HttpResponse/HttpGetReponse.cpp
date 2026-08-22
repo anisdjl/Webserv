@@ -12,17 +12,17 @@ void	HttpResponse::_buildRedirResponse(std::string new_path)
 	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
 }
 
-void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
+bool	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, LocationConfig *location)
 {
 	if (this->_isDone)
-    	return;
+    	return false;
 	std::string	root;
 	if (location && !location->getRoot().empty())
 		root = location->getRoot();
 	else
 		root = servConf.getRoot();
 	if (root.empty())
-		return (_buildErrorResponse(500, servConf, location));
+		return (_buildErrorResponse(500, servConf, location), false);
 	std::string req_path = root + req.getPath();
 	req_path = _clearPathGarbage(req_path);
 	/* chemin ou dossier vide ? */
@@ -32,7 +32,7 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 	{
 		/* cas 301 */
 		if (req_path.empty() || req.getPath()[req.getPath().size() - 1] != '/')
-			return (_buildRedirResponse(req.getPath() + '/'));
+			return (_buildRedirResponse(req.getPath() + '/'), false);
 		std::string 				html_index;
 		std::vector<std::string>	index_vector;
 
@@ -50,7 +50,7 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 			if (access((req_path + *it).c_str(), F_OK) == 0)
 			{
 				if (access((req_path + *it).c_str(), R_OK) != 0)
-					return (_buildErrorResponse(403, servConf, location));
+					return (_buildErrorResponse(403, servConf, location), false);
 				html_index = *it;
 				break;
 			}
@@ -68,28 +68,24 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 			req_path += html_index;
 		}
 		else if (auto_index)
-            return (_buildAutoIndexResponse(req_path, req, servConf, location));
+            return (_buildAutoIndexResponse(req_path, req, servConf, location), false);
 		else
-			return (_buildErrorResponse(403, servConf, location));
+			return (_buildErrorResponse(403, servConf, location), false);
 	}
 	if (access(req_path.c_str(), F_OK) == -1)
-		return (_buildErrorResponse(404, servConf, location));	
+		return (_buildErrorResponse(404, servConf, location), false);	
 	if (access(req_path.c_str(), R_OK) == -1)
-		return (_buildErrorResponse(403, servConf, location));
-
-	if (req.getCookies().empty()) // creation  du cookie
-		_buildCookie(req, servConf, location);
-
+		return (_buildErrorResponse(403, servConf, location), false);
 	if (_isCgiRequest(req_path, location))
 	{
-		// if (_cgiBuild(req, servConf, location, socket);
-		return ;
+		// _cgiBuild(req, servConf, location, socket);
+		return true;
 	}
 	else if (!this->_isDone)
 	{
 		std::ifstream			infile(req_path.c_str(), std::ios::binary | std::ios::in | std::ios::ate);
 		if (!infile.is_open())
-			return (_buildErrorResponse(500, servConf, location));
+			return (_buildErrorResponse(500, servConf, location), false);
 		std::ifstream::pos_type	size;
 		if (infile)
 		{
@@ -112,11 +108,5 @@ void	HttpResponse::_buildGetResponse(HttpRequest& req, ServerConfig &servConf, L
 	this->_headers.insert(std::make_pair("Content-Type", _findContentType(req_path)));
 	this->_headers.insert(std::make_pair("Content-Length", oss.str()));
 	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
+	return false;
 }
-
-/*
-	Patch :
-		- erreur double / dans post
-		- ajouter delete
-		- les cookies
-*/

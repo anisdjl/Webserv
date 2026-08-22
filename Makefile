@@ -20,7 +20,6 @@ SRCS := \
 	srcs/http/HttpResponse/HttpDeleteResponse.cpp \
 	srcs/http/HttpResponse/HttpErrorResponse.cpp \
 	srcs/http/HttpResponse/HttpUtils.cpp \
-	srcs/cookie/CookieBuild.cpp \
 	srcs/config/Config.cpp \
 	srcs/config/ConfigCheck.cpp \
 	srcs/config/ConfigParsing.cpp \

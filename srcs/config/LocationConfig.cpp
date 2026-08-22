@@ -1,6 +1,6 @@
 #include "../../includes/config/Config.hpp"
 
-LocationConfig::LocationConfig(void) : _path(""), _root(""), _autoindex(false), _upload_store(""), _autoindexfound(false)  ,_cookies(false) 
+LocationConfig::LocationConfig(void) : _path(""), _root(""), _autoindex(false), _upload_store(""), _autoindexfound(false) ,_cookies(false) 
 {
 	_methods.push_back("GET");
 }
@@ -18,6 +18,8 @@ LocationConfig	&LocationConfig::operator=(const LocationConfig &src)
 		_autoindex = src._autoindex;
 		_cgis = src._cgis;
 		_upload_store = src._upload_store;
+		_autoindexfound = src._autoindexfound;
+		_cookies = src._cookies;
 		_return = src._return;
 	}
 
