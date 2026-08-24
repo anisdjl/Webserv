@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anis <anis@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:02:41 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/22 14:40:36 by anis             ###   ########.fr       */
+/*   Updated: 2026/08/24 15:29:42 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,9 +61,11 @@ class Cgi : public Socket
 		};
 };
 
-bool	ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
-void	ft_cgi_hup(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
-bool 	ft_cgi_out(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
+bool		ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
+void		ft_cgi_hup(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
+bool 		ft_cgi_out(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
+void		ft_cgi_close(Cgi &target, std::map<int, Socket *> &map_socket);
+std::string	checkContentTypeScript(Connection &client);
 
 
 #endif

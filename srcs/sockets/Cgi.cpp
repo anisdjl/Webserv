@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anis <anis@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:27:45 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/22 15:33:39 by anis             ###   ########.fr       */
+/*   Updated: 2026/08/24 15:30:29 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,50 +20,7 @@ bool	ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 	std::map<int, Socket *>::iterator it = map_socket.find(target.getParentIndex());
 	if (it == map_socket.end())
 		return (true);
-
-	std::cout << "je suis ici dans cgi in" << std::endl;
-	int pipe_read = target.getPipeIn();
-	int pipe_write = target.getPipeOut();
-	// int child_fd = target.getChildFd();
-	// int fd_client = target.getParentIndex();
-	int epollfd = target.getEpoll();
-
-	time_t now = std::time(NULL);
-
-	double diff = std::difftime(now, target.getTime());
-	if (diff > TIMEOUT)
-	{
-		if (pipe_read != -1)
-		{
-			epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_read, NULL);
-			close(pipe_read);
-			map_socket.erase(pipe_read);
-		}
-		if (pipe_write != -1)
-		{
-			epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_write, NULL);
-			close(pipe_write);
-			map_socket.erase(pipe_write);
-		}
-
-		if (it != map_socket.end() && it->second != NULL)
-		{
-			Connection &parent = dynamic_cast<Connection &>(*(it->second));
-
-			parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, epollfd);
-
-			if (parent.getHttpResponse().getState() == BUILT)
-			{
-				struct epoll_event temp;
-				std::memset(&temp, 0, sizeof(temp));
-				temp.data.fd = parent.getFd();
-				temp.events = EPOLLOUT;
-				epoll_ctl(epollfd, EPOLL_CTL_MOD, parent.getFd(), &temp);
-			}
-		}
-		delete &target;
-		return (true);
-	}
+	(void)config;
 
 	char buffer[BUFFER_SIZE + 1];
 	int bytes_read = 0;
@@ -78,52 +35,10 @@ bool	ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 
 	if (bytes_read > 0)
 	{
-		std::cout << buffer << std::endl;
+		// std::cout << buffer << std::endl;
 		parent.getHttpResponse().addBody(buffer);
-		std::cout << "nb bytes read " << bytes_read << std::endl;
+		// std::cout << "nb bytes read " << bytes_read << std::endl;
 		return (false);
-	}
-
-	if (bytes_read == 0)
-	{
-		int status;
-		struct epoll_event event2;
-		event2.data.fd = target.getParentIndex();
-		event2.events = EPOLLOUT;
-		std::cout << "je suis pas dans bytes == 0" << std::endl;
-		
-		
-		std::ostringstream oss;
-		oss << parent.getHttpResponse().getBody().size();
-		parent.getHttpResponse().setHeader("Server", "WeebServ");
-		parent.getHttpResponse().setHeader("Content-Type", parent.getHttpResponse()._findContentType(target.getReqPath()));
-		parent.getHttpResponse().setHeader("Content-Length", oss.str());
-		parent.getHttpResponse().setHeader("Connection", "keep-alive");
-
-		std::cout << parent.getHttpResponse().getBody();
-
-		waitpid(target.getChildFd(), &status, WNOHANG);
-		// if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-		// 	parent.getHttpRequest().setError(500);
-
-		std::cout << "je suis pas dans bytes == 0" << std::endl;
-		parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, target.getEpoll());
-		if (parent.getHttpResponse().getState() == BUILT)
-			epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event2);
-
-		if (pipe_read != -1)
-		{
-			epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_read, NULL);
-			close(pipe_read);
-			map_socket.erase(pipe_read);
-		}
-		if (pipe_write != -1)
-		{
-			epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_write, NULL);
-			close(pipe_write);
-			map_socket.erase(pipe_write);
-		}
-		delete &target;
 	}
 	return (false);
 }
@@ -147,42 +62,84 @@ bool	ft_cgi_out(std::map<int, Socket *> &map_socket, Cgi &target, Config *config
 
 void	ft_cgi_hup(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 {
-	int pipe_in = target.getPipeIn();
-	int pipe_out = target.getPipeOut();
-	int epoll_fd = target.getEpoll();
-	pid_t pid = target.getChildFd();
+	// rajouter le waitpid pour checker si l'execve n'a pas foire
 
 	int status;
-	waitpid(pid, &status, WNOHANG);
-
-	if (pipe_in != -1)
-	{
-		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, pipe_in, NULL);
-		close(pipe_in);
-		map_socket.erase(pipe_in);
-	}
-	if (pipe_out != -1)
-	{
-		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, pipe_out, NULL);
-		close(pipe_out);
-		map_socket.erase(pipe_out);
-	}
-
+	struct epoll_event event2;
+	event2.data.fd = target.getParentIndex();
+	event2.events = EPOLLOUT;
+	// std::cout << "je suis pas dans bytes == 0" << std::endl;
 	std::map<int, Socket *>::iterator it = map_socket.find(target.getParentIndex());
-	if (it != map_socket.end() && it->second != NULL)
+	if (it == map_socket.end())
+		return ;
+	Connection &parent = dynamic_cast<Connection &>(*(it->second));
+	
+	std::ostringstream oss;
+	oss << parent.getHttpResponse().getBody().size();
+	parent.getHttpResponse().setHeader("Server", "WeebServ");
+	parent.getHttpResponse().setHeader("Content-Type", parent.getHttpResponse()._findContentType(target.getReqPath()));
+	parent.getHttpResponse().setHeader("Content-Length", oss.str());
+	parent.getHttpResponse().setHeader("Connection", "keep-alive");
+	std::cout << checkContentTypeScript(parent) << std::endl;
+
+	// std::cout << parent.getHttpResponse().getBody();
+
+	waitpid(target.getChildFd(), &status, WNOHANG);
+	// if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+	// 	parent.getHttpRequest().setError(500);
+
+	// std::cout << "je suis pas dans bytes == 0" << std::endl;
+	parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, target.getEpoll());
+	if (parent.getHttpResponse().getState() == BUILT)
+		epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event2);
+
+		// ft_cgi_close(target, map_socket);
+	int pipe_read = target.getPipeIn();
+	int pipe_write = target.getPipeOut();
+	int epollfd = target.getEpoll();
+	if (pipe_read != -1)
 	{
-		Connection &parent = dynamic_cast<Connection &>(*(it->second));
-
-		parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, epoll_fd);
-
-		if (parent.getHttpResponse().getState() == BUILT)
-		{
-			struct epoll_event temp;
-			std::memset(&temp, 0, sizeof(temp));
-			temp.data.fd = parent.getFd();
-			temp.events = EPOLLOUT;
-			epoll_ctl(epoll_fd, EPOLL_CTL_MOD, parent.getFd(), &temp);
-		}
+		epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_read, NULL);
+		close(pipe_read);
+		map_socket.erase(pipe_read);
+	}
+	if (pipe_write != -1)
+	{
+		epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_write, NULL);
+		close(pipe_write);
+		map_socket.erase(pipe_write);
 	}
 	delete &target;
+	//	delete &target;
+}
+
+
+void	ft_cgi_close(Cgi &target, std::map<int, Socket *> &map_socket)
+{
+	int pipe_read = target.getPipeIn();
+	int pipe_write = target.getPipeOut();
+	int epollfd = target.getEpoll();
+	if (pipe_read != -1)
+	{
+		epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_read, NULL);
+		close(pipe_read);
+		map_socket.erase(pipe_read);
+	}
+	if (pipe_write != -1)
+	{
+		epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe_write, NULL);
+		close(pipe_write);
+		map_socket.erase(pipe_write);
+	}
+	delete &target;
+}
+
+std::string	checkContentTypeScript(Connection &client)
+{
+	std::string	body = client.getHttpResponse().getBody();
+	std::string	contentType = "hello";
+	
+	
+	std::cout << body << std::endl;
+	return (contentType);
 }
