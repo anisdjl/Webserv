@@ -6,7 +6,7 @@
 /*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/03 15:27:45 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/24 15:30:29 by adjelili         ###   ########.fr       */
+/*   Updated: 2026/08/24 18:27:29 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,18 +45,30 @@ bool	ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 
 bool	ft_cgi_out(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 {
-	(void)map_socket;
-	(void)target, (void)config;
-
-	// ecrire petit a petit et suivre ce qui a ete ecris ou pas encore
-	// une fois tout ecrit, on ferme direct pour envoyer le signal EOF au script
-
-	std::cout << "ca marche pas ici" << std::endl;
-	// epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, target.getPipeIn(), NULL);
-	// close(target.getPipeIn());
-	// map_socket.erase(target.getPipeIn());
-	// // on supprime le pipe de epoll
-	// // on le retire de map socket mais techniquement je ne peux pas pcq je l'enregistre avec
+	std::map<int, Socket *>::iterator it = map_socket.find(target.getParentIndex());
+	if (it == map_socket.end())
+		return (true);
+	(void)config;
+	Connection &parent = dynamic_cast<Connection &>(*(it->second));
+	
+	int	fd_write = target.getPipeOut();
+	const std::string &body = parent.getHttpRequest().getBody();
+	ssize_t written_bytes = target.getBodyWritten();
+	ssize_t	body_size = parent.getHttpRequest().getBody().size();
+	ssize_t	res = write(fd_write, body.c_str() + written_bytes, body_size - written_bytes);
+	
+	if (res > 0)
+		target.addWrittenBytes(res);
+	if (res == -1)
+		return (false);
+	if (target.getBodyWritten() >= body_size)
+	{
+		close(fd_write);
+		epoll_ctl(target.getEpoll(), EPOLL_CTL_DEL, fd_write, NULL);
+		map_socket.erase(fd_write);
+		int i = -1;
+		target.setPipeOut(i);
+	}
 	return (false);
 }
 
@@ -65,35 +77,30 @@ void	ft_cgi_hup(std::map<int, Socket *> &map_socket, Cgi &target, Config *config
 	// rajouter le waitpid pour checker si l'execve n'a pas foire
 
 	int status;
-	struct epoll_event event2;
-	event2.data.fd = target.getParentIndex();
-	event2.events = EPOLLOUT;
-	// std::cout << "je suis pas dans bytes == 0" << std::endl;
 	std::map<int, Socket *>::iterator it = map_socket.find(target.getParentIndex());
 	if (it == map_socket.end())
 		return ;
 	Connection &parent = dynamic_cast<Connection &>(*(it->second));
 	
+	pid_t res = waitpid(target.getChildFd(), &status, WNOHANG);
+
+	if (res > 0)
+	{
+		if ((WIFEXITED(status) && WEXITSTATUS(status) != 0) || WIFSIGNALED(status))
+			parent.getHttpRequest().setError(500);
+	}
+	struct epoll_event event2;
+	event2.data.fd = target.getParentIndex();
+	event2.events = EPOLLOUT;
+	checkContentTypeScript(parent);
 	std::ostringstream oss;
 	oss << parent.getHttpResponse().getBody().size();
-	parent.getHttpResponse().setHeader("Server", "WeebServ");
-	parent.getHttpResponse().setHeader("Content-Type", parent.getHttpResponse()._findContentType(target.getReqPath()));
 	parent.getHttpResponse().setHeader("Content-Length", oss.str());
-	parent.getHttpResponse().setHeader("Connection", "keep-alive");
-	std::cout << checkContentTypeScript(parent) << std::endl;
 
-	// std::cout << parent.getHttpResponse().getBody();
-
-	waitpid(target.getChildFd(), &status, WNOHANG);
-	// if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-	// 	parent.getHttpRequest().setError(500);
-
-	// std::cout << "je suis pas dans bytes == 0" << std::endl;
 	parent.getHttpResponse().buildResponse(parent, config->getServer()[parent.getServerIndex()], map_socket, target.getEpoll());
 	if (parent.getHttpResponse().getState() == BUILT)
 		epoll_ctl(target.getEpoll(), EPOLL_CTL_MOD, target.getParentIndex(), &event2);
 
-		// ft_cgi_close(target, map_socket);
 	int pipe_read = target.getPipeIn();
 	int pipe_write = target.getPipeOut();
 	int epollfd = target.getEpoll();
@@ -110,7 +117,6 @@ void	ft_cgi_hup(std::map<int, Socket *> &map_socket, Cgi &target, Config *config
 		map_socket.erase(pipe_write);
 	}
 	delete &target;
-	//	delete &target;
 }
 
 
@@ -134,12 +140,62 @@ void	ft_cgi_close(Cgi &target, std::map<int, Socket *> &map_socket)
 	delete &target;
 }
 
-std::string	checkContentTypeScript(Connection &client)
+void	checkContentTypeScript(Connection &client)
 {
 	std::string	body = client.getHttpResponse().getBody();
-	std::string	contentType = "hello";
+	std::string	contentType;
+	size_t		size = 4;
+	std::string	headers;
 	
+	size_t	pos = body.find("\r\n\r\n");
+	if (pos == std::string::npos)
+	{
+		pos = body.find("\n\n");
+		size = 2;
+	}
 	
-	std::cout << body << std::endl;
-	return (contentType);
+	if (pos == std::string::npos)
+	{
+		contentType = "text/html";
+		client.getHttpResponse().setBody(body);
+	}
+	else
+	{
+		headers = body.substr(0, pos);
+		client.getHttpResponse().setBody(body.substr(pos + size));
+	}
+	bool	foundContentType = false;
+	std::stringstream	ss(headers);
+	std::string	line;
+	while(getline(ss, line))
+	{
+		if (!line.empty() && line[line.size() - 1] == '\r')
+			line.erase(line.size() - 1);
+		
+		size_t	pos_delim = line.find(":");
+		if (pos_delim != std::string::npos)
+		{
+			std::string	key = line.substr(0, pos_delim);
+			std::string	value = line.substr(pos_delim +1);
+			
+			size_t first_char = value.find_first_not_of(" \t");
+			if (first_char != std::string::npos)
+				value = value.substr(first_char);
+			if (key == "content-type" || key == "Content-Type")
+			{
+				contentType = value;
+				foundContentType = true;
+			}
+			// if (key == "status" || key == "Status")
+			// {
+			// 	int code = std::atoi(value.c_str());
+			// 	if (code >= 100 && code < 600)
+			// 		client.getHttpRequest().setError(code);
+			// }
+			client.getHttpResponse().setHeader(key, value);
+		}
+	}
+	if (!foundContentType)
+		client.getHttpResponse().setHeader("Content-Type", contentType);
+	return ;
 }

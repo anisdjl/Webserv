@@ -23,4 +23,5 @@ void	CheckServer(ServerConfig &server)
 			throw std::runtime_error("Error: location must have a root and a return");
 		
 	}
+	// mettre par defaut celle du parent si absent
 }
