@@ -69,7 +69,11 @@ Config	*lexer(std::string filename)
 void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf)
 {
 	if ((*tokens)[*index] != "{")
+	{
+		delete_all(config);
+		delete servconf;
 		throw std::runtime_error("Error: wrong configuration file format 2");
+	}
 	(*index)++;
 	(*config).increment();
 	while (*index < (*tokens).size()) // je viens de retirer le condition du while (tokens != })
@@ -122,12 +126,14 @@ void	parse_server(Config *config, std::vector<std::string> *tokens, size_t *inde
 		}
 		if ((*tokens)[*index] == "}")
 		{
-			// si on est ici c'est qu'on a fini le server actuel
 			(*index)++;
 			(*config).decrement();
 			(*config).setServer(servconf);
 			return ;	
 		}
+		delete tokens;
+		delete config;
+		delete servconf;
 		throw std::runtime_error("Error: wrong configuration file format 3");
 	}
 }
@@ -138,11 +144,17 @@ void	parse_root_server(Config *config, std::vector<std::string> *tokens, size_t 
 	(void)config;
 
 	if ((*index) >= (*tokens).size() || (*index + 1) >= (*tokens).size())
+	{
+		delete_all(config);
+		delete servconf;
 		throw std::runtime_error("Syntax error incomplete configuration");
-
+	}
 	if ((*tokens)[*index] == ";" || (*tokens)[*index + 1] != ";")
+	{
+		delete_all(config);
+		delete servconf;
 		throw std::runtime_error("Syntax error in client max body size directive");
-
+	}
 	(*servconf).setRoot((*tokens)[*index]);
 
 	(*index) += 2;
@@ -155,7 +167,8 @@ void	fsm(Config *config, std::vector<std::string> *tokens)
 	{
 		if ((*tokens)[index] != "server")
 		{
-			std::cout << "index actuel " << index << " token actuel " << (*tokens)[index] << " token d'avant " << (index > 0 ? (*tokens)[index -1] : std::string("none")) << " token d'apres " << (index + 1 < (*tokens).size() ? (*tokens)[index + 1] : std::string("none")) << std::endl;	
+			// std::cout << "index actuel " << index << " token actuel " << (*tokens)[index] << " token d'avant " << (index > 0 ? (*tokens)[index -1] : std::string("none")) << " token d'apres " << (index + 1 < (*tokens).size() ? (*tokens)[index + 1] : std::string("none")) << std::endl;	
+			delete tokens;
 			throw std::runtime_error ("Error: wrong configuration file format 1");
 		}
 		ServerConfig					*serverconf = new ServerConfig;
@@ -163,10 +176,10 @@ void	fsm(Config *config, std::vector<std::string> *tokens)
 		parse_server(config, tokens, &index, serverconf);
 	}
 	if ((*config).getNbBrackets() != 0)
+	{
+		delete_all(config);
+		delete tokens;
 		throw std::runtime_error("Syntax error missung brackets");
-	CheckConfig(*config);
-	// (*config).displayConfig();
+	}
+	CheckConfig(config, tokens);
 }
-
-// je dois trouver un moyen de checker si les {} sont bien ferme ou pas si le premier server a ete ferme ou pas
-// donc je pense qu'il faut calculer combien on ete ouvert et fermer depuis avec un compteur genre ouver ++ et fermee -- et si c'est a 0 c'est que c'est bon 

@@ -150,8 +150,8 @@ void						parse_autoindex(Config *config, std::vector<std::string> *tokens, size
 void						parse_upload(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
 void						parse_return(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconf, ServerConfig *servconf);
 void						parse_cgi(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconf, ServerConfig *servconf);
-void						CheckConfig(Config &config);
-void						CheckServer(ServerConfig &server);
+void						CheckServer(ServerConfig &server, Config *config, std::vector<std::string> *tokens);
+void						CheckConfig(Config *config, std::vector<std::string> *tokens);
 bool						parserequests(const char *buff, ssize_t bytes);
 void						parse_autoindex_server	(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
 void						parse_root_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
@@ -159,5 +159,6 @@ void						parse_autoindex_server	(Config *config, std::vector<std::string> *toke
 void						parse_root_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
 void						parse_cookie(Config *config, std::vector<std::string> *tokens, size_t *index, LocationConfig *locconfig, ServerConfig *servconf);
 void						parse_cookie_server(Config *config, std::vector<std::string> *tokens, size_t *index, ServerConfig *servconf);
+void						delete_all(Config *config);
 
 #endif
