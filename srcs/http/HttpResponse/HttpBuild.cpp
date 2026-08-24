@@ -83,7 +83,7 @@ void			HttpResponse::_buildAutoIndexResponse(std::string path, HttpRequest& req,
 							"<hr>"
 							"<pre>"
 							"<h1> " + req.getPath() + " </h1>\n";
-	for (std::vector<std::string>::const_iterator it = file.begin(); 
+	for (std::vector<std::string>::const_iterator it = file.begin() + 1;  // + 1 skip .
 		it !=  file.end(); ++it)
 		this->_body += "<a href=\"" + *it + "\">" + *it +"</a>\n";
 	this->_body +=	"</pre>";
