@@ -67,8 +67,9 @@ static std::string	capitalize(std::string string)
 
 static std::string makeHeaderEnv(std::string key, std::string value)
 {
-	std::string	header;
-
+	size_t colon = key.find(':');
+	if (colon != std::string::npos)
+		key.erase(colon);
 	for (size_t i = 0; i < key.size(); ++i)
 	{
 		if (key[i] == '-')
@@ -76,9 +77,9 @@ static std::string makeHeaderEnv(std::string key, std::string value)
 		else
 			key[i] = std::toupper(key[i]);
 	}
-
-	header = key + "=" + value;
-	return (header);
+	if (key != "CONTENT_TYPE" && key != "CONTENT_LENGTH")
+		key = "HTTP_" + key;
+	return key + "=" + value;
 }
 
 static char	*fillEnv(std::string string)
@@ -116,7 +117,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 
 	if (access(req_path.c_str(), F_OK) != 0)
 	{
-		std::cout << "je suis dans cgi build 2" << std::endl;
+		// std::cout << "je suis dans cgi build 2" << std::endl;
 		_buildErrorResponse(404, servConf, location);
 		_response = _buildStringResponse();
 		return ;
@@ -222,9 +223,12 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location)
 {
 	(void)servconf; (void)location;
-
+	char	**env;
 	size_t	size_of_env = req.getHeader().size() + 2;
-	char	**env = new char*[size_of_env];
+	if (req.getHeader().find("Cookie") != req.getHeader().end())
+		env = new char*[size_of_env + 1];
+	else
+		env = new char*[size_of_env];
 	std::string capital = capitalize(req.getMethod());
 	std::string	method = "REQUEST_METHOD=" + capital;
 
