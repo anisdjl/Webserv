@@ -182,7 +182,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 	}
 	close(pipe_in[1]);
 	close(pipe_out[0]);
-	std::cout << req.getVersion() <<std::endl;
+	// std::cout << req.getVersion() <<std::endl;
 	struct epoll_event tmp1;
 	tmp1.events = EPOLLIN;
 	tmp1.data.fd = pipe_in[0];
@@ -201,14 +201,14 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 
 	if (target.getHttpRequest().getBody().size() > 0)
 	{
-		std::cout << "je passe ici le body n'est pas vide" << std::endl;
+		// std::cout << "je passe ici le body n'est pas vide" << std::endl;
 		new_cgi->setPipeOut(pipe_out[1]);
 		map_socket[pipe_out[1]] = new_cgi;
 		epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe_out[1], &tmp2);
 	}
 	else
 	{
-		std::cout << "je passe ici le body est vide" << std::endl;
+		// std::cout << "je passe ici le body est vide" << std::endl;
 		int fd_negative = -1;
 		new_cgi->setPipeOut(fd_negative);
 		close(pipe_out[1]);

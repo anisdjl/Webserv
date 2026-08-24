@@ -20,6 +20,7 @@
 # include <csignal> // pour signal
 # include <sys/wait.h> // waitpid
 # include <sys/stat.h> // pour stat
+#include <ctime>
 # include <map>
 # include <iomanip>
 # include <fstream>
@@ -27,6 +28,13 @@
 # include <vector>
 # include <algorithm>
 #include <string>
+#include <sys/stat.h>
+#include <cstdlib>
+#include <fstream>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sstream>
+#include <dirent.h>
 
 class Config;
 class LocationConfig;

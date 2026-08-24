@@ -13,6 +13,41 @@
 #include "../../includes/socket/Socket.hpp"
 #include "../../includes/socket/Listen.hpp"
 
+bool ft_open_socket_listener(struct addrinfo *info, int &socketfd)
+{
+	struct addrinfo *temp;
+	int flags_fcntl;
+	
+	temp = info;
+	while(temp)
+	{
+		socketfd = socket(temp->ai_family, temp->ai_socktype, temp->ai_protocol);
+		if (socketfd == -1)
+		{
+			temp = temp->ai_next;
+			continue ;
+		}
+		int activate = 1;
+        if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &activate, sizeof(activate)) == -1)
+		{
+			close(socketfd);
+			temp = temp->ai_next;
+			continue ;    
+		}
+		if (bind(socketfd, temp->ai_addr, temp->ai_addrlen) == 0)
+			break ;
+		close(socketfd);
+		temp = temp->ai_next;		
+	}
+	freeaddrinfo(info);
+	if (!temp)
+		return(true);
+	flags_fcntl = fcntl(socketfd, F_GETFL);
+	if (flags_fcntl == -1 || fcntl(socketfd, F_SETFL, flags_fcntl | O_NONBLOCK) == -1)
+		return (close(socketfd), true);
+	return(false);
+}
+
 bool ft_listener(std::string host, std::string listener, int &socketfd)
 {
 	struct addrinfo *info;
@@ -28,7 +63,7 @@ bool ft_listener(std::string host, std::string listener, int &socketfd)
 		std::cerr << "Error while opening socket listener 1." <<  std::endl;
 		return (true);
 	}
-	if (ft_open_socket(info, socketfd))
+	if (ft_open_socket_listener(info, socketfd))
 	{
 		std::cerr << "Error while opening sockets listener 2." <<  std::endl;
 		return (true);

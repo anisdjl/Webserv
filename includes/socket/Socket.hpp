@@ -14,7 +14,6 @@
 #define SOCKET_HPP
 
 #include "../config/Config.hpp"
-#include "../http/HttpRequest.hpp"
 #include "../http/HttpResponse.hpp"
 
 enum Socket_type
@@ -32,26 +31,28 @@ class Socket
     	int         	_server_index;
     	Socket_type 	_type;
 		std::time_t		_start;
-		
-		Socket() : _fd(-1), _server_index(-1), _type(LISTENER), _start(-1) {};
+
+		Socket() : _fd(-1), _server_index(-1), _type(LISTENER), _start(-1) { this->setStartTime();};
 		Socket(int fd, int server_index, Socket_type type)
 		: _fd(fd), _server_index(server_index), _type(type)  ,_start(-1)
-		{};
-		Socket(const Socket& src) 
+		{this->setStartTime();};
+		Socket(const Socket& src)
 		: _fd(src._fd), _server_index(src._server_index), _type(src._type), _start(src._start)
 		{};
-		
+
 	public :
 
-		
+
 		virtual ~Socket(){};
 		void setStartTime(std::time_t start)
 		{
-			this->_start = start;
+			if (this->_type != LISTENER)
+				this->_start = start;
 		};
 		void setStartTime()
 		{
-			this->_start = std::time(NULL);
+			if (this->_type != LISTENER)
+				this->_start = std::time(NULL);
 		};
 		time_t getStartTime() const
 		{

@@ -1,6 +1,7 @@
 #include "../includes/Webserv.hpp"
 #include "../includes/config/Config.hpp"
 #include "../includes/socket/Socket.hpp"
+#include "../includes/socket/Cgi.hpp"
 
 static volatile sig_atomic_t run = 1;
 
@@ -10,42 +11,7 @@ void ft_handler(int signal)
 	run = 0;
 }
 
-bool ft_open_socket(struct addrinfo *info, int &socketfd)
-{
-	struct addrinfo *temp;
-	int flags_fcntl;
-	
-	temp = info;
-	while(temp)
-	{
-		socketfd = socket(temp->ai_family, temp->ai_socktype, temp->ai_protocol);
-		if (socketfd == -1)
-		{
-			temp = temp->ai_next;
-			continue ;
-		}
-		int activate = 1;
-        if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &activate, sizeof(activate)) == -1)
-		{
-			close(socketfd);
-			temp = temp->ai_next;
-			continue ;    
-		}
-		if (bind(socketfd, temp->ai_addr, temp->ai_addrlen) == 0)
-			break ;
-		close(socketfd);
-		temp = temp->ai_next;		
-	}
-	freeaddrinfo(info);
-	if (!temp)
-		return(true);
-	flags_fcntl = fcntl(socketfd, F_GETFL);
-	if (flags_fcntl == -1 || fcntl(socketfd, F_SETFL, flags_fcntl | O_NONBLOCK) == -1)
-		return (close(socketfd), true);
-	return(false);
-}
-
-void ft_timeout_sockets(std::map<int, Socket *> &map_socket,const int &epollfd)
+void ft_timeout_sockets(std::map<int, Socket *> &map_socket,const int &epollfd, Config *config)
 {
 	std::time_t end = std::time(NULL);
  
@@ -57,8 +23,8 @@ void ft_timeout_sockets(std::map<int, Socket *> &map_socket,const int &epollfd)
 		{
 			if (socket->getType() == CONNECTION)
 				ft_close_socket(map_socket, socket->getFd(), epollfd);
-			// else if (socket->getType() == CGI)
-				// ft_cgi_hup(map_socket, *socket, NULL, epollfd);
+			else if (socket->getType() == CGI)
+				ft_cgi_hup(map_socket, dynamic_cast<Cgi &>(*socket), config);
 		}
 	}
 }
@@ -79,8 +45,6 @@ bool ft_webserv(Config *config)
 	while(run)
 	{
 		nb_events = epoll_wait(epollfd, events, 128 , 5000);
-		if (nb_events == 0)
-			continue ;
 		if (nb_events == -1)
 		{
 			if (errno == EINTR)
@@ -95,7 +59,7 @@ bool ft_webserv(Config *config)
 				return (ft_close_all_sockets(map_socket, epollfd), true);
 			i++;
 		}
-		ft_timeout_sockets(map_socket, epollfd);
+		ft_timeout_sockets(map_socket, epollfd, config);
 	}
 	ft_close_all_sockets(map_socket, epollfd);
 	return (false);

@@ -4,7 +4,7 @@ ssize_t HttpRequest::_ft_verif_length(std::string &length, size_t &max_body_size
 {
 	char *end;
 	size_t content_length = std::strtoul(length.c_str(), &end, 10);
-
+ 
 	if (*end != '\0' ) //length.empty() ||
 	{
 		this->setError(400);
@@ -70,14 +70,13 @@ bool HttpRequest::_ft_parse_with_chunked(std::string &flags, size_t &max_body_si
 		this->setError(400);
 		return(true) ;
 	}
-	if ((pos = this->_buffer.find("0\r\n")) == std::string::npos || (pos > 0 && std::isdigit(this->_buffer[pos - 1])))
+	if ((pos = this->_buffer.find("0\r\n\r\n")) == std::string::npos || (pos > 0 && std::isdigit(this->_buffer[pos - 1])))
 		return (true);
 	while((pos = this->_buffer.find("\r\n")) != std::string::npos)
 	{
 		if (this->_ft_parse_chunk(pos, max_body_size))
 			return (true);
 	}
-
 	return (false);
 }
 
