@@ -81,6 +81,8 @@ bool	ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 		std::cout << buffer << std::endl;
 		parent.getHttpResponse().addBody(buffer);
 		std::cout << "nb bytes read " << bytes_read << std::endl;
+		target.setStartTime();
+		parent.setStartTime();
 		return (false);
 	}
 
@@ -125,6 +127,8 @@ bool	ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 		}
 		delete &target;
 	}
+	target.setStartTime();
+	parent.setStartTime();
 	return (false);
 }
 

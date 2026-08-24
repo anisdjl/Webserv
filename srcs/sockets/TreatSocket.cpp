@@ -20,7 +20,7 @@ bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, C
 	char buffer[BUFFER_SIZE + 1];
 
 	if (target.getHttpRequest().getState() == INCOMPLETE)
-	{	
+	{
 		std::memset(buffer, 0, BUFFER_SIZE + 1);
 		bytes_read = recv(target.getFd(), buffer, BUFFER_SIZE, 0);
 		if (bytes_read < 1)
@@ -30,11 +30,11 @@ bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, C
 	if (target.getHttpRequest().getState() == COMPLETE)
 	{
 		if(target.getHttpResponse().getState() == NOT_BUILT)
-		{	
+		{
 			target.getHttpResponse().buildResponse(target, config->getServer()[target.getServerIndex()], map_socket, epollfd);
 		}
 		if (target.getHttpResponse().getState() == BUILT)
-		{	
+		{
 			struct epoll_event temp;
 			std::memset(&temp, 0, sizeof(temp));
 			temp.data.fd = target.getFd();
@@ -43,11 +43,12 @@ bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, C
 				return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
 		}
 	}
+	target.setStartTime();
 	return (false);
 }
 
 bool ft_send_request(std::map<int, Socket *> &map_socket, Connection &target, const int &epollfd)
-{ 
+{
 	int temp_sent = 0;
 	struct epoll_event temp;
 	std ::string response = target.getHttpResponse().getResponse();
@@ -68,6 +69,7 @@ bool ft_send_request(std::map<int, Socket *> &map_socket, Connection &target, co
 		if (epoll_ctl(epollfd, EPOLL_CTL_MOD, target.getFd(), &temp) == -1)
 			return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
 	}
+	target.setStartTime();
 	return (false);
 }
 
@@ -78,7 +80,7 @@ void ft_create_connection(std::map<int, Socket *> &map_socket, Socket &target , 
 	struct sockaddr_storage their_addr;
 	socklen_t addr_size;
 	int flags_fcntl;
-	
+
 	std::memset(&their_addr, 0, sizeof(their_addr));
 	addr_size = sizeof (their_addr);
 	temp->setServerIndex(target.getServerIndex());
@@ -135,9 +137,5 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
 	}
 	if (event.events & (EPOLLRDHUP) && (target.getType() == CONNECTION) && (dynamic_cast<Connection &>(target).getHttpRequest().getState() == INCOMPLETE))
 			return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
-	if (target.getType() != LISTENER)
-		target.setStartTime();
-	if (target.getType() == CGI)
-		map_socket.find(dynamic_cast<Cgi &>(target).getParentIndex())->second->setStartTime();
 	return (false);
 }
