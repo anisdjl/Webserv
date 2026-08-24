@@ -11,7 +11,7 @@ void ft_handler(int signal)
 	run = 0;
 }
 
-void ft_timeout_sockets(std::map<int, Socket *> &map_socket,const int &epollfd, Config *config)
+void ft_timeout_sockets(std::map<int, Socket *> &map_socket,const int &epollfd)
 {
 	std::time_t end = std::time(NULL);
 
@@ -63,7 +63,7 @@ bool ft_webserv(Config *config)
 				return (ft_close_all_sockets(map_socket, epollfd), true);
 			i++;
 		}
-		ft_timeout_sockets(map_socket, epollfd, config);
+		ft_timeout_sockets(map_socket, epollfd);
 	}
 	ft_close_all_sockets(map_socket, epollfd);
 	return (false);

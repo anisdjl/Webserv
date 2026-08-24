@@ -6,7 +6,7 @@
 /*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 18:23:35 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/08 18:08:27 by ymoumene         ###   ########.fr       */
+/*   Updated: 2026/08/24 16:03:50 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,13 @@ void ft_close_socket(std::map<int, Socket *> &map_socket, int target_fd, const i
 {
 	Socket *target = map_socket.find(target_fd)->second;
 
-	epoll_ctl(epollfd, EPOLL_CTL_DEL, target_fd, NULL);
-	delete target;
-	map_socket.erase(target_fd);
-	close(target_fd);
+	if (target)
+	{
+		epoll_ctl(epollfd, EPOLL_CTL_DEL, target_fd, NULL);
+		delete target;
+		map_socket.erase(target_fd);
+		close(target_fd);
+	}
 }
 
 void ft_close_cgi(std::map<int, Socket *> &map_socket, int target_fd, const int &epollfd)

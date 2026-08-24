@@ -12,7 +12,7 @@ const std::string		&HttpRequest::getHeader(std::string key) const
 	std::map<std::string, std::string >::const_iterator it = _header.find(n_key);
 	if (it != _header.end())
 		return it->second;
-	return NULL;
+	return "";
 }
 
 void 	HttpRequest::resetRequest()
