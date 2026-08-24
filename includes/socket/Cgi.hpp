@@ -6,7 +6,7 @@
 /*   By: adjelili <adjelili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/06 20:02:41 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/24 15:29:42 by adjelili         ###   ########.fr       */
+/*   Updated: 2026/08/24 17:44:26 by adjelili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ class Cgi : public Socket
 		int				_epollfd;
 		time_t 			_timestamp;
 		std::string		_reqPath;
+		std::string		_bodyToWrite;
+		ssize_t			_bodyWritten;
 
     public:
 		void	setParentIndex(int &index) { this->_parent_index = index; };
@@ -41,9 +43,12 @@ class Cgi : public Socket
 		int		getPipeOut(void) { return (_pipe_out); };
 		int		getEpoll(void) { return (_epollfd); };
 		int		getChildFd(void) { return (_child_fd); };
+		ssize_t	&getBodyWritten(void) { return (_bodyWritten); };
+		
+		void	addWrittenBytes(ssize_t &size) { _bodyWritten += size; };
 		std::string	getReqPath(void) { return _reqPath; };
 		
-		Cgi() : Socket(), _parent_index(-1) { this->_type = CGI; };
+		Cgi() : Socket(), _parent_index(-1), _bodyWritten(0) { this->_type = CGI; };
 		Cgi(int fd, int server_index, int parent_index) : Socket(fd, server_index, CGI), _parent_index(parent_index) {	};
 		Cgi(const Cgi& src) : Socket(src), _parent_index(src._parent_index) { };
         ~Cgi() {};
@@ -65,7 +70,7 @@ bool		ft_cgi_in(std::map<int, Socket*> &map_socket, Cgi &target, Config *config)
 void		ft_cgi_hup(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
 bool 		ft_cgi_out(std::map<int, Socket*> &map_socket, Cgi &target, Config *config);
 void		ft_cgi_close(Cgi &target, std::map<int, Socket *> &map_socket);
-std::string	checkContentTypeScript(Connection &client);
+void		checkContentTypeScript(Connection &client);
 
 
 #endif

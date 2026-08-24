@@ -149,7 +149,6 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
 		throw std::runtime_error("Error: couldn't open pipes"); }
 
-	//write(pipe_out[1], req.getBody().c_str(), req.getBody().size());
 	pid = fork();
 	if (pid < 0)
 	{
