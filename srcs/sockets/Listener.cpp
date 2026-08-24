@@ -91,8 +91,8 @@ bool ft_construct_listener(std::map <int, Socket *> &map_socket, Config *config,
 			temp_socket = new Listen();
 			std::memset(&temp, 0, sizeof(temp));
 			if(ft_listener(config->getServer()[i].getHost(), config->getServer()[i].getListen()[j], temp_socket->getFd()))
-				return (true);
-					temp_socket->setServerIndex(i);
+				return (delete temp_socket, true);
+			temp_socket->setServerIndex(i);
 			map_socket.insert(std::make_pair(temp_socket->getFd(), temp_socket));
 			temp.data.fd = temp_socket->getFd();
 			temp.events = EPOLLIN;

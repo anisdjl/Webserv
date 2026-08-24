@@ -3,7 +3,7 @@ http://127.0.0.1:2500/css/
 http://127.0.0.1:2500/no-autoindex/
 http://127.0.0.1:2500/image.jpeg
 http://127.0.0.1:2500/htmlup/index.html
-http://127.0.0.1:2500/upload POST data=test_siege_payload
+http://127.0.0.1:2500/uploads POST data=test_siege_payload
 http://127.0.0.1:2500/cgi-bin/script.py
 http://127.0.0.1:2500/old-path
 http://127.0.0.1:2500/route_qui_nexiste_pas

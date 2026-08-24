@@ -60,8 +60,10 @@ bool ft_send_request(std::map<int, Socket *> &map_socket, Connection &target, co
 		return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
 	target.getHttpResponse().add_bytes_sent(temp_sent);
 	std::memset(&temp, 0, sizeof(temp));
-	if (target.getHttpResponse().get_bytes_sent() >= response.length())
+	if (target.getHttpResponse().get_bytes_sent() == response.length())
 	{
+		if (target.getHttpRequest().getErrorCode() != 0)
+			return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
 		temp.data.fd = target.getFd();
 		temp.events = EPOLLIN;
 		target.getHttpRequest().resetRequest();
