@@ -225,7 +225,6 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location, std::string &req_path)
 {
 	std::vector<std::string> env_var;
-	std::cout << req.getPath() << std::endl;
 	(void)servconf; (void)location;
 	env_var.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	env_var.push_back("SERVER_PROTOCOL=HTTP/1.1");
