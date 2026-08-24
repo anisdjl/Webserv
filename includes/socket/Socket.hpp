@@ -104,6 +104,7 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
 bool ft_construct_listener(std::map<int, Socket *> &map_socket, Config *config, int const &epollfd);
 bool ft_open_socket(struct addrinfo *info, int &socketfd);
 void ft_close_socket(std::map<int, Socket *> &map_socket, int target_fd, const int &epollfd);
+void ft_close_cgi(std::map<int, Socket *> &map_socket, int target_fd, const int &epollfd);
 void ft_close_all_sockets(std::map<int, Socket *> &map_socket, const int &epollfd);
 
 #endif

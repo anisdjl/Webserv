@@ -182,6 +182,13 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 	}
 	close(pipe_in[1]);
 	close(pipe_out[0]);
+	delete path;
+	for (size_t i = 0; env[i] != NULL; ++i)
+		delete [] env[i];
+	delete [] env;
+	for (size_t i = 0; argv[i] != NULL; ++i)
+		delete [] argv[i];
+	delete [] argv;
 	std::cout << req.getVersion() <<std::endl;
 	struct epoll_event tmp1;
 	tmp1.events = EPOLLIN;

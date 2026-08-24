@@ -16,10 +16,9 @@ void ft_timeout_sockets(std::map<int, Socket *> &map_socket,const int &epollfd, 
 	std::time_t end = std::time(NULL);
 
 	std::vector<int> fd_to_destroy;
-	
+
 	for (std::map<int, Socket *>::iterator it = map_socket.begin(); it != map_socket.end(); ++it)
 	{
-		
 		double elapsed = std::difftime(end, it->second->getStartTime());
 		if (it->second->getStartTime() != -1 && elapsed > TIMEOUT)
 			fd_to_destroy.push_back(it->first);
@@ -30,7 +29,7 @@ void ft_timeout_sockets(std::map<int, Socket *> &map_socket,const int &epollfd, 
 		if (socket->getType() == CONNECTION)
 			ft_close_socket(map_socket, socket->getFd(), epollfd);
 		else if (socket->getType() == CGI)
-			ft_cgi_hup(map_socket, dynamic_cast<Cgi &>(*socket), config);
+			ft_close_cgi(map_socket, socket->getFd(), epollfd);
 	}
 }
 
