@@ -3,14 +3,8 @@
 
 #include "HttpRequest.hpp"
 #include "../config/Config.hpp"
-#include <sys/stat.h>
-#include <cstdlib>
-#include <fstream>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sstream>
-#include <dirent.h>
-#include <ctime>
+
+
 
 class Connection;
 class Socket;
@@ -66,8 +60,8 @@ class HttpResponse
 		bool								_isCgiRequest(std::string path, const LocationConfig *location) const;
         void								_buildRedirResponse(std::string new_path);
 
-        bool	                            _buildGetResponse(HttpRequest& req,const ServerConfig &servConf,const LocationConfig *location, const int  &epollfd, std::map<int, Socket *> map_socket, Connection &target);
-        bool								_buildPostResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location, const int  &epollfd, std::map<int, Socket *> map_socket, Connection &target);
+        bool	                            _buildGetResponse(HttpRequest& req,const ServerConfig &servConf,const LocationConfig *location, const int  &epollfd, std::map<int, Socket *> &map_socket, Connection &target);
+        bool								_buildPostResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location, const int  &epollfd, std::map<int, Socket *> &map_socket, Connection &target);
         void								_buildDeleteResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location);
 		bool								_cgiStartChecker(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 

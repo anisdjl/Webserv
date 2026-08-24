@@ -84,18 +84,20 @@ void ft_create_connection(std::map<int, Socket *> &map_socket, Socket &target , 
 	temp->setServerIndex(target.getServerIndex());
 	temp->setFd(accept(target.getFd(), (struct sockaddr *)&their_addr, &addr_size));
 	if (temp->getFd() == -1)
-		return ;
+		return(delete temp) ;
 	flags_fcntl = fcntl(temp->getFd(), F_GETFL);
 	if (flags_fcntl == -1 || fcntl(temp->getFd(), F_SETFL, flags_fcntl | O_NONBLOCK) == -1)
 	{
 		close(temp->getFd());
-		delete temp;
-		return ;
+		return (delete temp);
 	}
 	temp_event.data.fd = temp->getFd();
 	temp_event.events = EPOLLIN;
 	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, temp->getFd(), &temp_event) == -1)
+	{
+		delete temp;
 		close(temp->getFd());
+	}
 	else
 		map_socket.insert(std::make_pair(temp->getFd(), temp));
 }
@@ -107,7 +109,6 @@ bool ft_treat_socket(std::map<int, Socket *> &map_socket, struct epoll_event &ev
     	return false;
 	Socket &target = *(it->second);
 
-	// std::cout << event.events << std::endl;
 	if (event.events & (EPOLLIN))
 	{
 		if(target.getType() == LISTENER)

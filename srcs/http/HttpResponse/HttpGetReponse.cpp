@@ -12,7 +12,7 @@ void	HttpResponse::_buildRedirResponse(std::string new_path)
 	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
 }
 
-bool	HttpResponse::_buildGetResponse(HttpRequest& req,const ServerConfig &servConf,const LocationConfig *location, const int  &epollfd, std::map<int, Socket *> map_socket, Connection &target)
+bool	HttpResponse::_buildGetResponse(HttpRequest& req,const ServerConfig &servConf,const LocationConfig *location, const int  &epollfd, std::map<int, Socket *> &map_socket, Connection &target)
 {
 	if (this->_isDone)
     	return false;
