@@ -30,6 +30,7 @@ void ft_close_cgi(std::map<int, Socket *> &map_socket, int target_fd, const int 
 {
 	Cgi *target = dynamic_cast<Cgi *>(map_socket.find(target_fd)->second);
 
+	
 	if (target)
 	{
 		int pipe_in = target->getPipeIn();
@@ -51,7 +52,6 @@ void ft_close_cgi(std::map<int, Socket *> &map_socket, int target_fd, const int 
 		}
 		delete target;
 	}
-	map_socket.erase(target_fd);
 }
 
 void ft_close_all_sockets(std::map<int, Socket *> &map_socket, const int &epollfd)

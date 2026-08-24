@@ -128,7 +128,6 @@ The actual port and document root depend on the configuration file selected at s
 ├── main.cpp
 ├── Makefile
 ├── README.md
-├── Socket.hpp
 └──  srcs
      ├── config
      │   ├── ConfigCheck.cpp
