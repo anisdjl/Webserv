@@ -109,7 +109,6 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 	int pipe_in[2];
 	int pipe_out[2];
 
-	// std::cout << "dans cgibuild " << std::endl;
 	std::string root = location->getRoot();
 	std::string req_path = root + req.getPath();
 	req_path = _clearPathGarbage(req_path);
@@ -117,12 +116,11 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 
 	if (access(req_path.c_str(), F_OK) != 0)
 	{
-		// std::cout << "je suis dans cgi build 2" << std::endl;
 		_buildErrorResponse(404, servConf, location);
 		_response = _buildStringResponse();
 		return ;
 	}
-	if (access(req_path.c_str(), R_OK | X_OK) != 0)
+	if (access(req_path.c_str(), R_OK) != 0)
 	{
 		_buildErrorResponse(403, servConf, location);
 		_response = _buildStringResponse();
@@ -168,10 +166,8 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 		dup2(pipe_in[1], STDOUT_FILENO);
 		close(pipe_in[1]); close(pipe_in[0]);
 
-		// std::cout << "je suis ici avant l'exec" << std::endl;
 		execve(path, argv, env);
-		// std::cout << "execve a foire" << std::endl;
-		delete path;
+		delete [] path;
 		for (size_t i = 0; env[i] != NULL; ++i)
 			delete [] env[i];
 		delete [] env;
@@ -180,9 +176,16 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 		delete [] argv;
 		exit(1);
 	}
+  		delete [] path;
+		for (size_t i = 0; env[i] != NULL; ++i)
+			delete [] env[i];
+		delete [] env;
+		for (size_t i = 0; argv[i] != NULL; ++i)
+			delete [] argv[i];
+		delete [] argv;
 	close(pipe_in[1]);
 	close(pipe_out[0]);
-	// std::cout << req.getVersion() <<std::endl;
+	std::cout << req.getVersion() <<std::endl;
 	struct epoll_event tmp1;
 	tmp1.events = EPOLLIN;
 	tmp1.data.fd = pipe_in[0];
@@ -208,7 +211,6 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 	}
 	else
 	{
-		// std::cout << "je passe ici le body est vide" << std::endl;
 		int fd_negative = -1;
 		new_cgi->setPipeOut(fd_negative);
 		close(pipe_out[1]);
@@ -222,32 +224,65 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 
 char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location)
 {
+	std::vector<std::string> env_var;
 	(void)servconf; (void)location;
-	char	**env;
-	size_t	size_of_env = req.getHeader().size() + 2;
-	if (req.getHeader().find("Cookie") != req.getHeader().end())
-		env = new char*[size_of_env + 1];
-	else
-		env = new char*[size_of_env];
-	std::string capital = capitalize(req.getMethod());
-	std::string	method = "REQUEST_METHOD=" + capital;
+	env_var.push_back("GATEWAY_INTERFACE=CGI/1.1");
+	env_var.push_back("SERVER_PROTOCOL=HTTP/1.1");
+	env_var.push_back("SERVER_SOFTWARE=WeebServ/1.0");
+	env_var.push_back("REDIRECT_STATUS=200");
+	env_var.push_back("REQUEST_METHOD=" + capitalize(req.getMethod()));
+	env_var.push_back("PATH_INFO=" + req.getPath());
+	env_var.push_back("PATH_TRANSLATED=" + location->getRoot() + req.getPath());
+	env_var.push_back("SCRIPT_NAME=" + req.getPath());
+	std::map<std::string, std::string>::const_iterator it = req.getHeader().find("cookie");
+	if (it != (req.getHeader().end()))
+		env_var.push_back("COOKIE=" + it->second);
 
-	// std::cout << "je suis dans getenv" << std::endl;
 
-	env[0] = fillEnv(method);
-	size_t	i = 1;
-	for (std::map<std::string, std::string>::const_iterator it = req.getHeader().begin(); it != req.getHeader().end(); ++it)
-	{
-		std::string header = makeHeaderEnv(it->first, it->second);
-		// std::cout << "le header " << header << std::endl;
-		// std::cout << i << " tour de boucle" << std::endl;
-		env[i] = fillEnv(header);
-		i++;
-	}
-	env[i] = NULL;
-	// std::cout << "j'ai bien mon env" << std::endl;
-	//display(env);
-	return (env);
+	size_t q_pos = req.getPath().find('?');
+	if (q_pos != std::string::npos)
+		env_var.push_back("QUERY_STRING=" + req.getPath().substr(q_pos + 1));
+    else
+		env_var.push_back("QUERY_STRING=");
+
+	if (req.getBody().size() > 0)
+    {
+        std::ostringstream ss;
+        ss << req.getBody().size();
+        env_var.push_back("CONTENT_LENGTH=" + ss.str());
+    }
+    for (std::map<std::string, std::string>::const_iterator it = req.getHeader().begin(); it != req.getHeader().end(); ++it)
+		env_var.push_back(makeHeaderEnv(it->first, it->second));
+
+	char **env = new char*[env_var.size() + 1];
+	for (size_t i = 0; i < env_var.size(); ++i)
+		env[i] = fillEnv(env_var[i]);
+	env[env_var.size()] = NULL;
+
+	return env;
+	// (void)servconf; (void)location;
+	// char	**env;
+	// size_t	size_of_env = req.getHeader().size() + 2;
+	// if (req.getHeader().find("Cookie") != req.getHeader().end())
+	// 	env = new char*[size_of_env + 1];
+	// else
+	// 	env = new char*[size_of_env];
+	// std::string capital = capitalize(req.getMethod());
+	// std::string	method = "REQUEST_METHOD=" + capital;
+
+	// env[0] = fillEnv(method);
+	// size_t	i = 1;
+	// for (std::map<std::string, std::string>::const_iterator it = req.getHeader().begin(); it != req.getHeader().end(); ++it)
+	// {
+	// 	std::string header = makeHeaderEnv(it->first, it->second);
+	// 	// std::cout << "le header " << header << std::endl;
+	// 	// std::cout << i << " tour de boucle" << std::endl;
+	// 	env[i] = fillEnv(header);
+	// 	i++;
+	// }
+	// env[i] = NULL;
+	// //display(env);
+	// return (env);
 }
 
 char	*getPath(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location) // ici je vais aussi recevoir la map des sockets, le epollfd, et un objet cgi pour pouvoir les neregistrer
@@ -298,18 +333,17 @@ char	**getArgv(HttpRequest &req, const ServerConfig &servconf, const LocationCon
 	(void)servconf; (void)req;
 	
 	std::string pathstr = path;
-	// std::cout << "je suis dans getargv" << std::endl;
+
 	size_t	pos = pathstr.find_last_of("/");
 
 	if (pos != std::string::npos)
-		argv[0] = fillEnv(pathstr.substr(pos));
+		argv[0] = fillEnv(pathstr.substr(pos + 1));
 	else
-		throw std::out_of_range("Error: no extension found for the cgi"); // pas sur de faire ca sinon ca va couper le server je pense qu'on renverra une erreur correcte
+		throw std::out_of_range("Error: no extension found for the cgi");
 
 	std::string	fullPath = location->getRoot() + req.getPath();
 	argv[1] = fillEnv(fullPath);
 	argv[2] = NULL;
-	// std::cout << "full path " << fullPath << std::endl;
 	
 	return (argv);
 }
