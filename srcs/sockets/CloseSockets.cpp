@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   CloseSockets.cpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/08/01 18:23:35 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/08 18:08:27 by ymoumene         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../../includes/socket/Socket.hpp"
 
 void ft_close_socket(std::map<int, Socket *> &map_socket, int target_fd, const int &epollfd)
