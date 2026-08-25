@@ -171,7 +171,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 		// std::cout << "je suis ici avant l'exec" << std::endl;
 		execve(path, argv, env);
 		// std::cout << "execve a foire" << std::endl;
-		delete path;
+		delete [] path;
 		for (size_t i = 0; env[i] != NULL; ++i)
 			delete [] env[i];
 		delete [] env;
@@ -180,6 +180,13 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 		delete [] argv;
 		exit(1);
 	}
+  		delete [] path;
+		for (size_t i = 0; env[i] != NULL; ++i)
+			delete [] env[i];
+		delete [] env;
+		for (size_t i = 0; argv[i] != NULL; ++i)
+			delete [] argv[i];
+		delete [] argv;
 	close(pipe_in[1]);
 	close(pipe_out[0]);
 	std::cout << req.getVersion() <<std::endl;
