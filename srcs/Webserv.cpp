@@ -11,21 +11,25 @@ void ft_handler(int signal)
 	run = 0;
 }
 
-void ft_timeout_sockets(std::map<int, Socket *> &map_socket,const int &epollfd, Config *config)
+void ft_timeout_sockets(std::map<int, Socket *> &map_socket,const int &epollfd)
 {
 	std::time_t end = std::time(NULL);
- 
+
+	std::vector<int> fd_to_destroy;
+
 	for (std::map<int, Socket *>::iterator it = map_socket.begin(); it != map_socket.end(); ++it)
 	{
-		Socket *socket = it->second;
-		double elapsed = std::difftime(end, socket->getStartTime());
-		if (socket->getStartTime() != -1 && elapsed > TIMEOUT)
-		{
-			if (socket->getType() == CONNECTION)
-				ft_close_socket(map_socket, socket->getFd(), epollfd);
-			else if (socket->getType() == CGI)
-				ft_cgi_hup(map_socket, dynamic_cast<Cgi &>(*socket), config);
-		}
+		double elapsed = std::difftime(end, it->second->getStartTime());
+		if (it->second->getStartTime() != -1 && elapsed > TIMEOUT)
+			fd_to_destroy.push_back(it->first);
+	}
+	for (size_t i = 0; i < fd_to_destroy.size(); ++i)
+	{
+		Socket *socket = map_socket.find(fd_to_destroy[i])->second;
+		if (socket->getType() == CONNECTION)
+			ft_close_socket(map_socket, socket->getFd(), epollfd);
+		else if (socket->getType() == CGI)
+			ft_close_cgi(map_socket, socket->getFd(), epollfd);
 	}
 }
 
@@ -59,7 +63,7 @@ bool ft_webserv(Config *config)
 				return (ft_close_all_sockets(map_socket, epollfd), true);
 			i++;
 		}
-		ft_timeout_sockets(map_socket, epollfd, config);
+		ft_timeout_sockets(map_socket, epollfd);
 	}
 	ft_close_all_sockets(map_socket, epollfd);
 	return (false);

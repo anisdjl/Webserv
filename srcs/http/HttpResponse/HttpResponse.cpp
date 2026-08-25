@@ -182,7 +182,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 	}
 	close(pipe_in[1]);
 	close(pipe_out[0]);
-	// std::cout << req.getVersion() <<std::endl;
+	std::cout << req.getVersion() <<std::endl;
 	struct epoll_event tmp1;
 	tmp1.events = EPOLLIN;
 	tmp1.data.fd = pipe_in[0];

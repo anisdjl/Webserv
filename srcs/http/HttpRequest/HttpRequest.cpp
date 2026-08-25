@@ -8,11 +8,10 @@ HttpRequest::~HttpRequest(){};
 const std::string		&HttpRequest::getHeader(std::string key) const
 {
 	std::string n_key = this->_ft_tolower(key);
-	
 	std::map<std::string, std::string >::const_iterator it = _header.find(n_key);
 	if (it != _header.end())
 		return it->second;
-	return NULL;
+	return _header.end()->second;
 }
 
 void 	HttpRequest::resetRequest()
