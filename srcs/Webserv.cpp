@@ -37,7 +37,7 @@ bool ft_webserv(Config *config)
 {
 	std::map <int, Socket *> map_socket;
 	int epollfd = epoll_create1(0);
-	struct epoll_event events[128];
+	struct epoll_event events[256];
 	int nb_events;
 	int i;
 
@@ -48,7 +48,7 @@ bool ft_webserv(Config *config)
 	signal(SIGINT, ft_handler);
 	while(run)
 	{
-		nb_events = epoll_wait(epollfd, events, 128 , 5000);
+		nb_events = epoll_wait(epollfd, events, 256 , 5000);
 		if (nb_events == -1)
 		{
 			if (errno == EINTR)

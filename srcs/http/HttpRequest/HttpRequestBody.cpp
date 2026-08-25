@@ -1,9 +1,10 @@
 #include "../../../includes/http/HttpRequest.hpp"
+#include <cstddef>
 
 ssize_t HttpRequest::_ft_verif_length(std::string &length, size_t &max_body_size)
 {
 	char *end;
-	size_t content_length = std::strtoul(length.c_str(), &end, 10);
+	ssize_t content_length = std::strtol(length.c_str(), &end, 10);
  
 	if (*end != '\0' ) //length.empty() ||
 	{
@@ -11,13 +12,19 @@ ssize_t HttpRequest::_ft_verif_length(std::string &length, size_t &max_body_size
 		this->_state = COMPLETE;
 		return(-1) ;
 	}
-	else if (content_length > max_body_size)
+	if (content_length < 0)
+	{
+		this->_state = COMPLETE;
+		this->setError(400);
+		return(-1) ;
+	}
+	else if (static_cast<size_t>(content_length) > max_body_size)
 	{
 		this->_state = COMPLETE;
 		this->setError(413);
 		return(-1) ;
 	}
-	if (this->_buffer.length() < content_length)
+	if (this->_buffer.length() < static_cast<size_t>(content_length))
 		return (-1);
 	return (content_length);
 }
