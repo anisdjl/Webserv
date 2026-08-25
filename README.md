@@ -88,7 +88,7 @@ server {
 
 Available directives include `listen`, `host`, `server_name`, `client_max_body_size`, `error_page`, `root`, `index`, `allow_methods`, `autoindex`, `return`, `upload_store` and `cgi_pass`. Paths are interpreted by the server as written, so make sure the document roots and upload directories exist and have the required permissions.
 
-### Testing the server
+## Testing the server
 
 With the default configuration, the example website is available on port `2500`:
 
@@ -96,6 +96,71 @@ With the default configuration, the example website is available on port `2500`:
 curl http://127.0.0.1:2500/
 curl -i http://127.0.0.1:2500/index.html
 curl -i -X DELETE http://127.0.0.1:2500/file.txt
+```
+
+Advanced Test
+
+Install siege :
+```shell
+gcl https://github.com/JoeDog/siege.git siege
+cd siege
+utils/bootstrap
+./configure 
+make
+make install
+```
+Siege configuration :
+
+```shell
+cat << 'EOF' > ~/.siegerc
+benchmark = true
+concurrents = 50
+connection-timeout = 10
+connection = keep-alive
+protocol = HTTP/1.1
+verbose = true
+show-fields = true
+EOF
+```
+Launch the test :
+```shell
+# Test define URL
+siege -b -c 100 -t 30s -f urls.txt
+# Test the entire website
+ siege -b -c 100 -t 30s http://127.0.0.1:2500/
+# By default siege only use get, test with POST :
+siege -b -c 100 -t 30s "http://127.0.0.1:2500/upload POST data=test_payload"
+```
+**/!\ The test result depends on the config file**
+### Some curl test
+#### Post Test :
+
+Invalid post
+```
+# Invalid path
+curl -i -X POST -d "data" http://127.0.0.1:2500/invalid-store
+# Invalid Length
+curl -i -X POST -H "Content-Length: abc" -d "data" http://127.0.0.1:2500/uploads
+curl -i -X POST -H "Content-Length: -42" -d "data" http://127.0.0.1:2500/uploads
+# Upload file
+curl -i -X POST -d "File content" http://127.0.0.1:2500/uploads
+```
+#### Get Test :
+
+Invalid Get test
+```
+# Get invalid path
+curl -i http://127.0.0.1:2500/invalid-path
+# Get index
+curl -i http://127.0.0.1:2500/
+curl -i http://127.0.0.1:2500/htmlup
+```
+
+#### Delete test
+```
+# Delete file
+curl -i -X DELETE http://127.0.0.1:2500/uploads/file_name
+curl -i -X DELETE http://127.0.0.1:2500/uploads/invalid-file
 ```
 
 The actual port and document root depend on the configuration file selected at startup.
@@ -172,6 +237,7 @@ The actual port and document root depend on the configuration file selected at s
 
 ## Resources
 
+- [nginx - Beginners guides](https://nginx.org/en/docs/beginners_guide.html): nginx configuration file tutorial.
 - [RFC 9110 - HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110): HTTP methods, status codes and general Semantics
 - [How to use epoll? A complete example in C]( https://web.archive.org/web/20160303233233/https://banu.com/blog/2/how-to-use-epoll-a-complete-example-in-c/) : epoll tutorial.
 - [RFC 9112 - HTTP/1.1](https://www.rfc-editor.org/rfc/rfc9112): HTTP/1.1 message syntax and connection rules.
