@@ -136,7 +136,7 @@ siege -b -c 100 -t 30s "http://127.0.0.1:2500/upload POST data=test_payload"
 #### Post Test :
 
 Invalid post
-```
+```shell
 # Invalid path
 curl -i -X POST -d "data" http://127.0.0.1:2500/invalid-store
 # Invalid Length
@@ -148,7 +148,7 @@ curl -i -X POST -d "File content" http://127.0.0.1:2500/uploads
 #### Get Test :
 
 Invalid Get test
-```
+```shell
 # Get invalid path
 curl -i http://127.0.0.1:2500/invalid-path
 # Get index
@@ -157,7 +157,7 @@ curl -i http://127.0.0.1:2500/htmlup
 ```
 
 #### Delete test
-```
+```shell
 # Delete file
 curl -i -X DELETE http://127.0.0.1:2500/uploads/file_name
 curl -i -X DELETE http://127.0.0.1:2500/uploads/invalid-file
