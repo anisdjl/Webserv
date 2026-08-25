@@ -129,7 +129,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 
 	Cgi	*new_cgi = new Cgi;
 
-	char **env = getEnv(req, servConf, location);
+	char **env = getEnv(req, servConf, location, req_path);
 	char *path = getPath(req, servConf, location);
 	if (!path)
 	{
@@ -222,9 +222,10 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 	this->_isDone = true;
 }
 
-char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location)
+char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location, std::string &req_path)
 {
 	std::vector<std::string> env_var;
+	std::cout << req.getPath() << std::endl;
 	(void)servconf; (void)location;
 	env_var.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	env_var.push_back("SERVER_PROTOCOL=HTTP/1.1");
@@ -232,16 +233,16 @@ char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConf
 	env_var.push_back("REDIRECT_STATUS=200");
 	env_var.push_back("REQUEST_METHOD=" + capitalize(req.getMethod()));
 	env_var.push_back("PATH_INFO=" + req.getPath());
-	env_var.push_back("PATH_TRANSLATED=" + location->getRoot() + req.getPath());
+	env_var.push_back("PATH_TRANSLATED=" + req_path);
 	env_var.push_back("SCRIPT_NAME=" + req.getPath());
+	env_var.push_back("SCRIPT_FILENAME=" + req_path);
 	std::map<std::string, std::string>::const_iterator it = req.getHeader().find("cookie");
 	if (it != (req.getHeader().end()))
-		env_var.push_back("COOKIE=" + it->second);
+		env_var.push_back("HTTP_COOKIE=" + it->second);
 
 
-	size_t q_pos = req.getPath().find('?');
-	if (q_pos != std::string::npos)
-		env_var.push_back("QUERY_STRING=" + req.getPath().substr(q_pos + 1));
+	if (!req.getQueryString().empty())
+		env_var.push_back("QUERY_STRING=" + req.getQueryString());
     else
 		env_var.push_back("QUERY_STRING=");
 
@@ -326,6 +327,31 @@ char	*getPath(HttpRequest &req, const ServerConfig &servconf, const LocationConf
 	// std::cout << "the final path " << path << std::endl;
 	return (path);
 }
+
+
+// char **getArgv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location, char *path)
+// {
+//     (void)servconf;
+//     std::string pathstr = path;
+//     size_t pos = pathstr.find_last_of("/");
+//     std::string bin_name = (pos != std::string::npos) ? pathstr.substr(pos + 1) : pathstr;
+
+//     // Pour php-cgi : argv contient seulement le binaire
+//     if (bin_name == "php-cgi" || bin_name == "php")
+//     {
+//         char **argv = new char*[2];
+//         argv[0] = fillEnv(bin_name);
+//         argv[1] = NULL;
+//         return argv;
+//     }
+
+//     // Pour python3 ou les autres interpréteurs : argv = [interpréteur, fichier_cible, NULL]
+//     char **argv = new char*[3];
+//     argv[0] = fillEnv(bin_name);
+//     argv[1] = fillEnv(location->getRoot() + req.getPath());
+//     argv[2] = NULL;
+//     return argv;
+// }
 
 char	**getArgv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location, char *path)
 {

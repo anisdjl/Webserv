@@ -73,7 +73,7 @@ class HttpResponse
 };
 
 
-char	**getEnv(HttpRequest &req, const ServerConfig &servconf,const  LocationConfig *location);
+char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location, std::string &req_path);
 char	*getPath(HttpRequest &req, const ServerConfig &servconf,const  LocationConfig *location);
 char	**getArgv(HttpRequest &req, const ServerConfig &servconf,const  LocationConfig *location, char *path);
 
