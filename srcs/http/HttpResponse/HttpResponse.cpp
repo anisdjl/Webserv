@@ -185,7 +185,6 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 		delete [] argv;
 	close(pipe_in[1]);
 	close(pipe_out[0]);
-	std::cout << req.getVersion() <<std::endl;
 	struct epoll_event tmp1;
 	tmp1.events = EPOLLIN;
 	tmp1.data.fd = pipe_in[0];
@@ -284,6 +283,51 @@ char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConf
 	// //display(env);
 	// return (env);
 }
+
+
+// char **getEnv(HttpRequest &req, const ServerConfig &servconf,
+//               const LocationConfig *location, std::string &req_path)
+// {
+//     std::vector<std::string> env_var;
+//     (void)servconf;
+//     (void)location;
+
+//     env_var.push_back("GATEWAY_INTERFACE=CGI/1.1");
+//     env_var.push_back("SERVER_PROTOCOL=" + req.getVersion());
+//     env_var.push_back("SERVER_SOFTWARE=WeebServ/1.0");
+//     env_var.push_back("REDIRECT_STATUS=200");
+//     env_var.push_back("REQUEST_METHOD=" + capitalize(req.getMethod()));
+//     env_var.push_back("PATH_INFO=" + req.getPath());
+//     env_var.push_back("PATH_TRANSLATED=" + req_path);
+//     env_var.push_back("SCRIPT_NAME=" + req.getPath());
+//     env_var.push_back("SCRIPT_FILENAME=" + req_path);
+//     env_var.push_back("QUERY_STRING=" + req.getQueryString());
+
+//     std::ostringstream content_length;
+//     content_length << req.getBody().size();
+//     env_var.push_back("CONTENT_LENGTH=" + content_length.str());
+
+//     for (std::map<std::string, std::string>::const_iterator it =
+//             req.getHeader().begin(); it != req.getHeader().end(); ++it)
+//     {
+//         std::string key = it->first;
+//         for (size_t i = 0; i < key.size(); ++i)
+//             key[i] = std::tolower(static_cast<unsigned char>(key[i]));
+
+//         if (key == "cookie")
+//             env_var.push_back("HTTP_COOKIE=" + it->second);
+//         else
+//             env_var.push_back(makeHeaderEnv(it->first, it->second));
+//     }
+
+//     char **env = new char*[env_var.size() + 1];
+//     for (size_t i = 0; i < env_var.size(); ++i)
+//         env[i] = fillEnv(env_var[i]);
+//     env[env_var.size()] = NULL;
+
+//     return env;
+// }
+
 
 char	*getPath(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location) // ici je vais aussi recevoir la map des sockets, le epollfd, et un objet cgi pour pouvoir les neregistrer
 {
