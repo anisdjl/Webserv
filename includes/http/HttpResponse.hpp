@@ -39,7 +39,7 @@ class HttpResponse
         void                                setResponse(const std::string& response);
         void                                setBody(const std::string& body);
 		void								addBody(std::string string) { _body.append(string); };
-
+		void								addBody(const char *buff, size_t len) {_body.append(buff, len); };
         void                                setisDone(bool state);
 		std::string                         _findContentType(std::string path);
 	private:
@@ -73,7 +73,7 @@ class HttpResponse
 };
 
 
-char	**getEnv(HttpRequest &req, const ServerConfig &servconf,const  LocationConfig *location);
+char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location, std::string &req_path);
 char	*getPath(HttpRequest &req, const ServerConfig &servconf,const  LocationConfig *location);
 char	**getArgv(HttpRequest &req, const ServerConfig &servconf,const  LocationConfig *location, char *path);
 

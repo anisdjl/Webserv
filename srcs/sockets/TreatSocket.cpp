@@ -1,15 +1,3 @@
- /* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   treat_socket.cpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/07/31 12:03:14 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/03 10:03:12 by ymoumene         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../../includes/socket/Socket.hpp"
 #include "../../includes/socket/Connection.hpp"
 #include "../../includes/socket/Cgi.hpp"

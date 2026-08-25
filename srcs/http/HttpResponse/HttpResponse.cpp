@@ -92,17 +92,6 @@ static char	*fillEnv(std::string string)
 	return (env);
 }	
 
-// static void	display(char **env)
-// {
-// 	int i = 0;
-// 	while(env[i])
-// 	{
-// 		std::cout << env[i] << std::endl;
-// 		i++;
-// 	}
-// 	return ;
-// }
-
 void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location, const int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
 {
 	int pid;
@@ -129,7 +118,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 
 	Cgi	*new_cgi = new Cgi;
 
-	char **env = getEnv(req, servConf, location);
+	char **env = getEnv(req, servConf, location, req_path);
 	char *path = getPath(req, servConf, location);
 	if (!path)
 	{
@@ -185,7 +174,6 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 		delete [] argv;
 	close(pipe_in[1]);
 	close(pipe_out[0]);
-	std::cout << req.getVersion() <<std::endl;
 	struct epoll_event tmp1;
 	tmp1.events = EPOLLIN;
 	tmp1.data.fd = pipe_in[0];
@@ -222,7 +210,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 	this->_isDone = true;
 }
 
-char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location)
+char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location, std::string &req_path)
 {
 	std::vector<std::string> env_var;
 	(void)servconf; (void)location;
@@ -232,16 +220,16 @@ char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConf
 	env_var.push_back("REDIRECT_STATUS=200");
 	env_var.push_back("REQUEST_METHOD=" + capitalize(req.getMethod()));
 	env_var.push_back("PATH_INFO=" + req.getPath());
-	env_var.push_back("PATH_TRANSLATED=" + location->getRoot() + req.getPath());
+	env_var.push_back("PATH_TRANSLATED=" + req_path);
 	env_var.push_back("SCRIPT_NAME=" + req.getPath());
+	env_var.push_back("SCRIPT_FILENAME=" + req_path);
 	std::map<std::string, std::string>::const_iterator it = req.getHeader().find("cookie");
 	if (it != (req.getHeader().end()))
-		env_var.push_back("COOKIE=" + it->second);
+		env_var.push_back("HTTP_COOKIE=" + it->second);
 
 
-	size_t q_pos = req.getPath().find('?');
-	if (q_pos != std::string::npos)
-		env_var.push_back("QUERY_STRING=" + req.getPath().substr(q_pos + 1));
+	if (!req.getQueryString().empty())
+		env_var.push_back("QUERY_STRING=" + req.getQueryString());
     else
 		env_var.push_back("QUERY_STRING=");
 
@@ -260,30 +248,8 @@ char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConf
 	env[env_var.size()] = NULL;
 
 	return env;
-	// (void)servconf; (void)location;
-	// char	**env;
-	// size_t	size_of_env = req.getHeader().size() + 2;
-	// if (req.getHeader().find("Cookie") != req.getHeader().end())
-	// 	env = new char*[size_of_env + 1];
-	// else
-	// 	env = new char*[size_of_env];
-	// std::string capital = capitalize(req.getMethod());
-	// std::string	method = "REQUEST_METHOD=" + capital;
-
-	// env[0] = fillEnv(method);
-	// size_t	i = 1;
-	// for (std::map<std::string, std::string>::const_iterator it = req.getHeader().begin(); it != req.getHeader().end(); ++it)
-	// {
-	// 	std::string header = makeHeaderEnv(it->first, it->second);
-	// 	// std::cout << "le header " << header << std::endl;
-	// 	// std::cout << i << " tour de boucle" << std::endl;
-	// 	env[i] = fillEnv(header);
-	// 	i++;
-	// }
-	// env[i] = NULL;
-	// //display(env);
-	// return (env);
 }
+
 
 char	*getPath(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location) // ici je vais aussi recevoir la map des sockets, le epollfd, et un objet cgi pour pouvoir les neregistrer
 {
@@ -292,12 +258,7 @@ char	*getPath(HttpRequest &req, const ServerConfig &servconf, const LocationConf
 	
 	// std::cout << "je suis dans getpath" << std::endl;
 	if (access(filename.c_str(), F_OK | R_OK) != 0)
-	{
-		std::cout << "fichier inaccessible" << std::endl;
 		return (NULL);
-		// return (_buildError(403, servconf, location));
-		// je dois return null je pense
-	}
 
 	std::string extension;
 	size_t pos_ex = req.getPath().rfind(".");
@@ -320,10 +281,7 @@ char	*getPath(HttpRequest &req, const ServerConfig &servconf, const LocationConf
 	}
 	if (pathstr.empty())
 		return (NULL);
-	// std::cout << pathstr << std::endl;
 	path = fillEnv(pathstr);
-
-	// std::cout << "the final path " << path << std::endl;
 	return (path);
 }
 
