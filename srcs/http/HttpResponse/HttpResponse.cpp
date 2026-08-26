@@ -122,7 +122,7 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 		return ;
 	}
 	char **argv = getArgv(req_path, path);
-	char **env = getEnv(req, req_path, index_path);
+	char **env = getEnv(req, index_path,req_path);
 	if (!env || !env[0])
 	{
 		_buildErrorResponse(500, servConf, location);
@@ -247,8 +247,7 @@ char	**getEnv(HttpRequest &req, std::string &index_path, std::string &req_path)
 
 char	*getPath(std::string &index_path, const LocationConfig *location) 
 {
-	if (access(index_path.c_str(), F_OK | R_OK) != 0)
-		return (NULL);
+
 
 	std::string extension;
 	size_t pos_ex = index_path.rfind(".");

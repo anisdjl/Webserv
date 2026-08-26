@@ -17,69 +17,11 @@ bool	HttpResponse::_buildGetResponse(HttpRequest& req,const ServerConfig &servCo
 	if (this->_isDone)
     	return false;
 	std::string	root;
-	if (location && !location->getRoot().empty())
-		root = location->getRoot();
-	else
-		root = servConf.getRoot();
-	if (root.empty())
-		return (_buildErrorResponse(500, servConf, location), false);
-	std::string req_path = root + req.getPath();
-	req_path = _clearPathGarbage(req_path);
-	/* chemin ou dossier vide ? */
-	struct stat s;
-	const char *path = req_path.c_str();
-	std::string 				html_index;
-	
-	if (stat(path, &s) == 0 && S_ISDIR(s.st_mode))
-	{
-		/* cas 301 */
-		if (req_path.empty() || req.getPath()[req.getPath().size() - 1] != '/')
-			return (_buildRedirResponse(req.getPath() + '/'), false);
+	std::string req_path;
+	std::string index_path;
 
-		std::vector<std::string>	index_vector;
-
-		if (location && !location->getIndex().empty())
-			index_vector = location->getIndex();
-		else if (!servConf.getIndex().empty())
-			index_vector = servConf.getIndex();
-		else
-			index_vector.push_back("index.html");
-		if (req_path[req_path.size() - 1] != '/')
-        	req_path += "/";
-		for (std::vector<std::string>::const_iterator it = index_vector.begin();
-			it !=  index_vector.end(); ++it)
-		{
-			if (access((req_path + *it).c_str(), F_OK) == 0)
-			{
-				if (access((req_path + *it).c_str(), R_OK) != 0)
-					return (_buildErrorResponse(403, servConf, location), false);
-				html_index = *it;
-				break;
-			}
-		}
-		bool auto_index;
-		if (location && location->getAutoindexDefine())
-			auto_index = location->getAutoindex();
-		else if (servConf.getAutoindexDefine())
-			auto_index = servConf.getAutoindex();
-		else
-			auto_index = false;
-		if (!html_index.empty())
-		{
-			req_path = _clearPathGarbage(req_path);
-			req_path += html_index;
-		}
-		else if (auto_index)
-            return (_buildAutoIndexResponse(req_path, req, servConf, location), false);
-		else
-			return (_buildErrorResponse(403, servConf, location), false);
-	}
-	if (access(req_path.c_str(), F_OK) == -1)
-		return (_buildErrorResponse(404, servConf, location), false);	
-	if (access(req_path.c_str(), R_OK) == -1)
-		return (_buildErrorResponse(403, servConf, location), false);
-
-	std::string index_path = req.getPath() + html_index;
+	if (!_BuildPath(req, req_path,root, index_path, servConf, location))
+		return (false);
 	if (_isCgiRequest(index_path, location) && !this->_isDone)
 	{
 		// std::cout << "j'ai passe les tests" << std::endl;

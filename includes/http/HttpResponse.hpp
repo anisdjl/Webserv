@@ -64,7 +64,8 @@ class HttpResponse
         bool								_buildPostResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location, const int  &epollfd, std::map<int, Socket *> &map_socket, Connection &target);
         void								_buildDeleteResponse(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location);
 		bool								_cgiStartChecker(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
-
+		bool 								_BuildPath(HttpRequest &req, std::string &req_path, std::string	&root, std::string &index_path,const ServerConfig &servConf, const LocationConfig *location);
+		
 		std::string							_clearPathGarbage(std::string &path);
 		std::string                         _buildStringResponse();
 

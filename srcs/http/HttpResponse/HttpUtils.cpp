@@ -3,7 +3,7 @@
 std::string	HttpResponse::_extensionFinder(HttpRequest &req)
 {
 	std:: string type = req.getHeader("Content-Type");
-	
+
 	if (type == "text/html")
 		return (".html");
 	else if (type == "text/css")
@@ -41,7 +41,7 @@ std::string	HttpResponse::_findContentType(std::string path)
 	if (pos == std::string::npos || pos == 0)
 		return ("application/octet-stream");
 	std::string	extension = path.substr(pos + 1);
-	
+
 	if (extension == "html")
 		return ("text/html");
 	else if (extension == "css")
@@ -111,3 +111,5 @@ bool HttpResponse::_isCgiRequest(std::string path, const LocationConfig *locatio
 	}
 	return (false);
 }
+
+
