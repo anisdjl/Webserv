@@ -4,12 +4,15 @@ bool	HttpResponse::_buildPostResponse(HttpRequest& req, const ServerConfig &serv
 {
 	if (this->_isDone) // invalid read size
     	return false;
-	if (_isCgiRequest(req.getPath(), location) && !this->_isDone)
-	{
-		// std::cout << "j'ai passe les tests" << std::endl;
-		_cgiBuild(req, servConf, location, epollfd, target, map_socket);
-		return (true);
-	}
+	(void)map_socket;
+	(void)target;
+	(void)epollfd;
+	// if (_isCgiRequest(req.getPath(), location) && !this->_isDone)
+	// {
+	// 	// std::cout << "j'ai passe les tests" << std::endl;
+	// 	_cgiBuild(req, servConf, location, epollfd, target, map_socket);
+	// 	return (true);
+	// }
 	std::string upload_path;
 	if (location && !location->getUploadStore().empty())
 		upload_path = location->getUploadStore();

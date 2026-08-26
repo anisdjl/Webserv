@@ -68,14 +68,14 @@ class HttpResponse
 		std::string							_clearPathGarbage(std::string &path);
 		std::string                         _buildStringResponse();
 
-        void								_cgiBuild(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location, const int &epollfd, Connection &target, std::map<int, Socket *> &map_socket);
+        void								_cgiBuild(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location, const int &epollfd, Connection &target, std::map<int, Socket *> &map_socket, std::string &req_path, std::string &index_path );
         void                                _buildCookie(HttpRequest& req, ServerConfig &servConf, LocationConfig *location);
 };
 
 
-char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location, std::string &req_path);
-char	*getPath(HttpRequest &req, const ServerConfig &servconf,const  LocationConfig *location);
-char	**getArgv(HttpRequest &req, const ServerConfig &servconf,const  LocationConfig *location, char *path);
+char	**getEnv(HttpRequest &req, std::string &index_path, std::string &req_path);
+char	*getPath(std::string &index_path, const LocationConfig *location);
+char	**getArgv(std::string &req_path, char *path);
 
 /*
     les fonctions necessaire devant traité:

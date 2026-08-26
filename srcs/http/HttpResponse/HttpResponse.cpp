@@ -92,16 +92,11 @@ static char	*fillEnv(std::string string)
 	return (env);
 }	
 
-void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location, const int &epollfd, Connection &target, std::map<int, Socket *> &map_socket)
+void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, const LocationConfig *location, const int &epollfd, Connection &target, std::map<int, Socket *> &map_socket, std::string &req_path, std::string &index_path )
 {
 	int pid;
 	int pipe_in[2];
 	int pipe_out[2];
-
-	std::string root = location->getRoot();
-	std::string req_path = root + req.getPath();
-	req_path = _clearPathGarbage(req_path);
-
 
 	if (access(req_path.c_str(), F_OK) != 0)
 	{
@@ -118,22 +113,22 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 
 	Cgi	*new_cgi = new Cgi;
 
-	char **env = getEnv(req, servConf, location, req_path);
-	char *path = getPath(req, servConf, location);
+
+	char *path = getPath( index_path, location);
 	if (!path)
 	{
 		_buildErrorResponse(403, servConf, location);
 		_response = _buildStringResponse();
 		return ;
 	}
-	char **argv = getArgv(req, servConf, location, path);
+	char **argv = getArgv(req_path, path);
+	char **env = getEnv(req, req_path, index_path);
 	if (!env || !env[0])
 	{
 		_buildErrorResponse(500, servConf, location);
 		_response = _buildStringResponse();
 		return ;
 	}
-
 	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
 		throw std::runtime_error("Error: couldn't open pipes"); }
 
@@ -210,10 +205,9 @@ void    HttpResponse::_cgiBuild(HttpRequest& req, const ServerConfig &servConf, 
 	this->_isDone = true;
 }
 
-char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location, std::string &req_path)
+char	**getEnv(HttpRequest &req, std::string &index_path, std::string &req_path)
 {
 	std::vector<std::string> env_var;
-	(void)servconf; (void)location;
 	env_var.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	env_var.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	env_var.push_back("SERVER_SOFTWARE=WeebServ/1.0");
@@ -221,7 +215,7 @@ char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConf
 	env_var.push_back("REQUEST_METHOD=" + capitalize(req.getMethod()));
 	env_var.push_back("PATH_INFO=" + req.getPath());
 	env_var.push_back("PATH_TRANSLATED=" + req_path);
-	env_var.push_back("SCRIPT_NAME=" + req.getPath());
+	env_var.push_back("SCRIPT_NAME=" + index_path);
 	env_var.push_back("SCRIPT_FILENAME=" + req_path);
 	std::map<std::string, std::string>::const_iterator it = req.getHeader().find("cookie");
 	if (it != (req.getHeader().end()))
@@ -230,7 +224,7 @@ char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConf
 
 	if (!req.getQueryString().empty())
 		env_var.push_back("QUERY_STRING=" + req.getQueryString());
-    else
+	else
 		env_var.push_back("QUERY_STRING=");
 
 	if (req.getBody().size() > 0)
@@ -251,23 +245,17 @@ char	**getEnv(HttpRequest &req, const ServerConfig &servconf, const LocationConf
 }
 
 
-char	*getPath(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location) // ici je vais aussi recevoir la map des sockets, le epollfd, et un objet cgi pour pouvoir les neregistrer
+char	*getPath(std::string &index_path, const LocationConfig *location) 
 {
-	(void)servconf;
-	std::string filename = location->getRoot() + req.getPath();
-	
-	// std::cout << "je suis dans getpath" << std::endl;
-	if (access(filename.c_str(), F_OK | R_OK) != 0)
+	if (access(index_path.c_str(), F_OK | R_OK) != 0)
 		return (NULL);
 
 	std::string extension;
-	size_t pos_ex = req.getPath().rfind(".");
+	size_t pos_ex = index_path.rfind(".");
 	if (pos_ex != std::string::npos)
-		extension = req.getPath().substr(pos_ex);
+		extension = index_path.substr(pos_ex);
 	else
-		throw std::out_of_range("Error: no extension found for the cgi"); // pas sur de faire ca sinon ca va couper le server je pense qu'on renverra une erreur correcte
-
-	// std::cout << "extension " << extension << std::endl;
+		throw std::out_of_range("Error: no extension found for the cgi"); 
 	char	*path;
 	std::string pathstr;
 
@@ -285,22 +273,12 @@ char	*getPath(HttpRequest &req, const ServerConfig &servconf, const LocationConf
 	return (path);
 }
 
-char	**getArgv(HttpRequest &req, const ServerConfig &servconf, const LocationConfig *location, char *path)
+char	**getArgv(std::string &req_path, char *path)
 {
 	char **argv = new char*[3];
-	(void)servconf; (void)req;
-	
-	std::string pathstr = path;
 
-	size_t	pos = pathstr.find_last_of("/");
-
-	if (pos != std::string::npos)
-		argv[0] = fillEnv(pathstr.substr(pos + 1));
-	else
-		throw std::out_of_range("Error: no extension found for the cgi");
-
-	std::string	fullPath = location->getRoot() + req.getPath();
-	argv[1] = fillEnv(fullPath);
+	argv[0] = fillEnv(path);
+	argv[1] = fillEnv(req_path);
 	argv[2] = NULL;
 	
 	return (argv);

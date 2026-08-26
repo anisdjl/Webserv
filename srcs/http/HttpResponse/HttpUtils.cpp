@@ -98,7 +98,7 @@ std::string	HttpResponse::_clearPathGarbage(std::string &path)
 
 bool HttpResponse::_isCgiRequest(std::string path, const LocationConfig *location) const
 {
-	size_t	pos = path.find('.');
+	size_t	pos = path.rfind('.');
 	if (pos == std::string::npos || pos == 0)
 		return (false);
 	std::string extension = path.substr(pos);

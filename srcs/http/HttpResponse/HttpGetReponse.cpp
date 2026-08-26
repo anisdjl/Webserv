@@ -28,13 +28,14 @@ bool	HttpResponse::_buildGetResponse(HttpRequest& req,const ServerConfig &servCo
 	/* chemin ou dossier vide ? */
 	struct stat s;
 	const char *path = req_path.c_str();
-
+	std::string 				html_index;
+	
 	if (stat(path, &s) == 0 && S_ISDIR(s.st_mode))
 	{
 		/* cas 301 */
 		if (req_path.empty() || req.getPath()[req.getPath().size() - 1] != '/')
 			return (_buildRedirResponse(req.getPath() + '/'), false);
-		std::string 				html_index;
+
 		std::vector<std::string>	index_vector;
 
 		if (location && !location->getIndex().empty())
@@ -78,10 +79,11 @@ bool	HttpResponse::_buildGetResponse(HttpRequest& req,const ServerConfig &servCo
 	if (access(req_path.c_str(), R_OK) == -1)
 		return (_buildErrorResponse(403, servConf, location), false);
 
-	if (_isCgiRequest(req.getPath(), location) && !this->_isDone)
+	std::string index_path = req.getPath() + html_index;
+	if (_isCgiRequest(index_path, location) && !this->_isDone)
 	{
 		// std::cout << "j'ai passe les tests" << std::endl;
-		_cgiBuild(req, servConf, location, epollfd, target, map_socket);
+		_cgiBuild(req, servConf, location, epollfd, target, map_socket, req_path, index_path);
 		return (true);
 	}
 	else if (!this->_isDone)
