@@ -167,18 +167,18 @@ void	checkContentTypeScript(Connection &client)
 		pos = body.find("\n\n");
 		size = 2;
 	}
-	
+	bool	foundContentType = false;
 	if (pos == std::string::npos)
 	{
 		contentType = "text/html";
 		client.getHttpResponse().setBody(body);
+		foundContentType = true;
 	}
 	else
 	{
 		headers = body.substr(0, pos);
 		client.getHttpResponse().setBody(body.substr(pos + size));
 	}
-	bool	foundContentType = false;
 	std::stringstream	ss(headers);
 	std::string	line;
 	while(getline(ss, line))
@@ -195,7 +195,7 @@ void	checkContentTypeScript(Connection &client)
 			size_t first_char = value.find_first_not_of(" \t");
 			if (first_char != std::string::npos)
 				value = value.substr(first_char);
-			if (key == "content-type" || key == "Content-Type")
+			if (key == "content-type")
 			{
 				contentType = value;
 				foundContentType = true;
