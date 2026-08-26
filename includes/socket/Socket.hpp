@@ -30,34 +30,19 @@ class Socket
 		int         	_fd;
     	int         	_server_index;
     	Socket_type 	_type;
-		std::time_t		_start;
 
-		Socket() : _fd(-1), _server_index(-1), _type(LISTENER), _start(-1) { this->setStartTime();};
+		Socket() : _fd(-1), _server_index(-1), _type(LISTENER) {};
 		Socket(int fd, int server_index, Socket_type type)
-		: _fd(fd), _server_index(server_index), _type(type)  ,_start(-1)
-		{this->setStartTime();};
+		: _fd(fd), _server_index(server_index), _type(type)  
+		{};
 		Socket(const Socket& src)
-		: _fd(src._fd), _server_index(src._server_index), _type(src._type), _start(src._start)
+		: _fd(src._fd), _server_index(src._server_index), _type(src._type)
 		{};
 
 	public :
 
 
 		virtual ~Socket(){};
-		void setStartTime(std::time_t start)
-		{
-			if (this->_type != LISTENER)
-				this->_start = start;
-		};
-		void setStartTime()
-		{
-			if (this->_type != LISTENER)
-				this->_start = std::time(NULL);
-		};
-		time_t getStartTime() const
-		{
-			return (this->_start);
-		};
 		int &getFd()
 		{
 			return (this->_fd);

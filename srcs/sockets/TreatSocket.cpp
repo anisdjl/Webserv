@@ -31,7 +31,6 @@ bool ft_parse_request(std::map<int, Socket *> &map_socket, Connection &target, C
 				return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
 		}
 	}
-	target.setStartTime();
 	return (false);
 }
 
@@ -59,7 +58,6 @@ bool ft_send_request(std::map<int, Socket *> &map_socket, Connection &target, co
 		if (epoll_ctl(epollfd, EPOLL_CTL_MOD, target.getFd(), &temp) == -1)
 			return (ft_close_socket(map_socket, target.getFd(), epollfd), false);
 	}
-	target.setStartTime();
 	return (false);
 }
 
