@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anis <anis@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ymoumene <ymoumene@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/01 17:39:24 by ymoumene          #+#    #+#             */
-/*   Updated: 2026/08/21 15:57:27 by anis             ###   ########.fr       */
+/*   Updated: 2026/08/26 15:42:55 by ymoumene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Socket
 		int         	_fd;
     	int         	_server_index;
     	Socket_type 	_type;
+		
 
 		Socket() : _fd(-1), _server_index(-1), _type(LISTENER) {};
 		Socket(int fd, int server_index, Socket_type type)

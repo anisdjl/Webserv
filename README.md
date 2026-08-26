@@ -143,7 +143,7 @@ curl -i -X POST -d "data" http://127.0.0.1:2500/invalid-store
 curl -i -X POST -H "Content-Length: abc" -d "data" http://127.0.0.1:2500/uploads
 curl -i -X POST -H "Content-Length: -42" -d "data" http://127.0.0.1:2500/uploads
 # Upload file
-curl -i -X POST -d "File content" http://127.0.0.1:2500/uploads
+curl -i -X POST -d "File content" http://127.0.0.1:2500/uploads/
 ```
 #### Get Test :
 
@@ -153,7 +153,6 @@ Invalid Get test
 curl -i http://127.0.0.1:2500/invalid-path
 # Get index
 curl -i http://127.0.0.1:2500/
-curl -i http://127.0.0.1:2500/htmlup
 ```
 
 #### Delete test
@@ -161,6 +160,17 @@ curl -i http://127.0.0.1:2500/htmlup
 # Delete file
 curl -i -X DELETE http://127.0.0.1:2500/uploads/file_name
 curl -i -X DELETE http://127.0.0.1:2500/uploads/invalid-file
+```
+
+## CGI test
+```shell
+# test python cgi
+curl -i http://127.0.0.1:2500/cgi-bin/python/script-get.py
+curl -i -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "msg=hello_python&status=ok" http://localhost:2500/cgi-bin/python/script-post.py
+curl -i -H 'Cookie: session_id=test123; visit_count=4' http://localhost:2500/cgi-bin/python/script-cookie.py
+```
+# test php cgi
+curl -i http://127.0.0.1:2500/cgi-bin/php/script-get.php
 ```
 
 The actual port and document root depend on the configuration file selected at startup.

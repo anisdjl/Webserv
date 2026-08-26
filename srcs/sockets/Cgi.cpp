@@ -54,14 +54,15 @@ static void	fillBody(Cgi &target, Connection &parent)
 bool	ft_cgi_in(std::map<int, Socket *> &map_socket, Cgi &target, Config *config)
 {
 	std::map<int, Socket *>::iterator it = map_socket.find(target.getParentIndex());
-	if (it == map_socket.end())
+	if (it == map_socket.end() || it->second == NULL)
 		return (true);
 	(void)config;
 
 	char buffer[BUFFER_SIZE + 1];
 	ssize_t bytes_read = 0;
+  
+	Connection &parent = static_cast<Connection &>(*(it->second));
 
-	Connection &parent = dynamic_cast<Connection &>(*(it->second));
 
 	std::memset(buffer, 0, BUFFER_SIZE + 1);
 	bytes_read = read(target.getPipeIn(), buffer, BUFFER_SIZE);
