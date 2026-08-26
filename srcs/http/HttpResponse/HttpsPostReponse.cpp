@@ -4,15 +4,19 @@ bool	HttpResponse::_buildPostResponse(HttpRequest& req, const ServerConfig &serv
 {
 	if (this->_isDone) // invalid read size
     	return false;
-	(void)map_socket;
-	(void)target;
-	(void)epollfd;
-	// if (_isCgiRequest(req.getPath(), location) && !this->_isDone)
-	// {
-	// 	// std::cout << "j'ai passe les tests" << std::endl;
-	// 	_cgiBuild(req, servConf, location, epollfd, target, map_socket);
-	// 	return (true);
-	// }
+
+	std::string	root;
+	std::string req_path;
+	std::string index_path;
+	
+	if (!_BuildPath(req, req_path,root, index_path, servConf, location))
+		return (false);
+	if (_isCgiRequest(req.getPath(), location) && !this->_isDone)
+	{
+		// std::cout << "j'ai passe les tests" << std::endl;
+		_cgiBuild(req, servConf, location, epollfd, target, map_socket, req_path, index_path);
+		return (true);
+	}
 	std::string upload_path;
 	if (location && !location->getUploadStore().empty())
 		upload_path = location->getUploadStore();
@@ -20,13 +24,6 @@ bool	HttpResponse::_buildPostResponse(HttpRequest& req, const ServerConfig &serv
 		upload_path = servConf.getUploadStore();
 	else
 		return (_buildErrorResponse(403, servConf, location), false);
-	std::string root;
-	if (location && !location->getRoot().empty())
-		root = location->getRoot();
-	else
-		root = servConf.getRoot();
-	if (root.empty())
-		return (_buildErrorResponse(500, servConf, location), false);
 
 	if (upload_path[0] != '/' && upload_path[0] != '.' && root[root.size() - 1] != '/')
 		upload_path = "/" + upload_path;

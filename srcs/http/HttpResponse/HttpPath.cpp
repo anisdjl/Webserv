@@ -64,15 +64,18 @@ bool HttpResponse::_BuildPath(HttpRequest &req, std::string &req_path, std::stri
 			req_path = _clearPathGarbage(req_path);
 			req_path += html_index;
 		}
-		else if (auto_index)
-            return (_buildAutoIndexResponse(req_path, req, servConf, location), false);
-		else
-			return (_buildErrorResponse(403, servConf, location), false);
+		else if (req.getMethod() == "GET")
+		{
+			if (auto_index)
+           		return (_buildAutoIndexResponse(req_path, req, servConf, location), false);
+			else
+				return (_buildErrorResponse(403, servConf, location), false);
+		}
 	}
 	if (access(req_path.c_str(), F_OK) == -1)
 		return (_buildErrorResponse(404, servConf, location), false);
 	if (access(req_path.c_str(), R_OK) == -1)
 		return (_buildErrorResponse(403, servConf, location), false);
 	index_path = req.getPath() + html_index;
-	return (false);
+	return (true);
 }
